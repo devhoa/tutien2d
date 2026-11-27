@@ -1,340 +1,356 @@
 {
- "_note": "Cộng đồng ngoài game. zalo (chủ dự án xin 28/10/2026): nút cạnh nút quay clip mở bảng có link nhóm Zalo để mọi người vào thảo luận; quà tham gia 1 viên ngọc cấp gem_level, người chơi chọn loại, mỗi bản lưu nhận một lần (save.quaZalo). Zalo không cho hỏi ai đã vào nhóm, nên bấm mở link là nhận. on: false thì ẩn nút. Code ở src/ui/zalo.js. feedback (chủ dự án xin 29/10/2026): hai nút Báo lỗi, Đề xuất cạnh nút Zalo; gửi tên + ảnh chứng minh (tự chụp màn game, đổi được ảnh trong máy) + mô tả thêm, máy tự gắn bối cảnh; lưu ở máy chủ (migration 20261029030000_p2d_gop_y), Claude duyệt mỗi giờ. Code ở src/ui/feedback-panel.js, src/ui/feedback-shot.js, src/net/feedback.js.",
- "zalo": {
-  "on": true,
-  "url": "https://zalo.me/g/d5qjmhtxtfygjsvv40xg",
-  "gem_level": 5,
-  "text": {
-   "btn": "Zalo",
-   "label": "Nhóm Zalo",
-   "title": "Nhóm Zalo",
-   "info": "Vào nhóm Zalo của game để trò chuyện cùng đạo hữu, hỏi đáp, góp ý và báo lỗi.",
-   "gift": "Quà tham gia: 1 viên ngọc cấp {lv}",
-   "gift_how": "Mỗi tài khoản nhận một lần. Chọn loại ngọc rồi bấm vào nhóm, ngọc vào túi ngay.",
-   "pick": "Chọn loại ngọc:",
-   "go": "Vào nhóm Zalo và nhận ngọc",
-   "go_done": "Vào nhóm Zalo",
-   "got": "Nhận {gem}! Hẹn gặp bạn trong nhóm Zalo.",
-   "done": "Bạn đã nhận quà tham gia rồi.",
-   "close": "Đóng"
-  }
- },
- "tiktok": {
-  "_note": "Kênh TikTok của game (chủ dự án gửi 10/11/2026 02:39): nút TikTok trên màn hình bên phải nút Thư (data/menu.json → hud, src/ui/hud-order.js), chạm là mở kênh. Không tặng quà (CH Play: tránh kiểu theo dõi để nhận quà). on: false thì ẩn.",
-  "on": true,
-  "url": "https://www.tiktok.com/@pixel2dtutien",
-  "label": "TikTok"
- },
- "feedback": {
-  "qtv": {"_note": "Điểm quản trị viên trong Hệ Thống, mục Góp ý (src/ui/he-thong-gop.js qtvCard). cap: mốc tổng điểm lên cấp 1..5 (như data/social.json rank.qtv.rule). Quyền mở theo cấp: chủ dự án chốt sau.", "cap": [20, 60, 150, 300, 600], "title": "Người xây game · Cấp {cap}", "pts": "{tong} điểm QTV · còn đổi được {du}", "next": "Còn {n} điểm lên cấp {cap}", "max": "Đã đạt cấp cao nhất"},
-  "on": true,
-  "img": {
-   "max": 960,
-   "q": 0.72,
-   "thumb": 320,
-   "thumb_q": 0.55
+  "_note": "Cộng đồng ngoài game. zalo (chủ dự án xin 28/10/2026): nút cạnh nút quay clip mở bảng có link nhóm Zalo để mọi người vào thảo luận; quà tham gia 1 viên ngọc cấp gem_level, người chơi chọn loại, mỗi bản lưu nhận một lần (save.quaZalo). Zalo không cho hỏi ai đã vào nhóm, nên bấm mở link là nhận. on: false thì ẩn nút. Code ở src/ui/zalo.js. feedback (chủ dự án xin 29/10/2026): hai nút Báo lỗi, Đề xuất cạnh nút Zalo; gửi tên + ảnh chứng minh (tự chụp màn game, đổi được ảnh trong máy) + mô tả thêm, máy tự gắn bối cảnh; lưu ở máy chủ (migration 20261029030000_p2d_gop_y), Claude duyệt mỗi giờ. Code ở src/ui/feedback-panel.js, src/ui/feedback-shot.js, src/net/feedback.js.",
+  "zalo": {
+    "on": true,
+    "url": "https://zalo.me/g/6sujvfn6rfymt0o3sngx",
+    "gem_level": 5,
+    "text": {
+      "btn": "Zalo",
+      "label": "Nhóm Zalo",
+      "title": "Nhóm Zalo",
+      "info": "Vào nhóm Zalo của game để trò chuyện cùng đạo hữu, hỏi đáp, góp ý và báo lỗi.",
+      "gift": "Quà tham gia: 1 viên ngọc cấp {lv}",
+      "gift_how": "Mỗi tài khoản nhận một lần. Chọn loại ngọc rồi bấm vào nhóm, ngọc vào túi ngay.",
+      "pick": "Chọn loại ngọc:",
+      "go": "Vào nhóm Zalo và nhận ngọc",
+      "go_done": "Vào nhóm Zalo",
+      "got": "Nhận {gem}! Hẹn gặp bạn trong nhóm Zalo.",
+      "done": "Bạn đã nhận quà tham gia rồi.",
+      "close": "Đóng"
+    }
   },
-  "kinds": {
-   "loi": {
-    "btn": "🐞",
-    "label": "Báo lỗi",
-    "title": "Báo lỗi",
-    "name": "Tên lỗi",
-    "name_ph": "Ví dụ: Kẹt ở cổng Thiên Kiếm Phong",
-    "desc_ph": "Lỗi xảy ra lúc nào, làm gì thì bị (không bắt buộc)",
-    "info": "Kể ngắn lỗi bạn gặp kèm ảnh chứng minh. Đội làm game đọc mỗi giờ và sửa sớm nhất có thể."
-   },
-   "de_xuat": {
-    "btn": "💡",
-    "label": "Đề xuất",
-    "title": "Đề xuất",
-    "name": "Tên đề xuất",
-    "name_ph": "Ví dụ: Thêm nút bán nhanh đồ Phàm",
-    "desc_ph": "Bạn muốn game thêm hoặc đổi gì, vì sao (không bắt buộc)",
-    "info": "Góp ý tính năng mới hoặc chỗ nên sửa, kèm ảnh minh hoạ. Đề xuất hay sẽ được đưa vào game."
-   }
+  "tiktok": {
+    "_note": "Kênh TikTok của game (chủ dự án gửi 10/11/2026 02:39): nút TikTok trên màn hình bên phải nút Thư (data/menu.json → hud, src/ui/hud-order.js), chạm là mở kênh. Không tặng quà (CH Play: tránh kiểu theo dõi để nhận quà). on: false thì ẩn.",
+    "on": true,
+    "url": "https://www.tiktok.com/@pixel2dtutien",
+    "label": "TikTok"
   },
-  "text": {
-   "close": "Đóng",
-   "shot": "Ảnh chứng minh (đã tự chụp màn hình đang thấy)",
-   "shooting": "Đang chụp màn hình…",
-   "pick": "Chọn ảnh khác trong máy",
-   "need_img": "Cần một ảnh chứng minh.",
-   "need_name": "Tên cần từ 4 tới 80 chữ.",
-   "send": "Gửi",
-   "sending": "Đang gửi...",
-   "sent": "Đã gửi, cảm ơn đạo hữu! Xem trạng thái ở danh sách bên dưới.",
-   "login": "Đăng nhập tài khoản để gửi (chơi thử chưa gửi được).",
-   "mine": "Bạn đã gửi",
-   "none": "Chưa gửi gì.",
-   "bad_img": "Không đọc được ảnh này, chọn ảnh khác nhé.",
-   "errors": {
-    "gui_nhanh_qua": "Gửi nhanh quá, chờ vài phút rồi gửi tiếp nhé.",
-    "het_luot_hom_nay": "Hôm nay bạn đã gửi đủ 15 lần, mai gửi tiếp nhé.",
-    "tieu_de_sai": "Tên cần từ 4 tới 80 chữ.",
-    "mo_ta_dai": "Mô tả tối đa 500 chữ.",
-    "anh_sai": "Ảnh lỗi hoặc quá lớn, chọn ảnh khác nhé.",
-    "chua_dang_nhap": "Đăng nhập tài khoản để gửi.",
-    "net": "Chưa gửi được (mạng yếu?), thử lại sau nhé."
-   },
-   "status": {
-    "moi": "Đã nhận",
-    "dang_xem": "Đang xem",
-    "da_sua": "Đã sửa",
-    "se_lam": "Đang xếp hàng",
-    "chua_sua_duoc": "Chưa sửa được",
-    "khong_lam": "Không làm",
-    "trung": "Trùng khớp đề xuất"
-   }
+  "feedback": {
+    "qtv": {
+      "_note": "Điểm quản trị viên trong Hệ Thống, mục Góp ý (src/ui/he-thong-gop.js qtvCard). cap: mốc tổng điểm lên cấp 1..5 (như data/social.json rank.qtv.rule). Quyền mở theo cấp: chủ dự án chốt sau.",
+      "cap": [
+        20,
+        60,
+        150,
+        300,
+        600
+      ],
+      "title": "Người xây game · Cấp {cap}",
+      "pts": "{tong} điểm QTV · còn đổi được {du}",
+      "next": "Còn {n} điểm lên cấp {cap}",
+      "max": "Đã đạt cấp cao nhất"
+    },
+    "on": true,
+    "img": {
+      "max": 960,
+      "q": 0.72,
+      "thumb": 320,
+      "thumb_q": 0.55
+    },
+    "kinds": {
+      "loi": {
+        "btn": "🐞",
+        "label": "Báo lỗi",
+        "title": "Báo lỗi",
+        "name": "Tên lỗi",
+        "name_ph": "Ví dụ: Kẹt ở cổng Thiên Kiếm Phong",
+        "desc_ph": "Lỗi xảy ra lúc nào, làm gì thì bị (không bắt buộc)",
+        "info": "Kể ngắn lỗi bạn gặp kèm ảnh chứng minh. Đội làm game đọc mỗi giờ và sửa sớm nhất có thể."
+      },
+      "de_xuat": {
+        "btn": "💡",
+        "label": "Đề xuất",
+        "title": "Đề xuất",
+        "name": "Tên đề xuất",
+        "name_ph": "Ví dụ: Thêm nút bán nhanh đồ Phàm",
+        "desc_ph": "Bạn muốn game thêm hoặc đổi gì, vì sao (không bắt buộc)",
+        "info": "Góp ý tính năng mới hoặc chỗ nên sửa, kèm ảnh minh hoạ. Đề xuất hay sẽ được đưa vào game."
+      }
+    },
+    "text": {
+      "close": "Đóng",
+      "shot": "Ảnh chứng minh (đã tự chụp màn hình đang thấy)",
+      "shooting": "Đang chụp màn hình…",
+      "pick": "Chọn ảnh khác trong máy",
+      "need_img": "Cần một ảnh chứng minh.",
+      "need_name": "Tên cần từ 4 tới 80 chữ.",
+      "send": "Gửi",
+      "sending": "Đang gửi...",
+      "sent": "Đã gửi, cảm ơn đạo hữu! Xem trạng thái ở danh sách bên dưới.",
+      "login": "Đăng nhập tài khoản để gửi (chơi thử chưa gửi được).",
+      "mine": "Bạn đã gửi",
+      "none": "Chưa gửi gì.",
+      "bad_img": "Không đọc được ảnh này, chọn ảnh khác nhé.",
+      "errors": {
+        "gui_nhanh_qua": "Gửi nhanh quá, chờ vài phút rồi gửi tiếp nhé.",
+        "het_luot_hom_nay": "Hôm nay bạn đã gửi đủ 15 lần, mai gửi tiếp nhé.",
+        "tieu_de_sai": "Tên cần từ 4 tới 80 chữ.",
+        "mo_ta_dai": "Mô tả tối đa 500 chữ.",
+        "anh_sai": "Ảnh lỗi hoặc quá lớn, chọn ảnh khác nhé.",
+        "chua_dang_nhap": "Đăng nhập tài khoản để gửi.",
+        "net": "Chưa gửi được (mạng yếu?), thử lại sau nhé."
+      },
+      "status": {
+        "moi": "Đã nhận",
+        "dang_xem": "Đang xem",
+        "da_sua": "Đã sửa",
+        "se_lam": "Đang xếp hàng",
+        "chua_sua_duoc": "Chưa sửa được",
+        "khong_lam": "Không làm",
+        "trung": "Trùng khớp đề xuất"
+      }
+    }
+  },
+  "cskh": {
+    "_note": "CSKH (chủ dự án 24/11/2026 23:37: bỏ Góp ý / Báo lỗi / Đề xuất, thay bằng nút CSKH dưới dòng mùa, có cả ở màn đăng nhập; Ý chính, Ý phụ, mô tả). src/ui/cskh.js. Gửi qua đường góp ý cũ (src/net/feedback.js, p2d_gop_y): loai = de_xuat khi nhóm có de_xuat, còn lại loi; tieu_de = 'Ý chính · Ý phụ'; ngu_canh.cskh = {c, p}. Mỗi ý phụ có lời tự xử lý (meo) hiện ngay khi chọn.",
+    "on": true,
+    "btn": "CSKH",
+    "title": "CSKH · Chăm sóc đạo hữu",
+    "chao": "Chào đạo hữu! Bạn đang gặp chuyện gì? Chọn một mục bên dưới, CSKH xem và trả lời trong mục Tin đã gửi.",
+    "groups": [
+      {
+        "id": "tk",
+        "icon": "🔑",
+        "label": "Tài khoản, đăng nhập",
+        "subs": [
+          {
+            "id": "khong-vao",
+            "label": "Không đăng nhập được",
+            "meo": "Kiểm tra lại tên tài khoản (không dấu, không cách) và mật khẩu. Mạng yếu thì tắt mở lại Wi-Fi / 4G rồi thử lại. Vẫn không được thì gửi cho CSKH kèm tên tài khoản."
+          },
+          {
+            "id": "quen-mk",
+            "label": "Quên mật khẩu",
+            "meo": "Ở màn đăng nhập bấm \"Quên mật khẩu?\" rồi nhập mã khôi phục (dạng XXXX-XXXX-XXXX-XXXX) đã lưu lúc tạo tài khoản. Mất cả mã thì gửi cho CSKH: tên tài khoản, tên nhân vật, cảnh giới, lần cuối chơi lúc nào."
+          },
+          {
+            "id": "mat-nv",
+            "label": "Vào game mất nhân vật / tiến độ",
+            "meo": "Thoát hẳn game rồi vào lại, đúng tài khoản cũ (chơi thử không lưu lên máy chủ). Vẫn mất thì gửi ngay cho CSKH, đừng chơi tiếp trên nhân vật mới để CSKH khôi phục được bản cũ."
+          },
+          {
+            "id": "bi-khoa",
+            "label": "Bị khoá, bị gắn cờ",
+            "meo": "Máy chủ tự gắn cờ khi số tăng quá nhanh (thường do lỗi, không phải hack). Gửi cho CSKH, đội làm game soát lại và gỡ nếu oan."
+          },
+          {
+            "id": "nhieu-may",
+            "label": "Đổi máy, chơi nhiều máy",
+            "meo": "Đăng nhập cùng tài khoản trên máy mới là xong, tiến độ nằm trên máy chủ. Một tài khoản chỉ vào một máy cùng lúc: máy vào sau đẩy máy trước ra."
+          }
+        ]
+      },
+      {
+        "id": "nap",
+        "icon": "💎",
+        "label": "Nạp, mã quà, thư",
+        "subs": [
+          {
+            "id": "nap-chua-nhan",
+            "label": "Nạp chưa nhận Tiên Ngọc",
+            "meo": "Tiên Ngọc thường tới trong vài phút, mở lại game để cập nhật. Quá 30 phút chưa có thì gửi cho CSKH kèm ảnh hoá đơn (thời gian, số tiền)."
+          },
+          {
+            "id": "ma-qua",
+            "label": "Mã quà không dùng được",
+            "meo": "Gõ đúng hoa thường, không thừa dấu cách. Mỗi mã mỗi người dùng một lần, có mã hết hạn hoặc hết lượt. Chắc chắn mã còn hạn thì gửi cho CSKH kèm mã."
+          },
+          {
+            "id": "thu",
+            "label": "Thư, quà không nhận được",
+            "meo": "Mở Thư, bấm Đọc hết; quà vào túi, túi đầy thì dọn túi rồi nhận lại. Thư vẫn không có thì gửi cho CSKH: quà gì, từ đâu, lúc nào."
+          },
+          {
+            "id": "mua-nham",
+            "label": "Mua nhầm, trừ tiền sai",
+            "meo": "Gửi cho CSKH: mua món gì, ở đâu, lúc nào, bị trừ bao nhiêu. Đội làm game soát sổ trên máy chủ."
+          }
+        ]
+      },
+      {
+        "id": "mat",
+        "icon": "🎒",
+        "label": "Mất đồ, mất Linh Thạch",
+        "subs": [
+          {
+            "id": "mat-do",
+            "label": "Mất trang bị, pháp bảo",
+            "meo": "Xem lại trong Túi đồ cả các mục Vũ khí, Pháp bảo (có thể đang mặc, hoặc món rẻ đã tự phân giải lúc túi đầy). Vẫn mất thì gửi CSKH tên món và lúc mất."
+          },
+          {
+            "id": "mat-thu",
+            "label": "Mất linh thú, thú cưỡi",
+            "meo": "Gửi cho CSKH: con gì, phẩm, sao, mất lúc đang làm gì (tẩy luyện, gộp, tiến hoá…)."
+          },
+          {
+            "id": "mat-lt",
+            "label": "Linh Thạch tụt lạ",
+            "meo": "Linh Thạch có thể bị trừ khi gục trong PvP / bị ma tu hạ (2%), mua bán, nâng cấp. Không rõ vì sao tụt thì gửi CSKH lúc tụt và số tụt."
+          },
+          {
+            "id": "chua-luu",
+            "label": "Băng đỏ \"Chưa lưu được\"",
+            "meo": "Đừng thoát game; giữ mạng ổn và chờ vài giây. Băng đỏ vẫn đứng yên thì chụp màn hình gửi CSKH ngay."
+          }
+        ]
+      },
+      {
+        "id": "loi",
+        "icon": "🐞",
+        "label": "Lỗi game",
+        "subs": [
+          {
+            "id": "man-hinh",
+            "label": "Màn hình đen, trắng, mất hình",
+            "meo": "Tắt hẳn game (vuốt khỏi đa nhiệm) rồi mở lại. Máy yếu thì bật Menu → Tiết kiệm pin. Vẫn bị thì gửi CSKH kèm tên máy."
+          },
+          {
+            "id": "lag",
+            "label": "Giật lag, nóng máy",
+            "meo": "Bật Menu → Tiết kiệm pin, đóng bớt ứng dụng chạy nền, giảm độ sáng. Gửi CSKH tên máy nếu vẫn lag."
+          },
+          {
+            "id": "ket",
+            "label": "Kẹt nhân vật, không đi được",
+            "meo": "Thử Lướt hoặc Bay để ra chỗ trống, hoặc mở Bản đồ bay về Thiên Kiếm Tinh. Gửi CSKH kèm ảnh chỗ bị kẹt."
+          },
+          {
+            "id": "nut",
+            "label": "Nút bấm không ăn, bấm lệch",
+            "meo": "Xoay máy dọc lại, tắt mở lại game. Gửi CSKH ảnh nút đó."
+          },
+          {
+            "id": "van",
+            "label": "Văng game, tải mãi không vào",
+            "meo": "Kiểm tra mạng, xoá bộ nhớ đệm trình duyệt hoặc mở bằng tab ẩn danh. Gửi CSKH lúc văng và đang làm gì."
+          }
+        ]
+      },
+      {
+        "id": "nv",
+        "icon": "📜",
+        "label": "Nhiệm vụ, truyện",
+        "subs": [
+          {
+            "id": "ket-nv",
+            "label": "Kẹt nhiệm vụ, không đếm",
+            "meo": "Chạm thẻ nhiệm vụ để Tự hành dẫn đường. Nhiệm vụ đánh quái chỉ đếm đúng tinh cầu ghi trên thẻ. Vẫn kẹt thì gửi CSKH số nhiệm vụ."
+          },
+          {
+            "id": "tu-hanh",
+            "label": "Tự hành, Tự đánh không chạy",
+            "meo": "Tắt rồi bật lại Tự hành; đóng hết bảng đang mở. Gửi CSKH nếu nhân vật đứng yên."
+          },
+          {
+            "id": "khong-bay",
+            "label": "Không bay tới tinh cầu",
+            "meo": "Mỗi tinh cầu mở theo cảnh giới (xem Bản đồ). Bách Luyện Tinh ai cũng tới được. Đủ cảnh giới mà không bay được thì gửi CSKH."
+          }
+        ]
+      },
+      {
+        "id": "pvp",
+        "icon": "⚔️",
+        "label": "Người chơi khác",
+        "subs": [
+          {
+            "id": "hack",
+            "label": "Nghi hack, gian lận",
+            "meo": "Gửi CSKH tên người đó, lúc thấy và ảnh / clip nếu có. Đội làm game soát trên máy chủ, không công khai người báo."
+          },
+          {
+            "id": "chui",
+            "label": "Chửi bậy, quấy rối",
+            "meo": "Chạm tin của họ trong khung chat → Chặn để không thấy nữa, rồi Báo cáo. Gửi thêm CSKH nếu nặng."
+          },
+          {
+            "id": "ma-tu",
+            "label": "Bị ma tu đánh mãi",
+            "meo": "Đứng trong vòng pháp trận Thiên Kiếm Tinh là an toàn; bật lại khiên ở tinh cầu thường. Ma tu ở Thiên Kiếm Tinh bị thiên phạt."
+          },
+          {
+            "id": "lua",
+            "label": "Bị lừa khi giao dịch",
+            "meo": "Gửi CSKH tên người đó, món gì, lúc nào, ảnh tin nhắn nếu có."
+          }
+        ]
+      },
+      {
+        "id": "dx",
+        "icon": "💡",
+        "label": "Góp ý, đề xuất",
+        "de_xuat": true,
+        "subs": [
+          {
+            "id": "tinh-nang",
+            "label": "Tính năng mới",
+            "meo": "Viết rõ muốn thêm gì và vì sao. Đề xuất hay được thưởng và đưa vào game."
+          },
+          {
+            "id": "can-bang",
+            "label": "Cân bằng sức mạnh",
+            "meo": "Viết món / quái / chiêu nào quá mạnh hay quá yếu, gặp ở đâu."
+          },
+          {
+            "id": "giao-dien",
+            "label": "Giao diện, hình ảnh",
+            "meo": "Chỗ nào khó nhìn, khó bấm; ảnh màn hình đã tự chụp kèm theo."
+          },
+          {
+            "id": "khac-dx",
+            "label": "Ý khác",
+            "meo": "Cứ viết, CSKH đọc hết."
+          }
+        ]
+      },
+      {
+        "id": "khac",
+        "icon": "💬",
+        "label": "Hỏi khác",
+        "subs": [
+          {
+            "id": "cach-choi",
+            "label": "Hỏi cách chơi",
+            "meo": "Hệ Thống → Hỏi đáp có sẵn câu trả lời cho phần lớn câu hỏi. Không thấy thì gửi CSKH."
+          },
+          {
+            "id": "khac",
+            "label": "Chuyện khác",
+            "meo": "Viết rõ chuyện của bạn, CSKH trả lời trong Tin đã gửi."
+          }
+        ]
+      }
+    ],
+    "text": {
+      "moi": "Nhắn mới",
+      "da_gui": "Tin đã gửi",
+      "chon_chinh": "Bạn gặp chuyện gì?",
+      "chon_phu": "Cụ thể là…",
+      "meo": "Thử cách này trước:",
+      "mo_ta": "Kể thêm cho CSKH (bắt buộc)",
+      "mo_ta_ph": "Chuyện xảy ra lúc nào, đang làm gì, bị sao…",
+      "anh": "Ảnh màn hình (đã tự chụp lúc mở CSKH)",
+      "doi_anh": "Chọn ảnh khác",
+      "chup": "Đang chụp màn hình…",
+      "gui": "Gửi cho CSKH",
+      "dang_gui": "Đang gửi…",
+      "can_mo_ta": "Kể thêm ít nhất 10 chữ để CSKH hiểu nhé.",
+      "da_nhan": "CSKH đã nhận! Lời trả lời sẽ hiện ở mục Tin đã gửi (và Hòm thư).",
+      "khach": "Bạn chưa đăng nhập: vẫn gửi được. Ghi tên tài khoản (nếu nhớ) và cách liên hệ để CSKH tìm và trả lời bạn.",
+      "tk": "Tên tài khoản (nếu nhớ)",
+      "tk_ph": "Tên tài khoản dùng để đăng nhập",
+      "lh": "Liên hệ lại bạn qua (không bắt buộc)",
+      "lh_ph": "Số điện thoại, Facebook, Zalo…",
+      "loi": {
+        "mo_ta_ngan": "Kể thêm ít nhất 10 chữ để CSKH hiểu nhé.",
+        "mo_ta_dai": "Mô tả tối đa 800 chữ."
+      },
+      "chua_gui": "Chưa gửi tin nào.",
+      "cskh": "CSKH",
+      "ban": "Bạn",
+      "doi": "Đang chờ CSKH xem…",
+      "doi_lai": "Chọn lại",
+      "thuong": "Báo đúng lỗi, đề xuất hay được thưởng ngọc và điểm QTV."
+    }
   }
- },
- "cskh": {
-  "_note": "CSKH (chủ dự án 24/11/2026 23:37: bỏ Góp ý / Báo lỗi / Đề xuất, thay bằng nút CSKH dưới dòng mùa, có cả ở màn đăng nhập; Ý chính, Ý phụ, mô tả). src/ui/cskh.js. Gửi qua đường góp ý cũ (src/net/feedback.js, p2d_gop_y): loai = de_xuat khi nhóm có de_xuat, còn lại loi; tieu_de = 'Ý chính · Ý phụ'; ngu_canh.cskh = {c, p}. Mỗi ý phụ có lời tự xử lý (meo) hiện ngay khi chọn.",
-  "on": true,
-  "btn": "CSKH",
-  "title": "CSKH · Chăm sóc đạo hữu",
-  "chao": "Chào đạo hữu! Bạn đang gặp chuyện gì? Chọn một mục bên dưới, CSKH xem và trả lời trong mục Tin đã gửi.",
-  "groups": [
-   {
-    "id": "tk",
-    "icon": "🔑",
-    "label": "Tài khoản, đăng nhập",
-    "subs": [
-     {
-      "id": "khong-vao",
-      "label": "Không đăng nhập được",
-      "meo": "Kiểm tra lại tên tài khoản (không dấu, không cách) và mật khẩu. Mạng yếu thì tắt mở lại Wi-Fi / 4G rồi thử lại. Vẫn không được thì gửi cho CSKH kèm tên tài khoản."
-     },
-     {
-      "id": "quen-mk",
-      "label": "Quên mật khẩu",
-      "meo": "Ở màn đăng nhập bấm \"Quên mật khẩu?\" rồi nhập mã khôi phục (dạng XXXX-XXXX-XXXX-XXXX) đã lưu lúc tạo tài khoản. Mất cả mã thì gửi cho CSKH: tên tài khoản, tên nhân vật, cảnh giới, lần cuối chơi lúc nào."
-     },
-     {
-      "id": "mat-nv",
-      "label": "Vào game mất nhân vật / tiến độ",
-      "meo": "Thoát hẳn game rồi vào lại, đúng tài khoản cũ (chơi thử không lưu lên máy chủ). Vẫn mất thì gửi ngay cho CSKH, đừng chơi tiếp trên nhân vật mới để CSKH khôi phục được bản cũ."
-     },
-     {
-      "id": "bi-khoa",
-      "label": "Bị khoá, bị gắn cờ",
-      "meo": "Máy chủ tự gắn cờ khi số tăng quá nhanh (thường do lỗi, không phải hack). Gửi cho CSKH, đội làm game soát lại và gỡ nếu oan."
-     },
-     {
-      "id": "nhieu-may",
-      "label": "Đổi máy, chơi nhiều máy",
-      "meo": "Đăng nhập cùng tài khoản trên máy mới là xong, tiến độ nằm trên máy chủ. Một tài khoản chỉ vào một máy cùng lúc: máy vào sau đẩy máy trước ra."
-     }
-    ]
-   },
-   {
-    "id": "nap",
-    "icon": "💎",
-    "label": "Nạp, mã quà, thư",
-    "subs": [
-     {
-      "id": "nap-chua-nhan",
-      "label": "Nạp chưa nhận Tiên Ngọc",
-      "meo": "Tiên Ngọc thường tới trong vài phút, mở lại game để cập nhật. Quá 30 phút chưa có thì gửi cho CSKH kèm ảnh hoá đơn (thời gian, số tiền)."
-     },
-     {
-      "id": "ma-qua",
-      "label": "Mã quà không dùng được",
-      "meo": "Gõ đúng hoa thường, không thừa dấu cách. Mỗi mã mỗi người dùng một lần, có mã hết hạn hoặc hết lượt. Chắc chắn mã còn hạn thì gửi cho CSKH kèm mã."
-     },
-     {
-      "id": "thu",
-      "label": "Thư, quà không nhận được",
-      "meo": "Mở Thư, bấm Đọc hết; quà vào túi, túi đầy thì dọn túi rồi nhận lại. Thư vẫn không có thì gửi cho CSKH: quà gì, từ đâu, lúc nào."
-     },
-     {
-      "id": "mua-nham",
-      "label": "Mua nhầm, trừ tiền sai",
-      "meo": "Gửi cho CSKH: mua món gì, ở đâu, lúc nào, bị trừ bao nhiêu. Đội làm game soát sổ trên máy chủ."
-     }
-    ]
-   },
-   {
-    "id": "mat",
-    "icon": "🎒",
-    "label": "Mất đồ, mất Linh Thạch",
-    "subs": [
-     {
-      "id": "mat-do",
-      "label": "Mất trang bị, pháp bảo",
-      "meo": "Xem lại trong Túi đồ cả các mục Vũ khí, Pháp bảo (có thể đang mặc, hoặc món rẻ đã tự phân giải lúc túi đầy). Vẫn mất thì gửi CSKH tên món và lúc mất."
-     },
-     {
-      "id": "mat-thu",
-      "label": "Mất linh thú, thú cưỡi",
-      "meo": "Gửi cho CSKH: con gì, phẩm, sao, mất lúc đang làm gì (tẩy luyện, gộp, tiến hoá…)."
-     },
-     {
-      "id": "mat-lt",
-      "label": "Linh Thạch tụt lạ",
-      "meo": "Linh Thạch có thể bị trừ khi gục trong PvP / bị ma tu hạ (2%), mua bán, nâng cấp. Không rõ vì sao tụt thì gửi CSKH lúc tụt và số tụt."
-     },
-     {
-      "id": "chua-luu",
-      "label": "Băng đỏ \"Chưa lưu được\"",
-      "meo": "Đừng thoát game; giữ mạng ổn và chờ vài giây. Băng đỏ vẫn đứng yên thì chụp màn hình gửi CSKH ngay."
-     }
-    ]
-   },
-   {
-    "id": "loi",
-    "icon": "🐞",
-    "label": "Lỗi game",
-    "subs": [
-     {
-      "id": "man-hinh",
-      "label": "Màn hình đen, trắng, mất hình",
-      "meo": "Tắt hẳn game (vuốt khỏi đa nhiệm) rồi mở lại. Máy yếu thì bật Menu → Tiết kiệm pin. Vẫn bị thì gửi CSKH kèm tên máy."
-     },
-     {
-      "id": "lag",
-      "label": "Giật lag, nóng máy",
-      "meo": "Bật Menu → Tiết kiệm pin, đóng bớt ứng dụng chạy nền, giảm độ sáng. Gửi CSKH tên máy nếu vẫn lag."
-     },
-     {
-      "id": "ket",
-      "label": "Kẹt nhân vật, không đi được",
-      "meo": "Thử Lướt hoặc Bay để ra chỗ trống, hoặc mở Bản đồ bay về Thiên Kiếm Tinh. Gửi CSKH kèm ảnh chỗ bị kẹt."
-     },
-     {
-      "id": "nut",
-      "label": "Nút bấm không ăn, bấm lệch",
-      "meo": "Xoay máy dọc lại, tắt mở lại game. Gửi CSKH ảnh nút đó."
-     },
-     {
-      "id": "van",
-      "label": "Văng game, tải mãi không vào",
-      "meo": "Kiểm tra mạng, xoá bộ nhớ đệm trình duyệt hoặc mở bằng tab ẩn danh. Gửi CSKH lúc văng và đang làm gì."
-     }
-    ]
-   },
-   {
-    "id": "nv",
-    "icon": "📜",
-    "label": "Nhiệm vụ, truyện",
-    "subs": [
-     {
-      "id": "ket-nv",
-      "label": "Kẹt nhiệm vụ, không đếm",
-      "meo": "Chạm thẻ nhiệm vụ để Tự hành dẫn đường. Nhiệm vụ đánh quái chỉ đếm đúng tinh cầu ghi trên thẻ. Vẫn kẹt thì gửi CSKH số nhiệm vụ."
-     },
-     {
-      "id": "tu-hanh",
-      "label": "Tự hành, Tự đánh không chạy",
-      "meo": "Tắt rồi bật lại Tự hành; đóng hết bảng đang mở. Gửi CSKH nếu nhân vật đứng yên."
-     },
-     {
-      "id": "khong-bay",
-      "label": "Không bay tới tinh cầu",
-      "meo": "Mỗi tinh cầu mở theo cảnh giới (xem Bản đồ). Bách Luyện Tinh ai cũng tới được. Đủ cảnh giới mà không bay được thì gửi CSKH."
-     }
-    ]
-   },
-   {
-    "id": "pvp",
-    "icon": "⚔️",
-    "label": "Người chơi khác",
-    "subs": [
-     {
-      "id": "hack",
-      "label": "Nghi hack, gian lận",
-      "meo": "Gửi CSKH tên người đó, lúc thấy và ảnh / clip nếu có. Đội làm game soát trên máy chủ, không công khai người báo."
-     },
-     {
-      "id": "chui",
-      "label": "Chửi bậy, quấy rối",
-      "meo": "Chạm tin của họ trong khung chat → Chặn để không thấy nữa, rồi Báo cáo. Gửi thêm CSKH nếu nặng."
-     },
-     {
-      "id": "ma-tu",
-      "label": "Bị ma tu đánh mãi",
-      "meo": "Đứng trong vòng pháp trận Thiên Kiếm Tinh là an toàn; bật lại khiên ở tinh cầu thường. Ma tu ở Thiên Kiếm Tinh bị thiên phạt."
-     },
-     {
-      "id": "lua",
-      "label": "Bị lừa khi giao dịch",
-      "meo": "Gửi CSKH tên người đó, món gì, lúc nào, ảnh tin nhắn nếu có."
-     }
-    ]
-   },
-   {
-    "id": "dx",
-    "icon": "💡",
-    "label": "Góp ý, đề xuất",
-    "de_xuat": true,
-    "subs": [
-     {
-      "id": "tinh-nang",
-      "label": "Tính năng mới",
-      "meo": "Viết rõ muốn thêm gì và vì sao. Đề xuất hay được thưởng và đưa vào game."
-     },
-     {
-      "id": "can-bang",
-      "label": "Cân bằng sức mạnh",
-      "meo": "Viết món / quái / chiêu nào quá mạnh hay quá yếu, gặp ở đâu."
-     },
-     {
-      "id": "giao-dien",
-      "label": "Giao diện, hình ảnh",
-      "meo": "Chỗ nào khó nhìn, khó bấm; ảnh màn hình đã tự chụp kèm theo."
-     },
-     {
-      "id": "khac-dx",
-      "label": "Ý khác",
-      "meo": "Cứ viết, CSKH đọc hết."
-     }
-    ]
-   },
-   {
-    "id": "khac",
-    "icon": "💬",
-    "label": "Hỏi khác",
-    "subs": [
-     {
-      "id": "cach-choi",
-      "label": "Hỏi cách chơi",
-      "meo": "Hệ Thống → Hỏi đáp có sẵn câu trả lời cho phần lớn câu hỏi. Không thấy thì gửi CSKH."
-     },
-     {
-      "id": "khac",
-      "label": "Chuyện khác",
-      "meo": "Viết rõ chuyện của bạn, CSKH trả lời trong Tin đã gửi."
-     }
-    ]
-   }
-  ],
-  "text": {
-   "moi": "Nhắn mới",
-   "da_gui": "Tin đã gửi",
-   "chon_chinh": "Bạn gặp chuyện gì?",
-   "chon_phu": "Cụ thể là…",
-   "meo": "Thử cách này trước:",
-   "mo_ta": "Kể thêm cho CSKH (bắt buộc)",
-   "mo_ta_ph": "Chuyện xảy ra lúc nào, đang làm gì, bị sao…",
-   "anh": "Ảnh màn hình (đã tự chụp lúc mở CSKH)",
-   "doi_anh": "Chọn ảnh khác",
-   "chup": "Đang chụp màn hình…",
-   "gui": "Gửi cho CSKH",
-   "dang_gui": "Đang gửi…",
-   "can_mo_ta": "Kể thêm ít nhất 10 chữ để CSKH hiểu nhé.",
-   "da_nhan": "CSKH đã nhận! Lời trả lời sẽ hiện ở mục Tin đã gửi (và Hòm thư).",
-   "khach": "Bạn chưa đăng nhập: vẫn gửi được. Ghi tên tài khoản (nếu nhớ) và cách liên hệ để CSKH tìm và trả lời bạn.",
-   "tk": "Tên tài khoản (nếu nhớ)",
-   "tk_ph": "Tên tài khoản dùng để đăng nhập",
-   "lh": "Liên hệ lại bạn qua (không bắt buộc)",
-   "lh_ph": "Số điện thoại, Facebook, Zalo…",
-   "loi": {"mo_ta_ngan": "Kể thêm ít nhất 10 chữ để CSKH hiểu nhé.", "mo_ta_dai": "Mô tả tối đa 800 chữ."},
-   "chua_gui": "Chưa gửi tin nào.",
-   "cskh": "CSKH",
-   "ban": "Bạn",
-   "doi": "Đang chờ CSKH xem…",
-   "doi_lai": "Chọn lại",
-   "thuong": "Báo đúng lỗi, đề xuất hay được thưởng ngọc và điểm QTV."
-  }
- }
 }
