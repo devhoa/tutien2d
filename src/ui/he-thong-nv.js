@@ -72,8 +72,23 @@ export function renderTasks(game, body, api) {
   // Nhận thưởng: đẩy bản lưu lên máy chủ trước (máy chủ xét theo bản đã lưu; vừa xong việc mà chưa kịp lưu thì báo "chưa xong",
   // chơi thử 12/11/2026: bấm Nhận 5 lần vẫn không nhận được); máy chủ vẫn báo chưa xong thì đợi lưu xong rồi thử lại một lần
   const sync = async () => { game.persist?.(); for (let i = 0; i < 3; i++) { await game.cloud?.flush?.(); await new Promise(r => setTimeout(r, 300)); } };
-  const claim = async fn => { await sync(); try { return await fn(); } catch (e) { if (!String(e?.message || '').includes('chua_xong')) throw e; await new Promise(r => setTimeout(r, 1500)); await sync(); return fn(); } };
-  const err = e => { const s = String(e?.message || ''); game.htFace?.react('loi'); game.toast(s.includes('chua_xong') ? X.todo : X.summon_err, 2); };
+  const rateLimited = e => String(e?.message || '').includes('qua_nhanh') || (e?.code === 'P0001' && String(e?.hint || '').includes('1 giây'));
+  const retryRateLimit = async fn => {
+    try { return await fn(); }
+    catch (e) { if (!rateLimited(e)) throw e; await new Promise(r => setTimeout(r, 1100)); return fn(); }
+  };
+  const claim = async fn => {
+    await sync(); let waited = false, saved = false;
+    for (;;) {
+      try { return await retryRateLimit(fn); }
+      catch (e) {
+        if (!saved && String(e?.message || '').includes('chua_xong')) { saved = true; await new Promise(r => setTimeout(r, 1500)); await sync(); continue; }
+        if (!waited && rateLimited(e)) { waited = true; await new Promise(r => setTimeout(r, 1100)); continue; }
+        throw e;
+      }
+    }
+  };
+  const err = e => { const s = String(e?.message || ''); game.htFace?.react('loi'); game.toast(s.includes('chua_xong') ? X.todo : rateLimited(e) ? 'Bổn hệ thống cần nghỉ một nhịp. Đợi 1 giây rồi nhận lại.' : X.summon_err, 2); };
   // thứ tự (chủ dự án 12/11/2026 10:44): chờ nhận thưởng trên đầu, chưa làm giữa, đã nhận cuối (sort giữ thứ tự gốc trong mỗi nhóm)
   const rank = d => (d.got ? 2 : d.ok ? 0 : 1);
   const list = missionList(game, ht.xong).sort((x, y) => rank(x) - rank(y));
@@ -157,7 +172,7 @@ function nhanHet(game, b, mis, ngay, day, o) {
     b.disabled = true;
     const N = await import('../net/he-thong.js'), acc = { diem: ht.diem, xong: ht.xong, ngay_xong: ht.ngay_xong }, got = new Set(day.filter(d => d.got).map(d => d.id));
     let pts = 0, ok = 0, loi = null, dau = true;
-    const goi = fn => { if (!dau) return fn(); dau = false; return claim(fn); };   // đẩy bản lưu lên máy chủ một lần ở việc đầu, các việc sau gọi thẳng
+    const goi = fn => { if (!dau) return retryRateLimit(fn); dau = false; return claim(fn); };   // đẩy bản lưu lên máy chủ một lần ở việc đầu, thử lại nếu chạm giới hạn 1 giây
     for (const m of mis) {
       try { const r = await goi(() => N.htClaim(m.id)); if (r) { acc.diem = r.diem; acc.xong = r.xong ?? acc.xong; pts += r.them || 0; ok++; } } catch (e) { loi = e; }
     }
