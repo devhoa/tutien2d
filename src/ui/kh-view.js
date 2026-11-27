@@ -1,0 +1,92 @@
+// Tab "Tinh cầu" của bảng Tông môn (data/khai-hoang.json, src/game/khai-hoang.js): tinh cầu của tông môn, kho Mảnh Vỡ và Linh Thạch,
+// góp vào kho (mọi chức), mở trận Khai Tinh / nâng cấp (chỉ tông chủ, chọn tên và mặt đất khi khai), vào trận đang mở (đồng môn), người góp nhiều.
+import { guildState } from '../game/guild.js';
+import { coins } from '../game/shop.js';
+import { khState, khErr, khGive, khOpen, khEnter, khQuit, myShards } from '../game/khai-hoang.js';
+import { nutTong } from '../game/tran-sang.js';   // tới tinh cầu tông môn bằng pháp trận, không bay (23/11/2026)
+import { khChallenge } from '../game/kh-act.js';
+import { renderKhMore } from './kh-view2.js';
+import { inKhTeam, khTeamJoin, khTeamLeave } from '../game/kh-doi.js';
+
+const fmt = n => Number(n || 0).toLocaleString('vi-VN');
+const fill = (s, o) => Object.entries(o).reduce((t, [k, v]) => t.split(`{${k}}`).join(v), s);
+const pick = { name: '', ground: '' };   // chữ đang gõ, mặt đất đang chọn (giữ khi vẽ lại)
+
+export function renderKh(ctx, redraw) {
+  const { game, list, el, mini, card } = ctx, K = game.data['khai-hoang'], T = K.text, m = guildState(game).mine, km = khState(game).mine;
+  if (!m) { list.append(card('#c8c4d0', T.tab, [T.no_guild], mini(ctx.T.create, ctx.goFind))); return; }   // chưa vào tông môn: chỉ đường lập / xin vào
+  if (km === undefined) { list.append(el('div', 'empty', ctx.T.loading)); return; }
+  if (!km) { list.append(el('div', 'empty', K.err.other)); return; }
+  // việc gọi máy chủ: lỗi đổi thành câu của khai-hoang.json
+  const act = (fn, ok) => ctx.run(async () => { try { return fill(ok, await fn() || {}); } catch (e) { return khErr(game, e); } }, r => r);
+  const chu = km.chuc === 'chu', p = km.tinh, G = K.grounds, soTv = m.tv?.length ?? 0;   // soTv: số thành viên (lập / chiếm tinh cầu cần đủ K.tv_lap)
+
+  // tinh cầu: sang bằng pháp trận như mọi tinh cầu khác (chủ dự án 23/11/2026 21:41 "Bỏ bay ở Tinh hệ"; src/game/tran-sang.js)
+  const sang = p && nutTong(game, p);
+  list.append(p
+    ? card(G[p.mat_dat]?.ground || '#6a4ab8', fill(T.planet, { ten: p.ten, cap: p.cap, ground: G[p.mat_dat]?.name || '' }), [],
+      mini(sang.chu, () => { game.ui?.closeAll?.(); document.getElementById('guild-close')?.click(); sang.lam?.(); }, sang.tat))
+    : card('#c8c4d0', T.tab, [T.none]));
+
+  // kho
+  const have = myShards(game), lt = coins(game.save);
+  list.append(card('#f2c94c', fill(T.kho, { manh: fmt(km.kho.manh), lt: fmt(km.kho.lt) }), [fill(T.my_mat, { n: fmt(have) }), T.gop_note],
+    mini(`${T.gop} ${fmt(have)} mảnh`, () => act(() => khGive(game, have, 0), T.gop_ok.replace('{manh}', fmt(have)).replace('{lt}', 0)), !have),
+    ...[10000, 50000, 200000].map(v => mini(`${T.gop} ${fmt(v)} LT`, () => act(() => khGive(game, 0, v), T.gop_ok.replace('{manh}', 0).replace('{lt}', fmt(v))), lt < v))));
+
+  // cấp kế tiếp, trận Khai Tinh
+  const next = K.levels.find(l => l.cap === (p?.cap || 0) + 1);
+  if (!next) list.append(card('#8fbf6a', T.max, []));
+  else {
+    const Gd = G[p?.mat_dat || pick.ground] || Object.values(G)[0], boss = game.data.mobs[Gd.boss]?.name || '';
+    const box = card('#b0503a', p ? fill(T.open_up, { cap: next.cap }) : T.open, [
+      fill(T.need, { cap: next.cap, manh: fmt(next.manh), lt: fmt(next.lt), realm: game.data.realms.names[next.realm], boss, cp: fmt(next.boss_cp) }),
+      km.cho > 0 ? fill(T.lost_wait, { s: km.cho }) : '', km.tran ? T.fight_note : '', chu ? '' : T.only_chu,
+      !p && soTv < K.tv_lap ? fill(T.need_tv, { n: K.tv_lap, co: soTv }) : '',   // lập tinh cầu mới cần đủ thành viên (24/11/2026)
+    ].filter(Boolean));
+    const row = el('div', 'card-acts wrap');
+    if (km.tran) {
+      row.append(mini(T.join, () => { document.getElementById('guild-close')?.click(); khEnter(game, km.tran); }));
+      if (km.tran.cua_toi) row.append(mini('Bỏ trận', () => act(async () => { khState(game).fight = { ve: km.tran.ve, mine: true }; await khQuit(game); }, '')));
+    } else if (chu) {
+      if (!p) {   // khai mới: ô tên + nút mặt đất đặt ngoài thẻ (thẻ thành ô lưới, tấm chi tiết chỉ chép thẻ nên ô gõ trong thẻ không nhận chữ: grid-cards.js)
+        const wrap = el('div', 'kh-pick'); wrap.style.cssText = 'grid-column:1/-1;display:flex;flex-wrap:wrap;gap:5px;align-items:center';
+        const n = el('input', 'guild-input'); n.placeholder = T.pick_name; n.maxLength = K.ten_max; n.value = pick.name; n.oninput = () => { pick.name = n.value; };
+        n.style.flex = '1 1 100%';
+        wrap.append(n, el('small', null, T.pick_ground));
+        for (const [id, g] of Object.entries(G)) {
+          const b = mini(g.name, () => { pick.ground = id; redraw(); });
+          b.style.outline = pick.ground === id ? '2px solid #f2c94c' : ''; b.style.background = g.ground; b.style.color = '#1a1426';
+          wrap.append(b);
+        }
+        list.append(wrap);
+      }
+      const ready = km.kho.manh >= next.manh && km.kho.lt >= next.lt && (game.save.realm || 0) >= next.realm && !(km.cho > 0) && (p || soTv >= K.tv_lap);
+      row.append(mini(p ? fill(T.open_up, { cap: next.cap }) : T.open, () => {
+        if (!p && (pick.name.trim().length < 2 || !pick.ground)) { game.toast(pick.ground ? K.err.ten_sai : K.err.dat_sai, 2.4); return; }   // tên, mặt đất kiểm lúc bấm
+        document.getElementById('guild-close')?.click();
+        khOpen(game, pick.name.trim(), pick.ground).catch(e => game.toast(khErr(game, e), 3));
+      }, !ready));
+    }
+    if (row.children.length) box.append(row);
+    list.append(box);
+  }
+
+  // tổ đội Khai Tinh (src/game/kh-doi.js): đồng môn vào đội, tông chủ mở trận thì cả đội cùng bay vào
+  if (next && game.online) {
+    const on = inKhTeam(game), names = on ? game.party.roster.map(r => r.name).join(', ') || '...' : '';
+    list.append(card('#5a8fd8', T.team, [fill(T.team_note, { max: game.data.party.max }), on ? fill(T.team_list, { names }) : ''].filter(Boolean),
+      on ? mini(T.team_leave, async () => { await khTeamLeave(game); redraw(); })
+         : mini(T.team_join, async () => { await khTeamJoin(game).catch(() => game.toast(K.err.other, 2)); setTimeout(redraw, 800); })));
+  }
+
+  // người góp nhiều
+  if (km.top.length) list.append(card('#5fa0d0', T.top, km.top.map(x => fill(T.top_row, { name: x.name, manh: fmt(x.manh), lt: fmt(x.lt) }))));
+
+  // tinh cầu bỏ trống: tông chủ chưa có tinh cầu khiêu chiến tông chủ cũ để chiếm (kh-act.js)
+  if (chu && !p) for (const t of khState(game).list.filter(x => x.trong)) {
+    list.append(card('#b0503a', fill(T.planet, { ten: t.ten, cap: t.cap, ground: G[t.mat_dat]?.name || '' }), [fill(T.body_empty, { chu: t.chu_ten || '?', cap: t.cap }), soTv < K.tv_lap ? khErr(game, { message: 'it_thanh_vien' }) : ''].filter(Boolean),
+      mini(T.kc, () => { document.getElementById('guild-close')?.click(); khChallenge(game, t); }, soTv < K.tv_lap)));
+  }
+  renderKhMore(ctx, redraw, km);
+}

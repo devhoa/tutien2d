@@ -1,0 +1,42 @@
+{
+  "packageId": "com.auralora.tutien",
+  "host": "devhoa.github.io",
+  "name": "Pixel 2D Tu Tiên",
+  "launcherName": "Tu Tiên",
+  "display": "fullscreen",
+  "orientation": "any",
+  "themeColor": "#0d0b16",
+  "themeColorDark": "#0d0b16",
+  "navigationColor": "#0d0b16",
+  "navigationColorDark": "#0d0b16",
+  "navigationDividerColor": "#0d0b16",
+  "navigationDividerColorDark": "#0d0b16",
+  "backgroundColor": "#0d0b16",
+  "enableNotifications": false,
+  "startUrl": "/tutien2d/",
+  "fullScopeUrl": "https://devhoa.github.io/tutien2d/",
+  "webManifestUrl": "https://devhoa.github.io/tutien2d/manifest.webmanifest",
+  "iconUrl": "https://devhoa.github.io/tutien2d/assets/icon/icon-512.png",
+  "maskableIconUrl": "https://devhoa.github.io/tutien2d/assets/icon/icon-maskable-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "upload"
+  },
+  "appVersionCode": 1,
+  "appVersion": "1.0.0",
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "minSdkVersion": 24,
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": []
+}

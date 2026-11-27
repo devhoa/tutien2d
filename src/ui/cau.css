@@ -1,0 +1,42 @@
+/* Câu cá (src/ui/cau-the.js, cau-view.js): thẻ nhận đồ câu góc phải dưới bảng trên, giữ trên màn tới khi bấm ✕. */
+#cau-the { position: fixed; right: calc(var(--sr, 0px) + 6px); top: calc(var(--st, 0px) + var(--tren-h, 96px) + 12px); z-index: 8; width: 196px; box-sizing: border-box;
+  padding: 7px 8px 6px; border-radius: 9px; background: rgba(20, 16, 34, .86); border: 1px solid rgba(220, 210, 255, .28); box-shadow: 0 2px 10px rgba(0, 0, 0, .45), 0 0 0 1px rgba(0, 0, 0, .4) inset;
+  color: #eee8ff; font-size: 11px; line-height: 1.25; pointer-events: auto; transform-origin: 100% 0; }
+#cau-the[hidden] { display: none; }
+#cau-the.pop { animation: ct-pop .42s ease-out; }
+@keyframes ct-pop { 0% { transform: scale(.82); box-shadow: 0 0 0 2px var(--q, #fff), 0 0 22px var(--q, #fff); } 55% { transform: scale(1.05); } 100% { transform: scale(1); } }
+#cau-the .ct-x { position: absolute; right: 2px; top: 1px; width: 22px; height: 22px; border: 0; background: none; color: #cfc6ee; font-size: 13px; cursor: pointer; }
+#cau-the .ct-dau { display: flex; gap: 7px; align-items: center; padding-right: 16px; }
+#cau-the .ct-o { flex: none; width: 50px; height: 50px; border-radius: 7px; display: grid; place-items: center; background: radial-gradient(circle, color-mix(in srgb, var(--q) 34%, transparent) 0%, transparent 72%), rgba(255, 255, 255, .05);
+  border: 1.5px solid var(--q); box-shadow: 0 0 8px color-mix(in srgb, var(--q) 55%, transparent); }
+#cau-the .ct-o .ico { width: 44px; height: 44px; background: var(--ic) center / contain no-repeat; display: block; }
+#cau-the .ct-txt { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+#cau-the .ct-txt small { color: #b9b0da; font-size: 10px; }
+#cau-the .ct-txt b { font-size: 13px; text-shadow: 0 1px 0 #000; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#cau-the .ct-txt em { font-style: normal; color: #d8d0f0; font-size: 10px; }
+#cau-the .ct-nhan span { display: inline-block; margin-top: 2px; padding: 0 5px; border-radius: 6px; font-size: 10px; font-weight: 700; }
+#cau-the .ct-nhan .moi { background: #2f6b3a; color: #c9ffd2; }
+#cau-the .ct-nhan .ky { background: #6b4f1a; color: #ffe8a8; }
+#cau-the .ct-hang { display: flex; gap: 3px; margin: 6px 0 5px; min-height: 22px; }
+#cau-the .ct-nho { width: 22px; height: 22px; border-radius: 4px; display: grid; place-items: center; border: 1px solid var(--q); background: rgba(255, 255, 255, .04); }
+#cau-the .ct-nho.quy { box-shadow: 0 0 0 1px #ffe45a, 0 0 6px #ffe45a; }
+#cau-the .ct-nho .ico { width: 18px; height: 18px; background: var(--ic) center / contain no-repeat; display: block; }
+#cau-the .ct-chan { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+#cau-the .ct-hom { color: #b9b0da; font-size: 10px; margin-right: auto; }
+#cau-the .ct-phuc { color: #ffe8a8; font-size: 10px; }
+#cau-the button.ct-moi, #cau-the button.ct-tu { border: 1px solid rgba(220, 210, 255, .3); background: rgba(255, 255, 255, .06); color: #eee8ff; border-radius: 6px; font-size: 10px; padding: 2px 5px;
+  display: inline-flex; align-items: center; gap: 3px; cursor: pointer; }
+#cau-the button.ct-moi .ico { width: 14px; height: 14px; background: var(--ic) center / contain no-repeat; display: block; }
+#cau-the button.ct-tu.on { border-color: #7dff8a; color: #c9ffd2; box-shadow: 0 0 6px rgba(125, 255, 138, .45); }
+body.ui-an #cau-the { display: none; }
+
+/* Mục Cá trong bảng Nhân vật (src/ui/cau-view.js) */
+.cau-ghi { margin: 4px 2px 6px; color: #cfc6ee; font-size: 11px; line-height: 1.35; }
+.cau-ghi.vang { color: #ffe8a8; }
+.cau-hang { display: flex; gap: 6px; flex-wrap: wrap; margin: 2px 2px 6px; }
+.cau-hang button { border: 1px solid rgba(220, 210, 255, .3); background: rgba(255, 255, 255, .06); color: #eee8ff; border-radius: 6px; font-size: 11px; padding: 3px 8px; cursor: pointer; }
+.cau-hang button.on { border-color: #ffe45a; color: #ffe8a8; }
+.ol-o.cau-chua { filter: grayscale(1) brightness(.45); }
+.ol-o .ca-px, .ol-dau .ca-px { image-rendering: pixelated; }
+.cau-no { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, .12); overflow: hidden; margin: 2px 2px 8px; }
+.cau-no i { display: block; height: 100%; background: linear-gradient(90deg, #7dff8a, #ffe45a); }

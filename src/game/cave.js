@@ -1,0 +1,173 @@
+// Động phủ (data/cave.json): nguyên liệu, luyện đan, dùng đan, rèn đồ, linh điền mọc theo giờ thật.
+import { rollItem, addItem } from './items.js';
+import { totalLayer, weaponId } from './stats.js';
+import { dailyEvent } from './daily.js';
+import { caveLevel } from './evolve.js';
+import { manaMax } from './mana.js';
+import { uongToaVong } from './toa-vong.js';
+
+export function ensureCave(save, data) {
+  save.mats ??= {}; save.pills ??= {}; save.garden ??= {}; save.flags ??= {};
+  // Vào game ở một chỗ chung cho mọi người đã có động phủ (data/home.json → start_map: Thiên Kiếm Tinh, ở pháp trận giữa quảng trường; chủ dự án
+  // 17/11/2026 02:46, trước 02/11/2026 là trong động phủ: start_home); đang trong bí cảnh, tháp... cũng về đó
+  const H = data?.home, S = H?.start_map;
+  if (S && save.flags['dong-phu'] && data.maps[S.map]) { save.map = S.map; save.spawn = data.maps[S.map].spawns?.[S.spawn] ? S.spawn : Object.keys(data.maps[S.map].spawns || {})[0] || 'vao'; }
+  else if (H?.start_home && save.flags['dong-phu'] && data.maps[H.map]) { save.map = H.map; save.spawn = Object.keys(data.maps[H.map].spawns || {})[0] || 'vao'; }
+}
+
+export { viTriVao } from './vi-tri.js';   // vào game đúng chỗ vừa thoát, chỗ mặc định ở trên là đường lùi (23/11/2026)
+export const matInfo = (data, id) => data.cave.materials[id] || data.items.materials[id];
+const has = (save, cost) => Object.entries(cost).every(([k, n]) => (save.mats[k] || 0) >= n);
+const pay = (save, cost) => { for (const [k, n] of Object.entries(cost)) save.mats[k] -= n; };
+export const costText = (data, cost) => Object.entries(cost).map(([k, n]) => `${matInfo(data, k).name} ${n}`).join(', ');
+export const canPay = (game, cost) => has(game.save, cost);
+
+export function addMat(save, id, n = 1) { save.mats[id] = (save.mats[id] || 0) + n; }
+
+// Đan độc giảm dần (data/cave.json → qi_pill_day): số viên đan linh khí đã dùng hôm nay, số viên còn đủ hiệu quả,
+// tỉ lệ linh khí của viên kế tiếp (viên 1–8 đủ, 9–16 một nửa, 17–24 còn 20%, 25–40 còn 5%, từ 41 còn 1%; data/cave.json; qua 0 giờ đếm lại)
+export const qiPillUsed = game => (game.save.qiPill?.day === new Date().toDateString() ? game.save.qiPill.n : 0);
+export function qiPillLeft(game) {
+  const L = game.data.cave.qi_pill_day;
+  return L ? Math.max(0, L.n - qiPillUsed(game)) : Infinity;
+}
+export function qiPillRate(game) {
+  const L = game.data.cave.qi_pill_day, k = qiPillUsed(game) + 1;
+  let r = 1;
+  for (const [from, x] of L?.steps || []) if (k >= from) r = x;
+  return r;
+}
+
+// Quái rơi nguyên liệu: [loại, xác suất, số lượng]
+export function matDrop(game, m) {
+  if (m.noQi) return;
+  for (const [id, p, n = 1] of game.data.cave.mat_drops[m.id] || []) {
+    if (Math.random() >= p * (m.lootMul ?? 1)) continue;
+    addMat(game.save, id, n);
+    game.number(m.x, m.y - 24, `+${n} ${matInfo(game.data, id).name}`, matInfo(game.data, id).color);
+  }
+}
+
+export function salvageIron(game, rarity) {
+  const n = game.data.cave.salvage_iron[rarity] || 0;
+  if (n) addMat(game.save, 'tinh-thiet', n);
+  return n;
+}
+
+// Tỉ lệ luyện thành: theo đan, cộng thêm nếu linh căn hợp (Hỏa)
+export function brewRate(game, id) {
+  const b = game.data.cave.brew, pill = game.data.cave.pills[id];
+  return Math.min(1, (pill.rate ?? b.default) + (b.element_bonus[game.save.element] || 0) + caveLevel(game).brew_bonus);
+}
+
+// Trả về số viên luyện được, 'fail' nếu lò hỏng (mất nguyên liệu), false nếu không đủ nguyên liệu
+export function brew(game, id, rnd = Math.random) {
+  const pill = game.data.cave.pills[id], s = game.save;
+  if (!pill || !has(s, pill.recipe)) return false;
+  pay(s, pill.recipe);
+  dailyEvent(game, 'brew');
+  if (rnd() >= brewRate(game, id)) { game.persist(); return 'fail'; }
+  const n = Math.round(pill.make * game.eventMul('brew'));
+  s.pills[id] = (s.pills[id] || 0) + n;
+  game.persist();
+  return n;
+}
+
+// Đan độc của đan chống thiên kiếp (chủ dự án 20/11/2026 21:0x: "mỗi lần trong ngày giảm 50% tác dụng"): viên thứ n cùng loại trong
+// ngày còn base × k^(n-1) (data/cave.json → trib_doc.k). Qua 0 giờ đếm lại. Trả tác dụng của viên sắp uống.
+const pct = v => `${Math.round(v * 100)}%`;
+export function tribDoc(game, id, base) {
+  const s = game.save, day = new Date().toDateString(), k = game.data.cave.trib_doc?.k ?? 0.5;
+  if (s.tribDoc?.day !== day) s.tribDoc = { day, n: {} };
+  return base * Math.pow(k, s.tribDoc.n[id] || 0);
+}
+
+// Dùng một viên; trả về chữ báo hoặc null nếu không dùng được
+export function usePill(game, id) {
+  const { data, save, player: p } = game, pill = data.cave.pills[id], u = pill?.use;
+  if (!u || !(save.pills[id] > 0)) return null;
+  let msg;
+  if (u.x2) return drinkX2Pill(game, id, u);
+  if (u.toa_vong) return uongToaVong(game, id, u);   // Tọa Vong Đan (toa-vong.js)
+  if (u.heal) {
+    if (p.hp >= p.maxHp) return null;
+    p.hp = Math.min(p.maxHp, p.hp + p.maxHp * u.heal);
+    msg = `+${Math.round(p.maxHp * u.heal)} máu`;
+  } else if (u.mana) {   // Hồi Linh Đan (chủ dự án 04/11/2026 21:46): hồi linh lực để ra chiêu tiếp (src/game/mana.js)
+    const mx = manaMax(game);
+    if ((p.mp ?? mx) >= mx) return null;
+    p.mp = Math.min(mx, (p.mp ?? 0) + mx * u.mana);
+    msg = `+${Math.round(mx * u.mana)} linh lực`;
+  } else if (u.qi) {
+    if (u.realm && (save.realm || 0) < u.realm) return null;   // món cá phẩm cao (data/cave.json pills mon): đủ cảnh giới mới ăn được
+    const rate = qiPillRate(game), day = new Date().toDateString(), L = data.cave.qi_pill_day;
+    save.qiPill = { day, n: qiPillUsed(game) + 1 };
+    save.pills[id]--;
+    game.gainQi(u.qi * rate, p.x, p.y, false, true, true);   // số linh khí cố định (data/cave.json, chủ dự án 09/11/2026); không nhân đôi theo Thăng Linh Đan; đan độc giảm dần
+    game.persist();
+    return rate < 1 && L?.weak ? L.weak.replace('{pct}', Math.round(rate * 100)).replace('{used}', save.qiPill.n) : 'Linh khí tràn vào kinh mạch';
+  } else if (u.hp) {
+    save.flags.boiNguyen = save.flags.boiNguyen || 0;
+    if (save.flags.boiNguyen >= u.cap) return null;
+    save.flags.boiNguyen++;
+    msg = `Sinh lực tối đa +${u.hp} (${save.flags.boiNguyen}/${u.cap})`;
+  } else if (u.root) {   // Tẩy Tủy Đan: không giới hạn mua, mỗi viên có tỉ lệ u.rate nâng một bậc (chủ dự án 20/11/2026 21:0x: 25%)
+    const list = data.realms.roots.list, i = list.findIndex(r => r.id === save.root);
+    if (i < 0 || i >= list.length - 1) return null;
+    if (Math.random() >= (u.rate ?? 1)) { save.pills[id]--; game.persist(); return `Dược lực tan hết, linh căn chưa đổi (tỉ lệ ${Math.round((u.rate ?? 1) * 100)}%)`; }
+    save.root = list[Math.min(list.length - 1, i + u.root)].id;
+    msg = `Linh căn lên phẩm ${list.find(r => r.id === save.root).name}! Tu luyện nhanh hơn`;
+  } else if (u.trib) {   // đan chống kiếp uống chồng được, mỗi viên cùng loại trong ngày giảm tác dụng (đan độc, tribDoc)
+    const e = tribDoc(game, id, u.trib), cur = save.flags.thanhTam || 0;
+    save.flags.thanhTam = 1 - (1 - cur) * (1 - e);   // nhân dồn: sét còn lại = tích phần còn lại của từng viên
+    save.tribDoc.n[id] = (save.tribDoc.n[id] || 0) + 1;
+    msg = `Sét kiếp nhẹ thêm ${pct(e)}, tổng nhẹ ${pct(save.flags.thanhTam)}`;
+  }
+  save.pills[id]--;
+  game.refreshStats(); game.persist();
+  return msg;
+}
+
+// Máu cộng thêm vĩnh viễn từ Bồi Nguyên Đan
+export function pillHp(save, data) {
+  const u = data.cave.pills['boi-nguyen-dan']?.use;
+  return u ? (save.flags?.boiNguyen || 0) * u.hp : 0;
+}
+
+// Rèn một món theo ô; ô vũ khí thì rèn đúng loại vũ khí đang dùng
+export function forge(game, recipeId, slot) {
+  const { data, save } = game, r = data.cave.forge.find(x => x.id === recipeId);
+  if (!r || !has(save, r.cost) || slot === 'phap-bao') return null;   // pháp bảo cũ thôi rèn (CSKH #219)
+  const wt = weaponId(save, data);
+  let bases = Object.entries(data.items.bases).filter(([, b]) => b.slot === slot && !b.set && !b.dv);   // đồ bộ, đồ Đạo Vận không rèn được
+  if (slot === 'vu-khi') bases = bases.filter(([, b]) => b.weapon === wt).concat(bases.filter(([, b]) => !b.weapon && wt === 'kiem'));
+  if (!bases.length) return null;
+  const base = bases[Math.floor(Math.random() * bases.length)][0];
+  const it = rollItem(data, save, { base, minRarity: r.min_rarity, lvl: totalLayer(save, data.realms), maxTier: data.items.line_tiers.world_max });   // rèn: như đồ rơi ngoài bí cảnh
+  if (!addItem(data, save, it)) return 'full';
+  pay(save, r.cost);
+  dailyEvent(game, 'forge');
+  game.newItems = (game.newItems || 0) + 1;
+  game.persist();
+  return it;
+}
+
+// Thăng Linh Đan (đề xuất #39): u.x2 giây linh khí gấp đôi, mỗi ngày u.per_day viên. Đã đăng nhập thì máy chủ ghi giờ hết
+// (để hạn mức linh khí không cắt phần nhân đôi); chơi không tài khoản thì chỉ đếm trong máy.
+export const x2Left = (game, u) => { const d = new Date().toDateString(), x = game.save.x2Pill; return u.per_day - (x?.day === d ? x.n : 0); };
+function drinkX2Pill(game, id, u) {
+  const s = game.save;
+  if (x2Left(game, u) <= 0 || game.x2Busy) return null;
+  const done = het => {
+    const d = new Date().toDateString();
+    s.x2Pill = { day: d, n: (s.x2Pill?.day === d ? s.x2Pill.n : 0) + 1 };
+    s.pills[id]--; s.qiX2 = het; game.persist();
+    game.toast(`Linh khí gấp đôi tới ${new Date(het).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}`, 2.4);
+  };
+  if (!game.cloud) { done(Math.max(Date.now(), s.qiX2 || 0) + u.x2 * 1000); return 'Thăng Linh Đan vào bụng, linh khí cuộn trào'; }
+  game.x2Busy = true;
+  import('../net/danx2.js').then(m => m.drinkX2()).then(r => done(Date.parse(r.het_luc)))
+    .catch(e => game.toast(game.data.cave.x2_err[e.message] || game.data.cave.x2_err.net, 2.4))
+    .finally(() => { game.x2Busy = false; });
+  return 'Đang uống Thăng Linh Đan...';
+}

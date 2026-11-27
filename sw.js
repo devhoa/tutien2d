@@ -1,0 +1,22 @@
+// Service worker: cho cài game lên màn hình chính và chơi lại khi mất mạng.
+// Mạng trước, hỏng mạng thì lấy bản đã lưu. Không clients.claim(): bản mới nhận trang từ lần mở sau, không chen vào giữa lúc
+// trang đang tải hàng trăm file (Safari dễ kẹt màn tải, chủ dự án 09/11/2026). Mỗi bản dựng một kho riêng, kho cũ bị xoá khi bản mới chạy.
+const V = 'dev';
+const KHO = `p2d-${V}`;
+
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', e => e.waitUntil(
+  caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('p2d-') && k !== KHO).map(k => caches.delete(k))))
+));
+
+self.addEventListener('fetch', e => {
+  const r = e.request, u = new URL(r.url);
+  if (r.method !== 'GET' || (u.origin !== location.origin && u.host !== 'cdn.jsdelivr.net')) return;   // Supabase và chat luôn đi thẳng
+  const net = r.mode === 'navigate' ? fetch(r.url, { cache: 'no-store' }) : fetch(r);   // trang chính luôn lấy bản mới, không dùng bộ nhớ đệm HTTP
+  e.respondWith(net.then(res => {
+    if (res.ok) { const c = res.clone(); caches.open(KHO).then(k => k.put(r, c)); }
+    return res;
+  }).catch(() => caches.match(r).then(x => x || (r.mode === 'navigate' ? caches.match(r, { ignoreSearch: true }) : null)).then(x => x || Response.error())));
+});
+// Mạng hỏng: chỉ trả đúng tệp đã lưu (cùng ?v=). Trước 26/11/2026 trả cả bản khác ?v= (ignoreSearch) cho mọi tệp: hình nhân vật đổi cỡ
+// (thêm khung chớp mắt 24/11) mà mạng chập là nhận tấm cũ sai cỡ, game coi như chưa có hình. Bỏ qua ?v= chỉ còn cho trang chính lúc mất mạng.

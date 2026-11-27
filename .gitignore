@@ -1,0 +1,24 @@
+__pycache__/
+_site/
+# ảnh chụp của công cụ chạy thử chuỗi nhiệm vụ (tools/do-don/thu-nv.mjs, thư mục ra mặc định): chỉ để xem ở máy làm việc
+thu-nv/
+undefined/
+node_modules/
+node_modules
+tools/art/nguon/ai/ui/khung-dang-nhap-goc.png
+# ảnh gốc GPT bộ mới (mỗi tấm ~1 MB, giữ ở máy làm việc; hình đã thu nhỏ nằm trong assets/art): tools/art/tk_moi.py
+tools/art/nguon/ai/le-hoi/*/moi/
+tools/art/nguon/ai/le-hoi/*/lau/
+tools/art/nguon/ai/props/nha-gpt-0911.png
+# ảnh gốc GPT màn đăng nhập đêm trăng 12/11/2026 (tools/art/man_dn_dem.py)
+tools/art/nguon/ai/ui/nen-dem-trang-goc.png
+tools/art/nguon/ai/ui/khung-dn-dem-goc.png
+tools/art/nguon/pfx/src/
+# bảng ảnh GPT 16 pháp tượng chủ dự án gửi 16/11/2026 20:36 (2,2 MB, giữ ở máy làm việc; ảnh cắt từng cái ở goc/NN.png)
+tools/art/nguon/ai/phap-tuong/goc/bang-16.png
+tools/art/nguon/ai/phap-tuong/goc/icon-16.png
+tools/art/nguon/ai/le-hoi/*/quay/
+
+# bản nháp bản đồ (tools/the-gioi/tk_moi.py --nhap)
+tools/the-gioi/nhap/
+tools/art/nguon/ai/phap-tuong/goc/bang-2.png

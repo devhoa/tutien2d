@@ -1,0 +1,44 @@
+{
+ "_note": "Thân pháp (chủ dự án 22/11/2026 04:25–04:28: \"trong mục công pháp, gần ô công pháp chiêu thức, sẽ thêm 1 ô thân pháp… bổ trợ cho hiệu ứng tấn công, cũng có các ô khảm\"; \"nhát 1 chém thường, nhát 2 chọc, nhát 3 cầm vũ khí xuyên qua xuyên lại, nhát 4… khảm thêm các hiệu ứng\"; \"tạo đồ hoạ chiêu thức theo từng nhát chém trên cơ sở vũ khí của nhân vật\"; \"nghe thấy hay, nhìn thấy thích, ấn đánh cảm thấy sướng\"; docs/17-THAN-PHAP.md). Đánh thường thành CHUỖI LIÊN HOÀN: nhat là các nhát theo thứ tự, ngưng đánh quá cua_so giây thì về nhát 1. Nhát {o: i} là ô khảm thứ i: chứa một thức trong thuc. o[i].mo: điều kiện mở ô; thuc.*.mo: điều kiện mở thức ({} mở sẵn, co: cờ truyện, tong: tổng tầng tu tính từ 0 = Luyện Khí tầng 1, thuc: đã mở từng ấy thức). Vũ khí bắn (đàn, cung) nhát 1–3 vẫn bắn như thường, nhát khảm vẫn ra thức. SỐ: mul là phần sát thương của MỘT lần trúng so với một nhát chém thường (một thức trúng nhiều lần thì mỗi lần một mul); cd: giây tới nhát kế (vũ khí thường 0,62–0,9); an: giây vũ khí rời lưng đi làm thức. Cả chuỗi 5 nhát với vũ khí kiếm thêm khoảng 11–16% sát thương mỗi giây vào một con so với chém thường mãi, đánh đám đông thì nhiều hơn (đo ở tools/than-phap.test.mjs). Đòn vào người chơi khác (PvP) vẫn tính như nhát chém thường (máy chủ phòng không đổi). Hình vẽ: src/render/draw-than-phap*.js, luật: src/game/than-phap*.js, tiếng: tools/sfx_chieu.py (tp.*).",
+ "on": true,
+ "cua_so": 1.5,
+ "nhat": [
+  {"id": "chem", "ten": "Chém", "mo_ta": "Nhát chém thường của vũ khí."},
+  {"id": "dam", "ten": "Đâm", "mo_ta": "Vũ khí lao thẳng tới trước, đâm xa hơn nhát chém.", "mul": 1.0, "tam": 1.45, "goc": 18},
+  {"id": "xuyen", "ten": "Xuyên", "mo_ta": "Cầm vũ khí xuyên qua xuyên lại ba lượt trên một đường thẳng.", "mul": 0.42, "lan": 3, "tam": 1.75, "rong": 10, "cd": 0.72, "an": 0.42},
+  {"o": 0},
+  {"o": 1}
+ ],
+ "o": [
+  {"mo": {}},
+  {"mo": {"thuc": 2}, "mo_ghi": "Mở khi lĩnh ngộ được thức thứ hai"}
+ ],
+ "thuc": {
+  "anh-kiem": {"pham": 1, "ten": "Vạn Ảnh Liên Hoàn", "day": "Tự lĩnh ngộ", "mo": {}, "mo_ghi": "", "mo_ta": "Vũ khí tách thành sáu bản sao bằng linh quang, xoè sau lưng như quạt rồi lần lượt lao vào kẻ địch quanh mình.", "mul": 0.32, "n": 6, "tam": 100, "cd": 1.05, "an": 1.0, "mau": ""},
+  "khai-thien": {"pham": 2, "ten": "Khai Thiên Nhất Trảm", "day": "Trưởng lão Vân Hạc", "mo": {"co": "kn-pha-van"}, "mo_ghi": "Mở ở nhiệm vụ chính 18, cùng Phá Vân Thức", "mo_ta": "Vũ khí vút lên, hoá lớn trong một nhịp tụ lực rồi chém ra một vầng kiếm quang khổng lồ, xẻ đôi mọi thứ phía trước.", "mul": 2.5, "dai": 240, "rong": 124, "cd": 1.3, "an": 1.0, "mau": "#5fd8ff"},
+  "bach-thu": {"pham": 2, "ten": "Liệp Phong Bách Thứ", "day": "A Lực", "mo": {"co": "kn-liep-phong"}, "mo_ghi": "Mở ở nhiệm vụ chính 26, cùng Liệp Phong Bộ", "mo_ta": "Bước chân của A Lực: hai mươi nhát đâm nhanh như gió lùa, dồn cả vào con mồi đang nhắm, nhát cuối xuyên thấu.", "mul": 0.1, "n": 20, "cuoi": 0.4, "tam": 96, "goc": 20, "khoa": 1.15, "lech": 1.12, "cd": 1.05, "an": 0.85, "mau": "#ffb060"},
+  "thu-vong": {"pham": 3, "ten": "Tinh Hải Thu Võng", "day": "Lão Ngư", "mo": {"co": "tp-thu-vong"}, "mo_ghi": "Mở ở Hàn Băng Tinh, theo nhiệm vụ chính", "mo_ta": "Quăng vũ khí như quăng lưới: bung thành tấm lưới sao, gom kẻ địch lại rồi kéo cả về phía mình, chém dọc đường kéo.", "mul": 0.6, "keo": 1.0, "lan2": 0.45, "xa": 84, "r": 54, "cd": 1.2, "an": 1.15, "mau": "#7fd4ff"},
+  "thien-tran": {"pham": 3, "ten": "Thiên Kiếm Trấn", "day": "Lâm Uyên, người đứng gác Băng Quật", "mo": {"co": "tp-thien-tran"}, "mo_ghi": "Mở ở Băng Quật, theo nhiệm vụ chính", "mo_ta": "Vũ khí vút lên trời, hoá lớn như ngọn Thiên Kiếm Phong rồi cắm phập xuống dưới chân địch. Chỗ kiếm cắm, ma không được qua.", "mul": 2.4, "r": 56, "tam": 112, "to": 4.4, "choang": 0.4, "cd": 1.3, "an": 1.25, "mau": "#ffe9a8"},
+  "huyen-vuc": {"pham": 4, "ten": "Huyền Vực Tỏa Hồn", "day": "Mặc Ảnh, ma tộc canh cửa Hắc Phong Động", "mo": {"co": "tp-huyen-vuc"}, "mo_ghi": "Mở ở Hắc Phong Tinh, theo nhiệm vụ chính", "mo_ta": "Ném vũ khí ra trước, hắc khí bung thành một vùng tối khoá chặt kẻ địch, vũ khí chém bay qua lại giữa chúng mười lần.", "mul": 0.25, "n": 10, "xa": 66, "r": 68, "cd": 1.35, "an": 1.55, "mau": "#9b5cff"},
+  "van-diep": {"pham": 4, "ten": "Vạn Diệp Quy Căn", "day": "Mộc Trưởng Lão, Làng Tinh Linh", "mo": {"co": "tp-van-diep"}, "mo_ghi": "Mở ở Thanh Mộc Tinh, theo nhiệm vụ chính", "mo_ta": "Vũ khí rụng thành chín chiếc lá xoáy quanh người, quét ba vòng; rồi lá bay về một chỗ như lá rụng về cội, nổ ở đó, rễ sáng đâm lên.", "mul": 0.3, "vong": 3, "n": 9, "r": 52, "cuoi": 1.3, "no_r": 30, "tam": 110, "cd": 1.25, "an": 1.0, "mau": "#8fe07a"},
+  "quy-trung": {"pham": 5, "ten": "Vạn Kiếm Quy Trủng", "day": "Kiếm Lão, người giữ mộ kiếm Thiên Kim", "mo": {"co": "tp-quy-trung"}, "mo_ghi": "Mở ở Thiên Kim Tinh, theo nhiệm vụ chính", "mo_ta": "Cắm vũ khí xuống đất: mười hai thanh kiếm trồi lên thành vòng mộ vây lấy kẻ địch, từng đợt lao vào giữa cắm thành gò, rồi một thanh kiếm lớn hiện ra trên gò và nằm xuống. Kiếm nằm thì đất yên.", "mul": 0.2, "dot": 4, "n": 12, "r": 60, "vay": 0.4, "cham": 1.2, "cuoi": 1.3, "no_r": 42, "to": 3.6, "tam": 115, "choang": 0.4, "cd": 1.4, "an": 1.35, "mau": "#f2d98a"},
+  "bach-luyen": {"pham": 5, "ten": "Bách Luyện Thiên Chùy", "day": "Thiết Lan, thợ rèn Thiên Kim", "mo": {"co": "tp-bach-luyen"}, "mo_ghi": "Mở ở Thiên Kim Tinh, theo nhiệm vụ chính", "mo_ta": "Một cái đe lửa hiện giữa đám địch. Vũ khí nung đỏ nện xuống ba nhát, nhát sau lớn và nóng hơn nhát trước, hoa lửa toé khắp; nhát thứ ba làm đất nứt chảy đỏ, rồi tôi vào nước, hơi trắng bung lên.", "mul": 0.5, "lan2": 0.7, "cuoi": 1.3, "r": 46, "no_r": 58, "tam": 105, "choang": 0.5, "cd": 1.4, "an": 1.3, "mau": "#ffa040"}
+ },
+ "text": {
+  "tieu_de": "Thân pháp · liên hoàn {n} nhát",
+  "ghi": "Đánh thường tự ra theo chuỗi. Ngưng tay quá {s} giây thì về nhát 1.",
+  "nhat": "Nhát {i}",
+  "o_trong": "Ô trống",
+  "chon_o": "Chạm một thức bên dưới để khảm vào nhát {i}.",
+  "kham": "Khảm vào nhát {i}",
+  "dang_o": "Đang ở nhát {i}",
+  "khoa": "Chưa mở",
+  "day": "Truyền thụ: {ai}",
+  "sat": "Mỗi lần trúng {x} lần nhát chém",
+  "sat1": "Trúng {x} lần nhát chém",
+  "hoc_nhan": "Thân pháp mới",
+  "hoc_ok": "Lĩnh ngộ thân pháp: {ten}. Đã khảm vào nhát {i}.",
+  "hoc_ok2": "Lĩnh ngộ thân pháp: {ten}. Mở bảng Nhân vật → Công pháp → Thân pháp để khảm.",
+  "nhac": "Đinh! Đánh thường giờ là chuỗi liên hoàn. Nhát thứ tư, thứ năm khảm được thức đặc biệt: bảng Nhân vật → Công pháp → Thân pháp."
+ }
+}

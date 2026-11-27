@@ -1,0 +1,304 @@
+{
+ "_note": "Chào hỏi và trò chuyện với người chơi cùng đảo (chỉ khi đăng nhập). Gửi qua kênh Realtime của đảo, không ghi cơ sở dữ liệu. emotes: chỉ gửi id, máy nhận tự tra chữ (fx: tim bay lên màu color). chat: tối đa max_len ký tự, mỗi người gửi cách nhau ít nhất cooldown giây (máy nhận cũng bỏ tin dồn dập hơn min_gap giây), sec giây hiện bong bóng, giữ log dòng gần nhất. bad: từ bậy (so khớp cả từ, không phân biệt hoa thường; bản không dấu phải ghi riêng, tránh từ không dấu dễ nhầm như lon, cac) thay bằng mask, lọc cả lúc gửi lẫn lúc nhận.",
+ "emotes": [
+  {
+   "id": "chao",
+   "label": "Chào",
+   "text": "Chào đạo hữu!"
+  },
+  {
+   "id": "vai",
+   "label": "Vái",
+   "text": "(chắp tay vái chào)"
+  },
+  {
+   "id": "hoa",
+   "label": "Tặng hoa",
+   "text": "Tặng đạo hữu một đóa hoa",
+   "fx": "#ff8ab8"
+  },
+  {
+   "id": "cuoi",
+   "label": "Cười",
+   "text": "Ha ha ha!"
+  },
+  {
+   "id": "cam-on",
+   "label": "Đa tạ",
+   "text": "Đa tạ đạo hữu!"
+  },
+  {
+   "id": "tam-biet",
+   "label": "Tạm biệt",
+   "text": "Hẹn gặp lại!"
+  }
+ ],
+ "chat": {
+  "max_len": 40,
+  "cooldown": 3,
+  "min_gap": 1.5,
+  "sec": 5,
+  "log": 30,
+  "placeholder": "Nói với mọi người trên tinh cầu...",
+  "send": "Gửi",
+  "wait": "Đợi chút rồi nói tiếp nhé.",
+  "offline": "Đăng nhập để chào hỏi, trò chuyện với đạo hữu khác.",
+  "empty": "Chưa ai nói gì. Chào một câu đi!",
+  "here": "Đang có {n} đạo hữu trên tinh cầu."
+ },
+ "bad": [
+  "đm",
+  "dm",
+  "đmm",
+  "dmm",
+  "đcm",
+  "dcm",
+  "vcl",
+  "vkl",
+  "vl",
+  "cc",
+  "clgt",
+  "địt",
+  "dit",
+  "đéo",
+  "lồn",
+  "cặc",
+  "buồi",
+  "đĩ",
+  "đụ",
+  "du ma",
+  "đụ má",
+  "địt mẹ",
+  "dit me",
+  "đéo mẹ",
+  "con chó",
+  "óc chó",
+  "oc cho",
+  "ngu như chó",
+  "fuck",
+  "shit",
+  "bitch"
+ ],
+ "mask": "***",
+ "world": {
+  "tab": "Thế giới",
+  "max_len": 120,
+  "cooldown": 5,
+  "poll": 5,
+  "keep": 80,
+  "placeholder": "Nói với cả máy chủ...",
+  "wait": "Đợi vài giây rồi nói tiếp nhé.",
+  "error": "Chưa kết nối được kênh thế giới, thử lại sau.",
+  "offline": "Đăng nhập để trò chuyện với cả máy chủ.",
+  "empty": "Kênh thế giới còn yên ắng. Chào một câu đi!",
+  "sub": "Kênh chung của mọi đạo hữu, tin giữ 7 ngày."
+ },
+ "whisper": {
+  "_note": "Truyền âm: nhắn riêng hai người (game/whisper.js, hàm máy chủ p2d_gui_truyen_am, p2d_doc_truyen_am, p2d_da_doc_truyen_am). Chạm tin một đạo hữu ở kênh Thế giới hoặc tông môn, chọn Truyền âm. poll giây đọc tin mới khi bảng đóng (để báo chấm đỏ), open_poll khi đang mở tab. Máy chủ: 30 tin mỗi giờ, tin giữ 14 ngày.",
+  "tab": "Truyền âm",
+  "max_len": 200,
+  "poll": 30,
+  "open_poll": 5,
+  "cooldown": 2,
+  "placeholder": "Truyền âm cho {name}...",
+  "pick": "Chạm tin một đạo hữu ở kênh Thế giới hoặc tông môn, chọn Truyền âm để nhắn riêng.",
+  "empty": "Chưa có truyền âm nào.",
+  "offline": "Đăng nhập để truyền âm.",
+  "back": "‹ Danh sách",
+  "sub": "Nhắn riêng, tin giữ 14 ngày.",
+  "with": "Truyền âm với {name}",
+  "error": "Chưa gửi được, thử lại sau.",
+  "wait": "Truyền âm nhanh quá, đợi một lát.",
+  "gone": "Không tìm thấy đạo hữu này.",
+  "btn": "Truyền âm",
+  "unread": "{n} mới"
+ },
+ "mod": {
+  "_note": "Chặn và báo cáo tin chat thế giới, tông môn (game/world-chat.js, ui/chat-line.js, hàm máy chủ p2d_bao_cao_chat). Chạm vào tin của người khác để hiện nút. Danh sách chặn lưu ở bản lưu (save.blocked, tối đa max người). Máy chủ: 3 người khác nhau báo một người trong 24 giờ thì người đó bị khoá chat 24 giờ.",
+  "max": 200,
+  "block": "Chặn",
+  "report": "Báo cáo",
+  "cancel": "Thôi",
+  "ask": "Báo cáo tin này vì:",
+  "reasons": [
+   "Chửi bậy, xúc phạm",
+   "Lừa đảo, quảng cáo",
+   "Nội dung người lớn",
+   "Lý do khác"
+  ],
+  "reported": "Đã gửi báo cáo. Cảm ơn bạn giữ kênh sạch.",
+  "report_fail": "Chưa gửi được báo cáo, thử lại sau.",
+  "report_many": "Hôm nay bạn đã báo cáo nhiều rồi.",
+  "blocked": "Đã chặn {name}. Tin của người này sẽ ẩn.",
+  "hidden": "Đã ẩn {n} tin của người bị chặn.",
+  "unblock_all": "Bỏ chặn {n} người",
+  "muted": "Bạn đang bị khoá chat vì bị nhiều người báo cáo. Thử lại sau."
+ },
+ "name": {
+  "btn": "✎ Đổi tên ({name})",
+  "ask": "Tên hiển thị mới (2–16 ký tự, mỗi ngày đổi một lần):",
+  "ok": "Đã đổi tên thành {name}.",
+  "err": {
+   "ten_sai": "Tên cần 2–16 ký tự và không bắt đầu bằng \"Đạo hữu\".",
+   "ten_trung": "Tên này đã có người dùng.",
+   "doi_ten_nhanh": "Mỗi ngày chỉ đổi tên một lần.",
+   "can_ve": "Đã hết lần đổi miễn phí. Cần Vé đổi tên (sắp mở bán).",
+   "chua_luu": "Chơi thêm chút để bản lưu lên máy chủ rồi đổi tên.",
+   "other": "Chưa đổi được tên, thử lại sau."
+  }
+ },
+ "rank": {
+  "_note": "Bảng xếp hạng (game/rank.js, ui/rank-view.js). titles: danh hiệu tuần trong status.json cho top 10 tuần trước của từng bảng. flag: cờ cạnh tên người bị gắn cờ nghi vấn (nghi_van >= 10, máy chủ trả \"co\"); tên tô đỏ, vẫn hiện trên bảng nhưng không nhận danh hiệu tuần. Bảng mới (chủ dự án 02/11/2026, nhóm L): Góp ý (báo lỗi + đề xuất được nhận), Đánh Ma Thần (số lần khiêu chiến), Bí cảnh (bậc đã qua, chọn 1 trong 7 bí cảnh ở hàng nút thứ hai) lấy từ hàm p2d_bxh2 (supabase/migrations/20261102031000_p2d_bxh_moi.sql); bảng Tháp đã gỡ (tháp bỏ).",
+  "tab": "Xếp hạng", "_bo_dmt": "Chủ dự án 17/11/2026 03:51: bỏ bảng xếp hạng Đánh Ma Thần (tab dmt).",
+  "chat_tab": "Trò chuyện",
+  "tabs": [
+   {
+    "id": "luc_chien",
+    "label": "Sức mạnh"
+   },
+   {
+    "id": "canh_gioi",
+    "label": "Cảnh giới"
+   },
+   {
+    "id": "qtv",
+    "label": "Quản trị viên"
+   },
+   {
+    "id": "bc",
+    "label": "Bí cảnh"
+   },
+   {
+    "id": "dps",
+    "label": "Sát thương/giây"
+   },
+   {
+    "id": "ma",
+    "label": "Ma hóa",
+    "_": "hóa ma (chủ dự án 22/11/2026 01:54): điểm ma hiện tại = số lần còn phải chết; Supabase p2d_bxh2_het('ma')"
+   },
+   {
+    "id": "cong_duc",
+    "label": "Công đức",
+    "_": "mỗi lần diệt một người đang hóa ma +1 công đức; p2d_bxh2_het('cong_duc')"
+   },
+   {
+    "id": "cau",
+    "label": "Câu cá",
+    "_": "chủ dự án 27/11/2026 00:16 (CSKH #405): điểm theo phẩm từng con đã câu (data/fishing.json → bxh), dưới tên ghi số con từng loài; Supabase p2d_bxh_cau"
+   }
+  ],
+  "titles": {
+   "luc_chien": "bxh-luc-chien",
+   "canh_gioi": "bxh-canh-gioi",
+   "thap": "bxh-thap"
+  },
+  "loading": "Đang tải bảng xếp hạng...",
+  "error": "Chưa tải được bảng xếp hạng.",
+  "retry": "Thử lại",
+  "offline": "Đăng nhập để xem bảng xếp hạng.",
+  "empty": "Chưa có ai trên bảng này.",
+  "me": "Bạn đang hạng {n}.",
+  "me_none": "Bạn chưa có tên trên bảng này.",
+  "note": "Chạm tên để xem hồ sơ, so tài. Cuối mỗi tuần, top 10 mỗi bảng nhận danh hiệu trong tuần sau (chỉ để trưng).",
+  "value": {
+   "luc_chien": "{v} lực chiến",
+   "thap": "tầng {v}",
+   "gop_y": "{v} góp ý được nhận",
+   "dmt": "{v} trận",
+   "bc": "qua {v} bậc",
+   "dps": "{v} sát thương/giây",
+   "ma": "{v} điểm ma",
+   "cong_duc": "{v} công đức",
+   "cau": "{v} điểm câu"
+  },
+  "cau": {"diem": "Điểm mỗi con theo phẩm: Phàm {p0}, Linh {p1}, Huyền {p2}, Địa {p3}, Thiên {p4}, Tiên {p5}, Thượng Cổ {p6}. Tính mọi con từng câu (kể cả đã bán, ăn, phóng sinh), không tính bảo vật chìm.", "them": "+{n} loài", "gon": "Thu gọn"},
+  "dps_note": "Đánh Mộc Nhân trong động phủ đủ 60 giây liền để ghi kết quả (sát thương/giây = tổng sát thương ÷ 60). Bảng giữ kết quả cao nhất của mỗi người.",
+  "dps_soon": "Bảng Sát thương/giây đang được máy chủ chuẩn bị, quay lại sau nhé.",
+  "flag": "⚑",
+  "flag_title": "Bị hệ thống gắn cờ nghi vấn gian lận",
+  "me_flag": "Tài khoản của bạn đang bị gắn cờ nghi vấn, không nhận danh hiệu tuần.",
+  "qtv": {"_note": "Bảng quản trị viên (chủ dự án 02/11/2026 16:33, thay bảng Góp ý cũ): điểm từ góp ý đã duyệt và mời bạn thành công (16:59), máy chủ tính (supabase/migrations/20261102190000_p2d_bxh_qtv2.sql). Quyền mở theo cấp bàn sau.", "head": ["#", "Tên", "Điểm", "Cấp", "Lỗi", "Đ.xuất", "Mời", "Loại", "Chờ"], "_head": "Cột ngắn cho vừa màn dọc (chủ dự án 03/11 12:34): Lỗi = lỗi được sửa, Đ.xuất = đề xuất được làm, Mời = mời bạn thành công, Loại = trùng / không qua / spam, Chờ = đang chờ duyệt.", "ledger": {"open": "Sổ điểm của tôi · Đổi Tiên Ngọc", "title": "Sổ điểm quản trị viên", "sub": "Mọi lần được / trừ / đổi điểm đều ghi lại, không sửa không xoá được.", "bal": "Điểm còn đổi được: {du} · Tổng đã được: {tong}", "week": "Tuần này đã đổi {tuan}/{max} Tiên Ngọc (1 điểm = 1 Tiên Ngọc, tính lại sáng thứ Hai).", "ask": "Đổi bao nhiêu điểm lấy Tiên Ngọc?", "go": "Đổi", "done": "Đã đổi {n} Tiên Ngọc. Số dư Tiên Ngọc: {tn}.", "empty": "Chưa có dòng nào.", "src": {"gop_y": "Góp ý", "gioi_thieu": "Mời bạn", "doi_tien_ngoc": "Đổi Tiên Ngọc"}, "err": {"khong_du": "Không đủ điểm.", "qua_tuan": "Quá giới hạn 500 Tiên Ngọc tuần này.", "so_sai": "Số không hợp lệ (1 tới 500).", "chua_luu": "Chưa có bản lưu trên máy chủ.", "net": "Mạng lỗi, thử lại sau."}}, "rule": "Lỗi được sửa +10, đề xuất được làm vào game +20, đề xuất được ghi nhận +5, mời bạn thành công (bạn mới online đủ 4 tiếng, cộng dồn) +60 (trước 03/11: +15), trùng / không thông qua 0, spam −15. Cấp 1 từ 20 điểm, 2 từ 60, 3 từ 150, 4 từ 300, 5 từ 600.", "me": "Bạn hạng {n} · {d} điểm · cấp {c}.", "me_none": "Gửi báo lỗi, đề xuất (nút 🐞 💡) để có điểm quản trị viên."},
+  "new_fn": [
+   "qtv",
+   "dmt",
+   "bc",
+   "ma",
+   "cong_duc"
+  ]
+ },
+ "dao_lu": {"_note": "Đạo lữ giữa hai người chơi (chủ dự án chốt 02/11/2026 14:39): mời trong Bạn bè, người kia đồng ý là thành; tặng đồ, nguyên liệu, Linh Thạch thẳng cho nhau qua hòm thư; huỷ thì cả hai chờ 30 ngày mới kết người mới (luật ở máy chủ, supabase/migrations/20261102160000_p2d_dao_lu.sql). bonus: thêm tỉ lệ Linh Thạch rơi từ quái và linh khí khi có đạo lữ (src/game/daolu.js). Chữ ở text.", "bonus": 0.05, "text": {"title": "Đạo lữ", "warn": "Kết đạo lữ thì dễ, nhưng nếu sau này huỷ, cả hai phải chờ 30 ngày mới kết được đạo lữ mới. Có đạo lữ: +5% Linh Thạch rơi từ quái và +5% linh khí, tặng quà thẳng cho nhau.", "invite": "Mời làm đạo lữ", "sure_invite": "Mời {name} làm đạo lữ?", "accept": "Đồng ý kết đạo lữ", "decline": "Từ chối", "cancel_invite": "Rút lời mời", "invited_me": "{name} mời bạn làm đạo lữ", "i_invited": "Đã mời {name} làm đạo lữ, chờ đồng ý", "partner": "Đạo lữ: {name}", "since": "Kết từ {date}. +5% Linh Thạch rơi từ quái, +5% linh khí.", "gift_item": "Tặng trang bị", "gift_mat": "Tặng nguyên liệu", "gift_lt": "Tặng Linh Thạch", "divorce": "Huỷ đạo lữ", "sure_divorce": "Bấm lần nữa: huỷ rồi cả hai chờ 30 ngày", "wait": "Vừa huỷ đạo lữ: tới {date} mới kết đạo lữ mới được.", "sent": "Đã gửi vào hòm thư của {name}.", "done": {"da_gui": "Đã gửi lời mời đạo lữ.", "thanh_dao_lu": "Hai người đã thành đạo lữ!", "da_huy": "Đã huỷ đạo lữ. Cả hai chờ 30 ngày mới kết người mới.", "da_rut": "Đã huỷ lời mời."}, "err": {"chua_la_ban": "Phải là bạn bè trước.", "da_co_dao_lu": "Bạn đã có đạo lữ.", "nguoi_kia_co_dao_lu": "Người này đã có đạo lữ.", "dang_cho": "Bạn vừa huỷ đạo lữ, chưa hết 30 ngày chờ.", "nguoi_kia_dang_cho": "Người này vừa huỷ đạo lữ, chưa hết 30 ngày chờ.", "qua_nhieu_loi_moi": "Đang chờ nhiều lời mời quá.", "chua_co_dao_lu": "Chưa có đạo lữ.", "khong_co": "Không còn món này (thử lại sau vài giây).", "khong_tang": "Món này không tặng được.", "mon_sai": "Món này máy chủ chưa nhận (có thể do lỗ khảm cũ). Tháo hết ngọc rồi thử lại.", "dang_dao_lu": "Đang là đạo lữ, huỷ đạo lữ trước.", "bi_khoa": "Tài khoản đang bị khoá giao dịch.", "net": "Mạng chập chờn, thử lại sau."}}},
+ "nguoi": {"_note": "Chạm tên / người chơi khác trên bản đồ hiện ba nút ngay trên đầu họ: Kết bạn, Xem thông tin (Hồ sơ), Truyền âm (chủ dự án 10:37) (chủ dự án 19/11/2026 10:21, góp ý của một người chơi). src/ui/other-menu.js.", "chat": "Truyền âm", "info": "Thông tin", "friend": "Kết bạn", "offline": "Cần đăng nhập để làm việc này", "sent": "Đã gửi lời mời kết bạn tới {name}.", "made": "Đã kết bạn với {name}!", "already": "Hai người đã là bạn.", "fail": "Chưa gửi được lời mời, thử lại sau."},
+ "su_do": {
+  "_note": "Sư đồ (chủ dự án 25/11/2026 10:08–10:2x): sư phụ hơn đồ đệ ít nhất cach cảnh giới lúc kết (Kim Đan nhận Luyện Khí), mỗi sư phụ tối đa toi_da đồ đệ, mỗi người một sư phụ. Mỗi ngày (giờ Việt Nam): sư phụ bấm Chỉ điểm cho từng đồ đệ → đồ đệ + qi linh khí tới 00:00; đồ đệ bấm Hành lễ → sư phụ + lt Linh Thạch hạ quái tới 00:00 (không cộng dồn theo số đồ đệ). Luật ở máy chủ: migration sinh bằng tools/su-do-sql.py. Máy khách: src/game/su-do.js, src/net/su-do.js, src/ui/su-do-panel.js.",
+  "cach": 2,
+  "toi_da": 5,
+  "moi_toi_da": 5,
+  "qi": 0.1,
+  "lt": 0.05,
+  "doc_s": 300,
+  "text": {
+   "title": "Sư đồ",
+   "luat": "Sư phụ phải hơn đồ đệ ít nhất 2 cảnh giới (Kim Đan nhận Luyện Khí). Mỗi sư phụ tối đa 5 đồ đệ, mỗi người một sư phụ. Mỗi ngày: sư phụ Chỉ điểm thì đồ đệ +10% linh khí tới 00:00; đồ đệ Hành lễ thì sư phụ +5% Linh Thạch hạ quái tới 00:00.",
+   "cach_ket": "Kết sư đồ: mở Bạn bè hoặc Hồ sơ của người đó → Bái sư / Thu đồ.",
+   "su_phu": "Sư phụ",
+   "do_de": "Đồ đệ ({n}/{max})",
+   "chua_su": "Chưa có sư phụ.",
+   "chua_do": "Chưa có đồ đệ nào.",
+   "bai_su": "Bái sư",
+   "thu_do": "Thu đồ",
+   "hoi_bai": "Xin bái {name} làm sư phụ?",
+   "hoi_thu": "Ngỏ ý thu {name} làm đồ đệ?",
+   "hanh_le": "Hành lễ",
+   "da_hanh_le": "Đã hành lễ hôm nay",
+   "chi_diem": "Chỉ điểm",
+   "da_chi_diem": "Đã chỉ điểm hôm nay",
+   "roi": "Rời sư môn",
+   "truc": "Trục xuất",
+   "hoi_roi": "Rời sư môn của {name}?",
+   "hoi_truc": "Trục xuất {name} khỏi sư môn?",
+   "dong_y": "Đồng ý",
+   "tu_choi": "Từ chối",
+   "rut": "Rút lời",
+   "moi_su": "{name} muốn thu bạn làm đồ đệ",
+   "moi_do": "{name} xin bái bạn làm sư phụ",
+   "cho_su": "Đã xin bái {name} làm sư phụ, chờ đồng ý",
+   "cho_do": "Đã ngỏ ý thu {name} làm đồ đệ, chờ đồng ý",
+   "buff_qi": "Sư phụ đã chỉ điểm: +10% linh khí tới 00:00",
+   "cho_qi": "Hôm nay sư phụ chưa chỉ điểm",
+   "buff_lt": "Đồ đệ đã hành lễ: +5% Linh Thạch hạ quái tới 00:00",
+   "cho_lt": "Hôm nay chưa đồ đệ nào hành lễ",
+   "do_le": "đã hành lễ",
+   "do_chua_le": "chưa hành lễ",
+   "bao_chi_diem": "Sư phụ {name} vừa chỉ điểm: +10% linh khí tới 00:00!",
+   "bao_hanh_le": "Đồ đệ {name} vừa hành lễ: +5% Linh Thạch hạ quái tới 00:00!",
+   "bao_moi": "{name} vừa ngỏ lời kết sư đồ. Mở Menu → Sư đồ để xem.",
+   "dang_nhap": "Đăng nhập tài khoản để kết sư đồ.",
+   "done": {
+    "da_gui": "Đã gửi lời, chờ người kia đồng ý.",
+    "thanh_su_do": "Lễ bái sư đã thành! Từ nay là thầy trò.",
+    "da_roi": "Đã rời sư môn.",
+    "da_rut": "Đã rút lời.",
+    "khong_co": "Không còn lời này nữa.",
+    "da_chi_diem_xong": "Đã chỉ điểm. Đồ đệ +10% linh khí tới 00:00.",
+    "da_hanh_le_xong": "Đã hành lễ. Sư phụ +5% Linh Thạch hạ quái tới 00:00."
+   },
+   "err": {
+    "net": "Máy chủ chưa trả lời, thử lại sau.",
+    "khong_thay": "Không tìm thấy người này.",
+    "chinh_minh": "Không tự bái mình được.",
+    "chua_luu": "Nhân vật chưa lưu lên máy chủ, chờ vài giây.",
+    "cach_canh_gioi": "Sư phụ phải hơn đồ đệ ít nhất 2 cảnh giới.",
+    "da_co_su_phu": "Bạn đã có sư phụ rồi.",
+    "nguoi_kia_co_su_phu": "Người này đã có sư phụ.",
+    "du_do_de": "Bạn đã đủ 5 đồ đệ.",
+    "su_phu_du_do_de": "Vị này đã đủ 5 đồ đệ.",
+    "qua_nhieu_loi_moi": "Bạn đang chờ quá nhiều lời, rút bớt đã.",
+    "khong_phai_do_de": "Người này không phải đồ đệ của bạn.",
+    "da_chi_diem": "Hôm nay đã chỉ điểm đồ đệ này rồi.",
+    "chua_co_su_phu": "Bạn chưa có sư phụ.",
+    "da_hanh_le": "Hôm nay đã hành lễ rồi."
+   }
+  }
+ }
+}

@@ -1,0 +1,14 @@
+-- Bảng p2d_ky_cfg dòng 'tn' theo truyện viết tiếp 26/11/2026 (nhiệm vụ chính 72–83 ở Thiên Kim Tinh, Thúy Lâm Tinh, Kiếm Trủng và Thiên Kiếm Tinh,
+-- data/story.json; docs/14-TRAN-MA-KY.md phần B "Đoạn Thiên Kim") và hai kỹ năng mới (data/ky-nang.json): Lạc Chùy (Thiết Lan dạy ở nhiệm vụ 79),
+-- Trấn Trủng Kiếm Trận (Kiếm Lão dạy ở nhiệm vụ 82). Đổi ba chỗ của kn: nv (số nhiệm vụ chính theo từng bước truyện, để máy chủ tính đúng
+-- mốc sách trống 75, 80), co (thêm cờ kn-lac-chuy, kn-tran-trung: được thêm một cuốn khi truyện dạy), ids (thêm lac-chuy, tran-trung-tran).
+-- Máy khách src/game/ky-nang.js, máy chủ p2d_kn_hop_le trong 20261122030000_p2d_tiem_ky_nang.sql. Các phần khác của dòng giữ nguyên.
+-- Sinh bằng: node tools/ky-cfg.mjs tn (tools/check.mjs so dòng này với dữ liệu).
+-- Thứ tự đưa lên: áp migration này TRƯỚC, rồi mới gộp bản máy khách có nhiệm vụ 72+. Ngược lại (máy khách mới, máy chủ cũ): người vừa qua nhiệm vụ 75
+-- nhận sách trống, người được dạy hai kỹ năng mới, mà máy chủ chưa biết mốc / cờ / mã ấy, lần lưu bị trả phần sách về. Máy chủ mới với máy khách
+-- cũ thì không sao: bảng nv mới chỉ dài thêm, 67 số đầu y như cũ; số thứ 68 (bước chờ "con-tiep" của bản cũ) từ 71 thành 72, cùng một mốc sách
+-- (mốc 5 nhiệm vụ một cuốn). Không đụng dữ liệu người chơi, không đổi hàm, không đổi quyền.
+-- Chủ dự án 26/11/2026 13:4x chọn "Tự đẩy + đưa lên": migration không đụng dữ liệu người chơi thì được áp trong đợt này.
+-- ĐÃ ÁP 26/11/2026 14:4x (trước khi gộp): bài thử lưu (tools/kiem/thu-luu.mjs) trước và sau cho cùng kết quả, dòng tn trên máy chủ 80 bước, 6 cờ, 10 kỹ năng, không báo động.
+insert into public.p2d_ky_cfg (k, v) values ('tn', '{"toc":{"nhan":{"w":34,"huong":{"atk_pct":0.34,"hp_pct":0.33,"def_pct":0.33}},"linh":{"w":22,"huong":{"cdr":0.5,"atk_pct":0.3,"crit":0.2}},"yeu":{"w":20,"huong":{"lifesteal":0.4,"crit":0.3,"atk_pct":0.3}},"co":{"w":12,"huong":{"hp_pct":0.45,"def_pct":0.35,"thorns":0.2}},"hu":{"w":8,"huong":{"crit_dmg":0.45,"crit":0.35,"cdr":0.2}},"than":{"w":3,"huong":{"atk_pct":0.5,"crit_dmg":0.25,"hp_pct":0.25}},"tien":{"w":1,"huong":{"cdr":0.4,"hp_pct":0.3,"atk_pct":0.3}}},"tong":[6,10],"lech":0.25,"diem":{"moi":5,"tran":20,"tran_rieng":{"cdr":10},"chi_so":["atk_pct","hp_pct","def_pct","crit","crit_dmg","cdr"]},"kn":{"nv":[3,4,5,6,8,10,11,13,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,83],"moc":5,"sach_moc":1,"co":["kn-pha-van","kn-linh-nhan","kn-liep-phong","kn-mau-thu","kn-lac-chuy","kn-tran-trung"],"ids":["pha-van-thuc","viem-nhan","han-nhan","dang-nhan","kim-nhan","thach-nhan","liep-phong-bo","mau-thu-tan","lac-chuy","tran-trung-tran"],"ghep":2,"max":10}}'::jsonb)
+on conflict (k) do update set v = excluded.v;

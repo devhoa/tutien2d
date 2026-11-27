@@ -1,0 +1,100 @@
+// Khung phải của Hồ sơ đạo hữu (src/ui/profile-panel.js; chủ dự án 11/11/2026 21:04: bảng xếp hạng chưa dùng bảng trang bị mới).
+// Mặc định: linh căn, binh khí, huyết mạch, thể chất (chủ dự án 25/11/2026 23:50: "hiển thị cả linh căn thể phách và huyết mạch"), nút So tài /
+// Truyền âm / Kết bạn, công pháp. Chạm ô đồ hay ô thú trên thẻ nhân vật: tấm chi tiết
+// chỉ xem (không nút rèn, mặc, gỡ ngọc), ✕ về mặc định. Chữ ở data/duel.json → profile. Dữ liệu người khác chỉ gán textContent.
+import { el, icon, mainStats, tierLine } from './bag-detail.js';
+import { spriteIcon } from './sprite-icon.js';
+import { gemIcon } from './gem-icon.js';
+import { itemName, statText, gemInfo, rarityOf } from '../game/items.js';
+import { gemText } from './hc-text.js';
+import { itemTier } from '../game/tiers.js';
+import { weaponId } from '../game/stats.js';
+import { petDef } from '../game/evolve.js';
+import { beastStats } from '../game/beast.js';
+import { TN, tnOn } from '../game/tiem-nang.js';
+import { tcOn, theCua, phamThe } from '../game/the-chat.js';
+
+const fill = (s, o) => String(s).replace(/\{(\w+)\}/g, (m, k) => (k in o ? o[k] : m));
+
+function head(ico, name, color, sub, close) {
+  const h = el('div', 'd-head'), t = el('div', 'd-title', name), txt = el('div', 'd-name'), x = el('button', 'd-close', '✕');
+  t.style.color = color; txt.append(t, el('div', 'd-sub', sub));
+  x.setAttribute('aria-label', 'Đóng chi tiết'); x.onclick = close;
+  h.append(ico, txt, x);
+  return h;
+}
+
+// Một món người đó đang mặc: chỉ số chính (đã cường hoá), dòng tẩy luyện, ngọc khảm. null nếu ô trống
+export function itemSheet(game, save, slot, T, close) {
+  const { data } = game, it = save.bag.find(i => i.uid === save.equip[slot]);
+  if (!it) return null;
+  const r0 = rarityOf(data.items, it.rarity), q = itemTier(data, it), color = q ? q.edge || q.color : r0.color, ico = icon(data, it);
+  ico.style.borderColor = color;
+  const box = el('div', 'pf-sheet'), st = el('div', 'd-stats');
+  box.append(head(ico, itemName(data, it), color, `${q ? 'Phẩm ' + q.name : r0.name} · ${data.items.slots[slot]} · ${fill(T.item_lv, { lvl: it.lvl })}`, close));
+  for (const [s, v] of Object.entries(mainStats(data, save, it))) st.append(el('div', 'd-main', statText(data, s, v)));
+  for (const l of it.lines) st.append(tierLine(data, l));
+  box.append(st);
+  if (it.sockets.length) {
+    const row = el('div', 'd-sockets');
+    for (const g of it.sockets) {
+      const c = el('span', 'socket' + (g ? ' full' : ''));
+      if (g) { const gi = gemInfo(data, g); c.append(gemIcon(game, g, 18, 'gem-ico sm'), `${gi.name}: ${gemText(data, g)}`); c.style.borderColor = gi.color; }
+      else c.textContent = T.gem_empty;
+      row.append(c);
+    }
+    box.append(el('div', 'd-label', T.gems), row);
+  }
+  return box;
+}
+
+const pick = (save, kind) => (kind === 'pet' ? save.pet : kind === 'mount' ? save.mount : kind === 'comp' ? save.companion : kind === 'comp2' ? save.companion2 : null);
+
+// Linh thú / khôi lỗi / thú cưỡi người đó đang mang: cấp, sao, tiến hoá, chỉ số, dòng tẩy luyện. null nếu không mang
+export function beastSheet(game, save, kind, T, close) {
+  const { data } = game, id = pick(save, kind);
+  if (!id) return null;
+  const pre = kind === 'pet' ? 'pet.' : kind === 'mount' ? 'mount.' : 'comp.', spr = [pre + id, 'npc.' + id].find(k => data.art.sprites[k]);
+  const ico = spr ? spriteIcon(game, spr, 0, 26, 'pf-spr', true) : el('i', 'ico');
+  const box = el('div', 'pf-sheet'), st = el('div', 'd-stats');
+  if (kind === 'mount') {
+    const m = data.pets.mounts[id], l = save.mountLine?.[id];
+    box.append(head(ico, m.name, m.color, T.mount, close));
+    st.append(el('div', 'd-main', fill(T.speed, { v: Math.round(m.speed * 100) })));
+    if (l) st.append(tierLine(data, l));
+  } else {
+    const pet = kind === 'pet', b = pet ? save.pets[id] : save.comps[id], k = pet ? 'pet' : 'puppet';
+    const name = pet ? petDef(data, save, id).name : data.npcs[id].name, color = pet ? data.pets.pets[id].color : data.companions.list[id].color;
+    box.append(head(ico, name, color, [pet ? T.pet : T.puppet, fill(T.skill_lv, { lv: b.lv }), b.star ? '★' + b.star : '', b.evo ? T.evo : ''].filter(Boolean).join(' · '), close));
+    const bare = { pets: { [id]: { ...b, lines: [] } }, comps: { [id]: { ...b, lines: [] } } };   // chỉ số theo loài, cấp, sao; dòng tẩy để riêng bên dưới
+    for (const [s, v] of Object.entries(beastStats(data, bare, k, id))) st.append(el('div', 'd-main', statText(data, s, v)));
+    for (const l of b.lines || []) st.append(tierLine(data, l));
+  }
+  box.append(st);
+  return box;
+}
+
+function chips(list) {
+  const d = el('div', 'pf-chips');
+  for (const [text, color] of list) { const c = el('span', 'pf-chip', text); if (color) c.style.borderColor = color; d.append(c); }
+  return d;
+}
+
+// Phần mặc định: linh căn, binh khí, nút (acts, do profile-panel.js dựng), công pháp. Mục "Chiêu đang mang" đã bỏ (chủ dự án 21/11/2026
+// 00:10: "game mình làm gì còn cái này"): đó là 3 chiêu của hệ chiêu cũ, ẩn từ Mùa 2 (12/11/2026); pháp bảo đang mặc hiện ở hàng ô dưới thẻ nhân vật (self-pb.js).
+export function infoSheet(game, prof, T, acts) {
+  const { data } = game, s = prof.save, box = el('div', 'pf-info'), elm = s.element && data.elements[s.element];
+  const line = el('div', 'pf-line', `${elm ? fill(T.element, { name: elm.name }) : T.element_none} · ${fill(T.weapon, { name: data.weapons[weaponId(s, data)].name })}`);
+  if (elm) line.style.color = elm.color;
+  box.append(line);
+  // Huyết mạch (tộc), thể chất (tên + phẩm): tên mang màu tộc / màu phẩm; chưa thức tỉnh thì chữ mờ. Mã đã lọc theo data ở game/profile.js cleanSave.
+  const dong = (chu, mau) => { const d = el('div', mau ? 'pf-line' : 'pf-line pf-chua', chu); if (mau) d.style.color = mau; return d; };
+  if (tnOn(data)) { const toc = TN(data).toc[s.tiem?.toc]; box.append(dong(toc ? fill(T.toc, { name: toc.ten }) : T.toc_none, toc?.mau)); }
+  if (tcOn(data)) { const t = theCua(s, data), p = t && phamThe(data, t); box.append(dong(t ? fill(T.the, { name: t.ten, pham: p.ten }) : T.the_none, t && p.mau)); }
+  if (prof.co) box.append(el('div', 'pf-flag', '⚑ ' + T.flag));
+  box.append(acts, el('div', 'pf-hint', T.tap));
+  const tech = s.techSlots.map(id => [`${data.techniques.list[id].name} · ${fill(T.skill_lv, { lv: s.techs[id]?.lv || 0 })}`, data.techniques.list[id].color]);
+  box.append(el('div', 'pf-label', T.techs), tech.length ? chips(tech) : el('span', 'pf-none', T.none));
+  box.append(el('div', 'pf-note', T.note));
+  return box;
+}

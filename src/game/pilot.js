@@ -1,0 +1,316 @@
+// Tự hành (nút Tự hành): nhân vật tự đi làm nhiệm vụ truyện. Linh khí đầy thì không tự độ kiếp, chỉ nhắc người chơi. Tìm đường qua cổng giữa các đảo, đi bộ tới NPC,
+// đánh đúng quái, nhặt vật phẩm, dọn bí cảnh và đánh boss. Truyện chờ tu luyện thì làm nhiệm vụ ngày (dailyjob.js), hết việc thì đánh quái
+// quanh đó, không có quái thì đả tọa tại chỗ. Chỉ làm nhiệm vụ (chủ dự án 11/11/2026 16:53): đã xoá việc vặt cũ (về nhà nhận quà, uống trà,
+// vuốt ve linh thú, câu cá lúc rảnh, nấu canh, luyện đan dư, khuya về động phủ, treo máy, khai luống, nâng động phủ). Việc tại chỗ vẫn làm:
+// tự mặc đồ tốt hơn, cường hoá an toàn, khảm ngọc, uống đan, túi đầy phân giải, nhận thưởng thành tựu (Menu → Tự động bật tắt).
+import { mapGate } from './map-gate.js';
+import { bodyOfMap, whyNot } from './starmap.js';
+import { lootStep } from './loot.js';
+import { dist } from './combat.js';
+import { fightStep, toward, reachOf, clearShot } from './auto.js';
+import { dailyJob } from './dailyjob.js';
+import { autoEquip, autoEnhance } from './autoequip.js';
+import { autoGem } from './autogem.js';
+import { autoPills } from './autopill.js';
+import { autoClaim } from './autoclaim.js';
+import { pilotOpt, avoided } from './pilotopt.js';
+import { waterDir, fishAct } from './fishing.js';
+import { talkTo } from './interact.js';
+import { phase } from './daynight.js';
+import { etaText } from './eta.js';
+import { unstuck } from './unstuck.js';
+import { baiNha } from './san-rai.js';
+import { t } from '../core/i18n.js';   // chữ ghép: dịch theo khuôn
+
+const C = game => game.data.config.pilot;
+const TAY_S = 0.9;   // giây Tự hành đứng lại trước khi tự làm một việc tay của nhiệm vụ chính
+
+// Đang ở chặng leo bậc đầu game (src/game/story.js rung, docs/10-CAI-HON.md việc 5): báo một dòng rồi trả true, nơi gọi thôi không bật Tự hành / Tự đánh
+export function leoBac(game, kind = 'hanh') {   // kind: 'hanh' Tự hành, 'danh' Tự đánh (mỗi thứ mở ở một bậc: story.js khoa)
+  if (!game.story?.khoa?.(kind)) return false;
+  game.toast(game.data.story.bac?.text?.['lock_' + kind] || 'Chưa dùng được lúc này.', 2.6);
+  return true;
+}
+
+export function togglePilot(game) {
+  if (!game.pilot && leoBac(game)) return;   // chặng leo bậc đầu game: tự tay đánh, chưa dùng Tự hành
+  game.pilot = game.pilot ? null : { path: null, key: '', repath: 0, line: 0 };
+  if (game.pilot) game.auto = false;
+  game.toast(game.pilot ? 'Tự hành: tự đi làm nhiệm vụ' : 'Tắt tự hành', 1.4);
+}
+
+// Tự hành làm nhiệm vụ hằng ngày (chủ dự án 02/11/2026): chạm dòng việc ngày chưa xong thì bật tự hành ưu tiên việc ngày
+// id: chạm một việc cụ thể (bảng Hệ Thống, chủ dự án 10/11/2026 10:09) thì làm việc đó trước, xong rồi làm tiếp việc ngày khác
+export function pilotDaily(game, id) {
+  if (!game.player || leoBac(game)) return;
+  game.pilot = { path: null, key: '', repath: 0, line: 0, daily: id || true };
+  game.auto = false;
+  game.toast('Tự hành: làm nhiệm vụ hằng ngày (kéo cần chạy để dừng)', 1.8);
+}
+
+export function stopPilot(game, text) {
+  if (!game.pilot) return;
+  game.pilot = null;
+  if (text) game.toast(text, 2.6);
+}
+
+// Đang chờ tu luyện (truyện cần lên tầng, cảnh giới): tự hành làm việc vặt. Màn tối (nút Tắt màn: treo máy, src/ui/man-toi.js) thì cũng coi như đang chờ:
+// không đi việc của nhiệm vụ chính sau phần mở đầu, cảnh truyện không diễn lúc không ai xem (bật màn lại thì đi tiếp).
+// Tắt màn treo máy thì truyện chờ người xem (không đi gặp người, không diễn cảnh); riêng nhiệm vụ farm (đánh quái theo phút, hạ từ 20 con) thì vẫn farm tiếp
+const farm = u => !!(u.phut || u.san || (u.kill && u.n >= 20));
+const waiting = game => { const u = game.story.current()?.until; return !u || u.never || u.realm || u.total || u.layer || !!(game.manToi && game.story.sauMoDau && !farm(u)); };
+
+// Gục khi đang tự hành (game.js gọi lúc hồi sinh): đang làm việc vặt ở đảo ngoài trời thì tạm tránh loài vừa hạ mình rồi làm tiếp;
+// gục trong truyện (boss truyện), bí cảnh, thiên kiếp, hoặc gục nhiều lần liền thì dừng (data/config.json → pilot.death)
+export function pilotDied(game) {
+  const pl = game.pilot, D = C(game).death, now = Date.now(), def = game.map.def, last = game.lastHit;
+  game.lastHit = null;
+  if (!pl) return;
+  pl.deaths = (pl.deaths || []).filter(t => now - t < D.window * 1000).concat(now);
+  const out = !(def.rooms || []).length && !def.res && !def.tower && !def.arena && !def.indoor;
+  const m = pl.job?.fight || last;   // con đang đánh, không thì con vừa đánh trúng mình
+  // death.max = 1: gục là dừng luôn (chủ dự án 11/11/2026 20:45: yếu, gục, hồi sinh lại chạy ra đúng bãi đó gục tiếp, không kịp tắt)
+  if (!waiting(game) || !out || game.trib.active || pl.deaths.length >= D.max) { stopPilot(game, D.stop.replace('{name}', m?.def?.name || 'quái')); return; }
+  if (m?.id) (pl.avoid ??= {})[m.id] = now + D.avoid * 1000;
+  pl.path = null; pl.key = '';
+  game.toast(D.keep.replace('{name}', m?.def?.name || 'quái'), 2.6);
+}
+
+// Chữ báo việc tự hành đang làm, hiện dưới mục tiêu
+export function pilotLabel(game) {
+  if (game.pilot && game.trib.canStart()) return t('Tự hành: {x}', { x: C(game).peak.label });
+  const j = game.pilot?.job, L = C(game).labels;
+  if (j?.tay) return t('Tự hành: {x}', { x: j.tay });
+  const k = j && Object.keys(L).find(k => j[k]);
+  if (!k) return '';
+  const o = j[k], name = o?.def?.name || '', to = j.to && game.data.maps[j.to]?.name;
+  const eta = k === 'sit' ? etaText(game) : '';
+  return t('Tự hành: {x}', { x: (k === 'go' && to ? L.to.replace('{name}', to) : L[k].replace('{name}', name)) + (eta ? ', ' + eta : '') });
+}
+
+// Đường qua các đảo: tìm theo cổng (bỏ cổng chưa mở), trả về cổng đầu tiên phải đi
+function routeTo(game, dest) {
+  const maps = game.data.maps, flags = game.save.flags, seen = new Set([game.map.id]);
+  const q = [[game.map.id, null]];
+  while (q.length) {
+    const [id, first] = q.shift();
+    for (const pt of maps[id].portals) {
+      if ((pt.need && !flags[pt.need]) || seen.has(pt.to) || (game.data.dungeon.closed || []).includes(pt.to) || mapGate(game, pt.to)) continue;   // mapGate: chưa đủ tu vi (src/game/map-gate.js)
+      const f = first || pt;
+      if (pt.to === dest) return f;
+      seen.add(pt.to); q.push([pt.to, f]);
+    }
+  }
+  return null;
+}
+
+// Tìm đường trên lưới ô (BFS), trả về danh sách điểm giữa ô
+export function findPath(game, tx, ty) {   // auto.js dùng để đi vòng tới boss
+  const map = game.map, T = map.T, p = game.player;
+  const sx = Math.floor(p.x / T), sy = Math.floor(p.y / T), W = map.w;
+  const prev = new Map([[sy * W + sx, -1]]), q = [[sx, sy]];
+  const goal = (x, y) => Math.abs(x - tx) + Math.abs(y - ty) <= (map.solidTile(tx, ty) ? 1 : 0);
+  const gates = new Set(map.def.portals.filter(pt => !pt.fly && (pt.at[0] !== tx || pt.at[1] !== ty)).map(pt => pt.at[1] * W + pt.at[0]));   // không giẫm nhầm cổng khác
+  for (let i = 0; i < q.length && q.length < 12000; i++) {
+    const [x, y] = q[i];
+    if (goal(x, y)) {
+      const out = [];
+      for (let k = y * W + x; k !== -1; k = prev.get(k)) out.unshift(map.center(k % W, Math.floor(k / W)));
+      return out.slice(1);
+    }
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const nx = x + dx, ny = y + dy, k = ny * W + nx;
+      if (prev.has(k) || gates.has(k) || map.solidTile(nx, ny)) continue;
+      prev.set(k, y * W + x); q.push([nx, ny]);
+    }
+  }
+  return null;
+}
+
+// Đi tới điểm (x, y) theo đường đã tìm, tính lại mỗi nhịp repath hoặc khi đổi đích
+function walk(game, x, y, dt) {
+  const pl = game.pilot, p = game.player, T = game.map.T;
+  const key = `${game.map.id}:${Math.floor(x / T)},${Math.floor(y / T)}`;
+  if (pl.key !== key || (pl.repath -= dt) <= 0) { pl.key = key; pl.repath = C(game).repath; pl.path = findPath(game, Math.floor(x / T), Math.floor(y / T)); }
+  const path = pl.path;
+  while (path?.length && Math.hypot(path[0].x - p.x, path[0].y - p.y) < 4) path.shift();
+  const nx = path?.length ? path[0] : { x, y };
+  return Math.hypot(nx.x - p.x, nx.y - p.y) < 2 ? { x: 0, y: 0 } : toward(p, nx.x, nx.y);
+}
+
+const nearest = (game, list) => { let b = null, bd = Infinity; for (const e of list) { const d = dist(e, game.player); if (d < bd) { bd = d; b = e; } } return b; };
+const alive = game => game.mobs.filter(m => !m.dead && !m.dummy);   // Mộc Nhân không chết: tự hành không đánh mãi
+const tileOf = (game, at) => game.map.center(at[0], at[1]);
+
+// Đả tọa: đảo có bồ đoàn thì ngồi bồ đoàn, không thì ngồi ngay chỗ đang đứng (không chạy về động phủ).
+// safe (đầy linh khí chờ độ kiếp): đảo không có bồ đoàn thì về động phủ (hoặc Thiên Kiếm Phong) cho vắng quái, khỏi bị vây lúc độ kiếp
+function sit(game, safe = false) {
+  const m = game.map.findTiles('M')[0], T = game.map.T;
+  if (m) return { sit: m };
+  const home = game.save.flags['dong-phu'] ? 'dong-phu' : 'thien-kiem-phong';
+  if (!safe || game.map.id === home) return { sit: [Math.floor(game.player.x / T), Math.floor(game.player.y / T)] };
+  const pt = routeTo(game, home);
+  return pt ? { go: tileOf(game, pt.at), to: home } : { sit: [Math.floor(game.player.x / T), Math.floor(game.player.y / T)] };
+}
+
+// Đích không có cổng nào nối tới (Mảnh Vỡ Thanh Khê chỉ tới bằng Tinh đồ; nhiệm vụ 50 đưa Tiểu Hỏa về, 22/11/2026): bay như người chơi chạm tinh cầu
+// ấy trên Tinh đồ (src/ui/world-map.js), cùng luật chặn của Tinh đồ (whyNot); đang ở bí cảnh, tháp thì ra cổng trước như Tinh đồ bắt người chơi làm
+function bayToi(game, dest) {
+  const d = game.map.def;
+  if (dest === game.map.id) return null;
+  if (d.rooms?.length || d.tower || d.res) { const ra = d.portals?.find(pt => pt.to); return ra ? { go: tileOf(game, ra.at), to: ra.to } : null; }
+  const b = bodyOfMap(game.data.starmap, dest);
+  return b && !b.parent && !whyNot(game, b) ? { bay: dest } : null;
+}
+
+// Hết nhiệm vụ: đánh quái quanh đó (quái có linh khí, không phải loài đang tạm tránh), không có thì đả tọa tại chỗ
+function idle(game) {
+  const p = game.player, m = nearest(game, alive(game).filter(m => m.def.qi && m.def.ai !== 'boss' && !avoided(game, m.id) && !skipped(m) && clearShot(game, p, m)));
+  return m && dist(m, p) < 220 ? { fight: m } : sit(game);
+}
+
+// Việc cần làm lúc này: { fight } | { go: {x,y} } | { talk } | { fish: {x,y} } | { sit } | { wait } | null (đứng chờ)
+function plan(game) {
+  const s = game.story.current(), p = game.player, u = s?.until;
+  // Quái đang đánh mình ở gần: đánh trước. Cách hàng cây, vách thì nó không tới được, mình cũng không bắn trúng: bỏ qua,
+  // kẻo đổi qua đổi lại giữa đánh nó và đi việc khác rồi đứng rung tại chỗ (chơi thử 28/10: kẹt trước cổng Làng Tinh Linh)
+  // Đang đi việc truyện (nhặt đồ, gặp người...) thì quái bãi treo máy (hồi 2,5 giây) không chặn lại đánh, trừ khi máu dưới nửa:
+  // trước đây đánh mãi quái bãi, không tới được chỗ nhặt mảnh kiếm (chơi thử 28/10, Thiên Kim Tinh)
+  const errand = !waiting(game) && p.hp > p.maxHp * 0.5;
+  const foe = nearest(game, alive(game).filter(m => !skipped(m) && m.aggro && !(errand && m.farm) && dist(m, p) < C(game).guard && clearShot(game, p, m)));
+  if (foe) return { fight: foe };
+  if (game.story.busy || (game.story.xong && !game.manToi)) return null;   // nhiệm vụ đang diễn cảnh (dàn cảnh, hàng chữ lớn giữa các câu thoại), hoặc vừa xong việc và đang chờ màn lặng: đứng yên, không tranh thủ đi đả tọa hay làm việc ngày
+  if (game.pilot.daily) {   // chạm dòng nhiệm vụ ngày (src/ui/quest-dock.js): chỉ làm việc ngày chưa xong (src/game/dailyjob.js)
+    const j = dailyJob(game, routeTo);
+    if (j?.meditate) return sit(game);
+    if (j) return j;
+    stopPilot(game, 'Tự hành: đã làm hết việc ngày tự làm được. Việc còn lại (bí cảnh, thiếu nguyên liệu…) chưa xong, bạn tự làm nhé.');
+    return null;
+  }
+  if (game.dungeon && game.map.def.rooms?.length) {   // tự hành trong bí cảnh (chủ dự án 02/11): đánh hết quái, sang phòng kế; xong thì chờ bảng kết quả (đang đi truyện thì làm tiếp truyện)
+    const m = nearest(game, alive(game).filter(m => !skipped(m)));
+    if (m) return { fight: m };
+    const room = game.dungeon.rooms.find(r => !r.entered);
+    if (room) { const [x, y, w, h] = room.rect; return { go: game.map.center(Math.floor(x + w / 2), Math.floor(y + h / 2)) }; }
+    if (waiting(game)) return null;
+  }
+  if (game.map.def.res || game.map.def.tower || game.map.def.arena) { const m = nearest(game, alive(game)); return m ? { fight: m } : null; }   // trong bí cảnh tài nguyên, tháp, luận võ: đánh hết quái
+  if (game.trib.canStart() && !(u && !waiting(game) && (u.talk || u.reach || u.map || u.collect))) return sit(game, true);   // việc truyện gặp người, tới chỗ, nhặt đồ vẫn làm tiếp (test 10/11/2026: kẹt ở "Gặp sư tỷ" vì đầy linh khí ở Luyện Khí 9 thì tự hành ngồi chờ)
+  // đầy linh khí: về bồ đoàn / động phủ chờ, chỗ vắng quái, để người chơi độ kiếp không bị bầy quái vây (chủ dự án gật 31/10, chơi thử máy tính: thua kiếp giữa bầy Hỏa Lang)
+  if (waiting(game)) {   // truyện chờ tu luyện: làm nhiệm vụ ngày còn làm được, hết thì đánh quái quanh đó / đả tọa tại chỗ
+    const j = dailyJob(game, routeTo);
+    return j?.meditate ? sit(game) : j || idle(game);
+  }
+  const noi = u.san ? game.story.goal()?.san : null;   // săn rải (src/game/san-rai.js): nơi đang nhắm, mỗi người một vòng đi riêng
+  const dest = noi?.in || u.map || u.in || s.target_map || s.map || game.map.id;   // u.in: việc chỉ tính quái hạ trong bản đồ đó (bậc "Dọn hai phòng quái" của bí cảnh): lỡ ra ngoài thì quay vào, không đứng ngoài đánh quái bãi mãi (19/11/2026)
+  if (game.map.id !== dest) {
+    const pt = routeTo(game, dest);
+    return pt ? { go: tileOf(game, pt.at), to: dest } : bayToi(game, dest) || sit(game);
+  }
+  if (u.map) { const pt = routeTo(game, u.map); return pt ? { go: tileOf(game, pt.at), to: u.map } : null; }   // đã tới nơi: đứng chờ truyện sang bước (đừng bay lại)
+  if (noi) {   // săn rải: chỉ đánh quái trong vòng của nơi đang nhắm (ngoài vòng không tính), hết quái thì về giữa vòng chờ; con vòng ngoài quá sức mình thì chừa lại
+    const c = tileOf(game, noi.at), R = noi.r * game.map.T;
+    const m = nearest(game, alive(game).filter(m => !skipped(m) && m.def.qi && m.def.ai !== 'boss' && !avoided(game, m.id) && !(m.elite >= 4 && m.def.atk * 15 > p.maxHp) && dist(m, c) <= R));
+    return m ? { fight: m } : dist(p, c) > R * 0.45 ? { go: c } : null;
+  }
+  // Nhiệm vụ farm dài ở một bản đồ (hạ mấy nghìn con, đánh đủ giờ): mỗi người một bãi nhà khác nhau, đánh con gần bãi nhà nhất thay vì con gần mình
+  // nhất, để cả bọn Tự hành không dồn hết vào bãi cạnh cổng (chủ dự án 26/11/2026 13:40: "mọi người đi tới đó đông quá")
+  const nha = farm(u) && (u.phut || u.kill === '*') ? baiNha(game) : null, ganNha = ds => { let b = null, bd = Infinity; for (const m of ds) { const d = dist(m, nha) + dist(m, p) * 0.35; if (d < bd) { bd = d; b = m; } } return b; };
+  if (u.phut) { const ds = alive(game).filter(m => !skipped(m) && m.def.qi && m.def.ai !== 'boss'), m = nha ? ganNha(ds.filter(m => !m.elite)) || nearest(game, ds) : nearest(game, ds); return m ? { fight: m } : idle(game); }   // đánh quái đủ phút: con gần bãi nhà nhất (không có bãi nhà: con gần nhất trên bản đồ)
+  if (u.talk) { const n = game.npcs.find(n => n.id === u.talk); return n ? { talk: n } : s.target ? { go: tileOf(game, s.target) } : null; }
+  if (u.reach) { const v = u.nut && game.story.viec(); return v ? { tay: v } : { go: tileOf(game, u.reach) }; }   // nut: tới nơi thì đứng lại một nhịp (nút hành động hiện tên việc: Gióng chuông, Đặt thẻ) rồi tự tay làm như người chơi bấm (pilotMove)
+  if (u.collect) { const k = nearest(game, game.pickups.filter(k => k.item === u.collect)); if (k) return { go: k }; }
+  if (u.kill) { const ds = alive(game).filter(m => !skipped(m) && (u.kill === '*' || m.id === u.kill)), m = nha ? ganNha(ds.filter(m => !m.elite && m.def.qi && m.def.ai !== 'boss')) || nearest(game, ds) : nearest(game, ds); if (m) return { fight: m }; }
+  if (u.boss_dead || u.kill_all || u.any || u.kill) {
+    const m = nearest(game, alive(game).filter(m => m.story || m.room || m.aggro || m.id === u.kill));
+    if (m) return { fight: m };
+    const room = game.dungeon?.rooms.find(r => !r.entered);
+    if (room) { const [x, y, w, h] = room.rect; return { go: game.map.center(Math.floor(x + w / 2), Math.floor(y + h / 2)) }; }
+  }
+  if (s.target) return { go: tileOf(game, s.target) };
+  return idle(game);
+}
+
+// Chưa tới tầm thì đi theo đường (vòng qua dung nham, tường), tới tầm thì đánh
+// Quá tầm hoặc vướng cây, vách giữa hai bên thì đi theo đường tới gần; không thì đánh
+const engage = (game, m, dt) => dist(m, game.player) > reachOf(game, m) || !clearShot(game, game.player, m) ? { ax: walk(game, m.x, m.y, dt), atk: false } : fightStep(game, m);
+
+// Báo lỗi #40 (31/10): quái dồn sau đá / vách, tự hành đi mãi không tới tầm, đứng rung một chỗ. Đuổi một con quá stuck_sec giây
+// mà gần như không nhích (dưới 6 đơn vị) và không đánh được thì bỏ qua con đó skip_sec giây, đánh con khác.
+function stuckCheck(game, m, r, dt) {
+  const pl = game.pilot, p = game.player, cfg = C(game);
+  if (r.atk || pl.chase?.m !== m) { pl.chase = { m, x: p.x, y: p.y, t: 0 }; return; }
+  const c = pl.chase;
+  if (Math.hypot(p.x - c.x, p.y - c.y) > 6) { c.x = p.x; c.y = p.y; c.t = 0; return; }
+  if ((c.t += dt) > (cfg.stuck_sec || 3)) { m.skipUntil = Date.now() + (cfg.skip_sec || 20) * 1000; pl.chase = null; pl.path = null; pl.key = ''; }
+}
+export const skipped = m => (m.skipUntil || 0) > Date.now();
+
+// Gọi mỗi khung từ player khi đang tự hành: trả về hướng đi và có đánh thường không.
+// Chống kẹt (báo lỗi #102, #117): đi đường mà 3 giây không nhích (vướng góc nhà, cột đá, đồ hội) thì bỏ đường cũ, tìm lại,
+// và bước ngang một chút cho thoát góc (unstuck.js). Đuổi quái kẹt thì stuckCheck bên dưới còn bỏ hẳn con đó.
+export function pilotStep(game, ax, dt) {
+  const r = pilotMove(game, ax, dt), pl = game.pilot;
+  return pl ? unstuck(game, r, dt, () => { pl.path = null; pl.key = ''; }) : r;
+}
+
+function pilotMove(game, ax, dt) {
+  const p = game.player, none = { ax, atk: false };
+  if (Math.hypot(ax.x, ax.y) > 0.3) { stopPilot(game, 'Tắt tự hành'); return none; }   // tự tay kéo cần chạy là tắt tự hành (chủ dự án 02/11/2026: không còn nút tắt)
+  if ((game.pilot.aeT = (game.pilot.aeT || 0) - dt) <= 0) { game.pilot.aeT = 2; if (pilotOpt(game, 'mac')) autoEquip(game); if (pilotOpt(game, 'cuong')) autoEnhance(game); { const kham = pilotOpt(game, 'ngoc'), ghep = pilotOpt(game, 'ghep-ngoc'); if (kham || ghep) autoGem(game, kham, ghep); } if (pilotOpt(game, 'dan')) autoPills(game); autoClaim(game); }
+  if (game.trib.active) { game.pilot.job = null; return none; }   // người chơi tự độ kiếp: tự hành đứng yên, nhường người chơi né
+  const pick = lootStep(game);   // đồ rơi chạy qua mới nhặt (src/game/loot.js)
+  if (pick) return { ax: pick, atk: false };
+  const job = game.pilot.job = plan(game);
+  if (!game.pilot) return none;   // plan có thể tắt tự hành (stopPilot đặt game.pilot = null): 22/11/2026 lỗi "Cannot set properties of null (setting 'tayT')"
+  if (!job?.tay) game.pilot.tayT = 0;
+  if (!job) return none;
+  if (job.tay) { p.meditating = false; if ((game.pilot.tayT += dt) > TAY_S) { game.pilot.tayT = 0; game.story.notify('lam'); } return none; }   // việc tay của nhiệm vụ chính: đứng TAY_S giây cho người xem kịp thấy nút đổi tên rồi mới làm
+  if (job.fight) { p.meditating = false; const r = engage(game, job.fight, dt); stuckCheck(game, job.fight, r, dt); return r; }
+  if (job.talk) {
+    if (dist(job.talk, p) < game.data.config.interact_range * 0.8) { if ((game.pilot.talkT = (game.pilot.talkT || 0) - dt) <= 0) { game.pilot.talkT = 0.8; talkTo(game, job.talk); } return none; }   // nói thẳng với đúng người, không qua nút
+    return { ax: walk(game, job.talk.x, job.talk.y, dt), atk: false };
+  }
+  if (job.sit) {
+    const c = tileOf(game, job.sit);
+    if (Math.hypot(c.x - p.x, c.y - p.y) > 10) return { ax: walk(game, c.x, c.y, dt), atk: false };
+    if (!p.meditating) { p.meditating = true; game.toast('Đả tọa... linh khí chảy vào người', 1.4); }   // ngồi thẳng, không bấm nút (cạnh NPC thì nút thành Nói chuyện)
+    return none;
+  }
+  if (job.fish) {   // câu cá: tới chỗ đứng câu, thả câu; cắn câu, giằng co do fishing.js làm thay khi đang tự hành
+    if (game.fish) return none;
+    if (Math.hypot(job.fish.x - p.x, job.fish.y - p.y) > 3) return { ax: walk(game, job.fish.x, job.fish.y, dt), atk: false };
+    const dir = waterDir(game);
+    p.meditating = false; if (dir) fishAct(game, dir);
+    return none;
+  }
+  if (job.bay) {   // bay bằng Tinh đồ (bayToi)
+    if (!game.traveling && !game.trip && !game.dialog?.open) game.travel(job.bay, 'vao', true, { text: game.data.starmap.texts.trip.replace('{name}', game.data.maps[job.bay].name), kind: 'flight' });
+    return none;
+  }
+  if (!job.go) return none;   // việc ngày vừa làm từ xa (src/game/dailyjob.js): đứng chờ một nhịp
+  p.meditating = false;
+  const fl = flyLink(game, job.go);
+  if (fl) {   // sang tinh cầu khác: bay luôn như bấm Bản đồ, khỏi đi bộ tới chỗ cổng cũ
+    if (!game.traveling && !game.trip) game.travel(fl.to, fl.spawn, true, { text: game.data.starmap.texts.trip.replace('{name}', game.data.maps[fl.to].name), kind: 'flight' });
+    return none;
+  }
+  return { ax: walk(game, job.go.x, job.go.y, dt), atk: false };
+}
+
+// Đường bay giữa hai tinh cầu (data/maps: cổng có "fly": true) nằm ở điểm đích của việc đi, nếu có
+function flyLink(game, go) {
+  const T = game.map.T, tx = Math.floor(go.x / T), ty = Math.floor(go.y / T);
+  return game.map.def.portals.find(pt => pt.fly && pt.at[0] === tx && pt.at[1] === ty) || null;
+}
+
+// Tự lật lời thoại khi đang tự hành (lựa chọn thì vẫn chờ người chơi). Câu đứng đủ giờ đọc theo độ dài (src/ui/dialog.js holdSec, ít nhất
+// pilot.line giây); câu có cờ phải chạm thì chờ người chơi (chủ dự án 14/11/2026 00:05: chữ tự lướt qua không ai đọc kịp).
+export function pilotDialog(game, dt) {
+  const pl = game.pilot, d = game.dialog;
+  if (!pl || !d.open) { if (pl) pl.line = 0; return; }
+  if (pl.lineNo !== d.lineNo) { pl.lineNo = d.lineNo; pl.line = 0; }   // câu mới (kể cả do người chơi tự chạm): đếm lại từ đầu
+  if ((pl.line += dt) < Math.max(C(game).line, d.holdSec?.() ?? 0)) return;
+  pl.line = 0;
+  d.skip?.();
+}

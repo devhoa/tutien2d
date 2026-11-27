@@ -1,0 +1,51 @@
+/* Màn thức tỉnh phẩm Nguyên Anh (src/ui/le-anh.js; chủ dự án 27/11/2026 01:28: "đỉnh hơn cả thể phách và huyết mạch"). Lễ một đời một lần nên
+   chuyển động giữ cả khi máy để chế độ êm (body.perf-calm tắt mọi animation, style-khung.css): animation ở đây ghi !important, trễ qua --tre.
+   Nền đêm sâu, canvas .la-cv vẽ kim đan, vết nứt, vỡ, Nguyên Anh vàng trên đài sen; .vo lúc vỡ (rung cả màn), .ra lúc hiện chữ (nền ánh màu phẩm). */
+#le-anh { position: fixed; inset: 0; z-index: 241; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; overflow: hidden;
+  padding: 0 18px max(4vh, 18px); color: #f6efe2; touch-action: manipulation; user-select: none; -webkit-user-select: none;
+  background: radial-gradient(90% 55% at 50% 33%, #1c1308, #07060c 70%); animation: la-vao .9s ease-out both !important; }
+#le-anh[hidden] { display: none; }
+#le-anh::before { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 1.2s;
+  background: radial-gradient(70% 45% at 50% 33%, color-mix(in srgb, var(--mau) 30%, transparent), transparent 75%); }
+#le-anh.vo::before { opacity: 1; }
+#le-anh.vo { animation: la-rung .55s linear both !important; }
+.la-cv { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.la-goi { position: absolute; top: max(6vh, 26px); left: 0; right: 0; text-align: center; font-size: 13px; letter-spacing: .14em; color: #d9c6a2; text-shadow: 0 1px 3px #000;
+  animation: la-tho 2.4s ease-in-out infinite !important; }
+#le-anh.ra .la-goi { color: var(--mau); font-size: 12px; letter-spacing: .34em; text-transform: uppercase; animation: la-len .6s ease-out both !important; }
+
+.la-duoi { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; max-width: 340px; text-align: center; }
+#le-anh .la-duoi > * { animation: la-len .5s ease-out var(--tre, 0s) both !important; }
+#le-anh .la-duoi > .la-an { font: normal 64px/1 "Noto Serif CJK TC", "Songti TC", "PMingLiU", serif; color: #fff4cf; letter-spacing: .06em; margin-bottom: -2px;
+  text-shadow: 0 0 6px #fff, 0 0 18px var(--mau), 0 0 42px var(--mau); animation: la-dong .75s cubic-bezier(.2, 1.3, .35, 1) both !important; }
+.la-ten { font-size: 25px; font-weight: 800; line-height: 1.15; color: var(--mau); }
+.la-ten span { display: inline-block; white-space: pre; text-shadow: 0 2px 0 #000, 0 0 16px color-mix(in srgb, var(--mau) 70%, transparent);
+  animation: la-chu .42s cubic-bezier(.2, 1.4, .4, 1) calc(var(--tre, 0s) + var(--i) * 45ms) both !important; }
+.la-ten { --tre: .55s; }
+.la-loi { font-size: 12.5px; line-height: 1.5; color: #e2d4bb; font-style: italic; max-width: 320px; text-shadow: 0 1px 2px #000; margin: 2px 0 4px; }
+.la-so { display: flex; flex-direction: column; gap: 1px; width: 100%; max-width: 320px; padding: 5px 10px; border-radius: 6px; text-align: left; font-size: 12px; line-height: 1.4;
+  background: color-mix(in srgb, var(--mau) 12%, rgba(0, 0, 0, .62)); border: 1px solid color-mix(in srgb, var(--mau) 42%, transparent); }
+.la-so b { color: var(--mau); font-size: 12.5px; letter-spacing: .04em; }
+.la-so span { color: #eee3cf; }
+.la-mot { font-size: 10.5px; color: #a8957c; margin-top: 4px; }
+.la-nut { margin-top: 6px; padding: 10px 30px; border-radius: 7px; border: 1px solid #ffe6a0; background: linear-gradient(#f6d070, #c8902a); color: #2a1a05; font: 800 15px/1 inherit;
+  box-shadow: 0 2px 0 #6b4a10, 0 0 18px color-mix(in srgb, var(--mau) 55%, transparent); }
+.la-nut:active { transform: translateY(1px); }
+
+@media (max-height: 760px) {   /* màn thấp (9:16): chữ gọn lại cho Nguyên Anh phía trên khỏi bị đè */
+  .la-duoi { gap: 4px; }
+  #le-anh .la-duoi > .la-an { font-size: 46px; }
+  .la-ten { font-size: 21px; }
+  .la-loi { font-size: 11px; line-height: 1.4; margin: 0 0 2px; }
+  .la-so { font-size: 10.5px; padding: 4px 9px; line-height: 1.35; }
+  .la-so b { font-size: 11px; }
+  .la-mot { margin-top: 2px; }
+  .la-nut { margin-top: 3px; padding: 8px 26px; }
+}
+@keyframes la-vao { from { opacity: 0; } to { opacity: 1; } }
+@keyframes la-tho { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+@keyframes la-rung { 0%, 100% { translate: 0 0; } 10% { translate: -9px 4px; } 22% { translate: 8px -5px; } 34% { translate: -7px -3px; } 46% { translate: 6px 4px; }
+  58% { translate: -4px 2px; } 70% { translate: 3px -2px; } 84% { translate: -2px 1px; } }
+@keyframes la-len { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes la-dong { 0% { opacity: 0; transform: scale(2.8); filter: blur(6px); } 60% { opacity: 1; transform: scale(.92); filter: blur(0); } 100% { transform: scale(1); } }
+@keyframes la-chu { from { opacity: 0; transform: translateY(-14px) scale(1.6); filter: blur(3px); } to { opacity: 1; transform: none; filter: none; } }

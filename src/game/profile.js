@@ -1,0 +1,98 @@
+// Hồ sơ người chơi khác (chạm tên ở bảng xếp hạng): tải từ máy chủ (net/rank.js → fetchPlayer), nhớ tạm 60 giây mỗi người.
+// Bản lưu trả về chỉ gồm những gì cần để xem và dựng bản sao so tài (cảnh giới, đồ đang mặc, công pháp, chiêu, linh thú,
+// đồng hành, hình dáng). Đó là dữ liệu người khác: lọc lại theo data/ của bản game này trước khi dùng (món lạ, chỉ số lạ bỏ đi).
+import { mountKeyOf } from './inst.js';
+import { outfitKeyOf } from './beast.js';   // khoá bản thời trang đang mặc (dòng chỉ số của bộ)
+const cache = new Map(), inflight = new Map();
+const num = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
+const obj = v => (v && typeof v === 'object' && !Array.isArray(v) ? v : {});
+
+export function loadPlayer(game, k, force) {
+  const c = cache.get(k);
+  if (!force && c && Date.now() - c.at < 60000) return Promise.resolve(c.data);
+  if (!inflight.has(k)) {
+    inflight.set(k, import('../net/rank.js').then(m => m.fetchPlayer(k)).then(raw => {
+      const data = { ...raw, save: cleanSave(game.data, raw?.save) };
+      cache.set(k, { at: Date.now(), data });
+      return data;
+    }).finally(() => inflight.delete(k)));
+  }
+  return inflight.get(k);
+}
+
+function cleanItem(data, it) {
+  const I = data.items;
+  if (!it || !I.bases[it.base]) return null;
+  const main = Object.fromEntries(Object.entries(obj(it.main)).filter(([s, v]) => I.stats[s] && Number.isFinite(v)));
+  const gem = g => {
+    if (typeof g !== 'string') return null;
+    const [t, lv] = g.split(':');
+    return I.gems.types[t]?.values?.[num(lv) - 1] != null ? g : null;
+  };
+  return {
+    uid: it.uid, base: it.base, rarity: I.rarities.some(r => r.id === it.rarity) ? it.rarity : I.rarities[0].id,
+    lvl: num(it.lvl), plus: num(it.plus), pb: num(it.pb), el: data.elements[it.el] ? it.el : undefined, sp: Number.isInteger(it.sp) ? Math.max(0, Math.min(6, it.sp)) : undefined,   // phẩm tính chỉ số của đồ cũ (he-chien.js itemPham)
+    wt: data.weapons[it.wt] ? it.wt : undefined, main,
+    lines: (Array.isArray(it.lines) ? it.lines : []).filter(l => I.stats[l?.s] && Number.isFinite(l.v)).map(l => (Number.isInteger(l.t) ? { s: l.s, v: l.v, t: l.t } : { s: l.s, v: l.v })),
+    sockets: (Array.isArray(it.sockets) ? it.sockets : []).map(gem),
+  };
+}
+
+// Bản lưu sạch: chỉ trường đã biết, giá trị trong khoảng hợp lệ; dùng được cho playerStats, skillSlots, heroLook
+export function cleanSave(data, s) {
+  s = obj(s);
+  const R = data.realms, wid = Object.keys(data.weapons).find(k => !k.startsWith('_'));
+  const bag = (Array.isArray(s.bag) ? s.bag : []).map(it => cleanItem(data, it)).filter(Boolean);
+  const equip = {};
+  for (const [slot, uid] of Object.entries(obj(s.equip))) {
+    const it = data.items.slots[slot] && bag.find(i => i.uid === uid);
+    if (it && data.items.bases[it.base].slot === slot) equip[slot] = uid;
+  }
+  const pet = data.pets.pets[s.pet] ? s.pet : null, isComp = id => !!(data.companions.list[id] && data.npcs[id]);
+  const comp = isComp(s.companion) ? s.companion : null, comp2 = isComp(s.companion2) && s.companion2 !== comp ? s.companion2 : null;
+  const mount = data.pets.mounts?.[s.mount] ? s.mount : null, pst = obj(obj(s.pets)[pet]);
+  // dòng tẩy luyện của linh thú, khôi lỗi, thú cưỡi (bảng hồ sơ hiện khung phẩm, số dòng như ô trang bị)
+  const lines = ls => (Array.isArray(ls) ? ls : []).filter(l => data.items.stats[l?.s] && Number.isFinite(l.v)).slice(0, 12).map(l => (Number.isInteger(l.t) ? { s: l.s, v: l.v, t: l.t } : { s: l.s, v: l.v }));
+  const beast = b => ({ lv: Math.max(1, num(obj(b).lv, 1)), exp: 0, star: num(obj(b).star), evo: !!obj(b).evo, lines: lines(obj(b).lines) });
+  const comps = {};
+  for (const id of [comp, comp2]) if (id) comps[id] = beast(obj(s.comps)[id]);
+  const ml = mount && obj(obj(s.mountLine)[mountKeyOf(s) || mount]);   // bản đang chọn (src/game/inst.js)
+  // Hồ sơ đúng chỉ số thực tế (chủ dự án 23/11/2026 19:35; máy chủ trả thêm từ migration 20261123090000_p2d_xem_nguoi_du.sql): Tiềm năng
+  // (tộc, điểm) và dòng thời trang đang mặc cũng tính vào HP / Công / Thủ như bảng Nhân vật của chính họ (src/game/stats.js)
+  const TN = data['tiem-nang'], ti = obj(s.tiem), toc = TN?.toc?.[ti.toc] ? ti.toc : null;
+  const so = (o, keys, max) => Object.fromEntries(keys.map(k => [k, Math.max(0, Math.min(max, num(obj(o)[k])))]).filter(([, v]) => v > 0));
+  const tiem = toc ? { toc, goc: so(ti.goc, Object.keys(TN.toc[toc].huong || {}), TN.quay?.tong?.[1] ?? 10), cong: so(ti.cong, TN.diem?.chi_so || [], TN.diem?.tran ?? 20),
+    max: Math.max(0, Math.min(R.names.length - 1, Math.floor(num(ti.max)))) } : undefined;
+  const look = data.heroes.list[s.look] ? s.look : data.heroes.default, outfit = typeof s.outfit === 'string' ? s.outfit : undefined;
+  const ok = outfit && outfitKeyOf({ ...s, look, outfit }, data), ol = ok && lines([obj(obj(s.outfitLine)[ok])])[0];
+  const techs = {};
+  for (const [id, t] of Object.entries(obj(s.techs))) if (data.techniques.list[id]) techs[id] = { lv: num(obj(t).lv) };
+  const skillLv = {};
+  for (const [id, lv] of Object.entries(obj(s.skillLv))) if (data.skills[id]) skillLv[id] = num(lv, 1);
+  const snack = obj(s.snack);
+  // pháp bảo đang mặc (hệ Pháp Bảo Luyện Chế, chủ dự án 12/11/2026 11:01: hồ sơ người khác phải thấy): loại, phẩm, chiêu khảm phải có thật
+  const PBD = data['phap-bao'], pbIn = obj(s.phapBao), pbItems = (Array.isArray(pbIn.items) ? pbIn.items : []).slice(0, 4).map(i => obj(i))
+    .filter(i => PBD?.types?.[i.type] && (PBD.grades || []).some(g => g.id === i.grade) && Number.isFinite(i.uid))
+    .map(i => ({ uid: i.uid, type: i.type, grade: i.grade, lv: Math.max(0, Math.floor(num(i.lv))), slots: Math.max(1, Math.min(4, Math.floor(num(i.slots, 1)))),
+      mods: (Array.isArray(i.mods) ? i.mods : []).slice(0, 4).map(m => (PBD.mods?.[m] ? m : null)), miss: 0 }));
+  const phapBao = { items: pbItems, wear: [0, 1, 2, 3].map(k => (pbItems.some(i => i.uid === (Array.isArray(pbIn.wear) ? pbIn.wear[k] : null)) ? pbIn.wear[k] : null)), stones: 0, next: 1, got: [] };
+  return {
+    realm: Math.max(0, Math.min(R.names.length - 1, Math.floor(num(s.realm)))),
+    layer: Math.max(1, Math.min(R.layers, Math.floor(num(s.layer, 1)))),
+    element: data.elements[s.element] ? s.element : null,
+    weapon: data.weapons[s.weapon] ? s.weapon : wid,
+    root: s.root, bag, equip, gems: {}, mats: {}, nextUid: 1,
+    techSlots: (Array.isArray(s.techSlots) ? s.techSlots : []).filter(id => data.techniques.list[id]), techs,
+    snack: data.snacks?.list?.[snack.id] ? { id: snack.id, until: num(snack.until) } : null,
+    flags: { boiNguyen: num(obj(s.flags).boiNguyen) },
+    loadout: Array.isArray(s.loadout) ? s.loadout.slice(0, 3).map(id => (data.skills[id] ? id : null)) : undefined,
+    skillLv,
+    pet, pets: pet ? { [pet]: beast(pst) } : {},
+    companion: comp, companion2: comp2, comps,
+    mount, mounts: mount ? { [mount]: 1 } : {}, mountLine: ml && data.items.stats[ml.s] && Number.isFinite(ml.v) ? { [mount]: lines([ml])[0] } : {},   // mounts: để mountKeyOf ra đúng bản (trước thiếu nên dòng thú cưỡi không được tính)
+    tiem, theChat: typeof s.theChat === 'string' && data['the-chat']?.the?.[s.theChat] ? s.theChat : undefined,   // Thể chất: chỉ nhận mã có trong data (số lấy từ data)
+    outfitKey: ol ? ok : undefined, outfits: ol ? { [ok]: 1 } : {}, outfitLine: ol ? { [ok]: ol } : {},
+    phapBao,
+    look, outfit, gioi: s.gioi,
+  };
+}

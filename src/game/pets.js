@@ -1,0 +1,203 @@
+// Linh thú (data/pets.json): thu phục từ quái dị chủng, đi theo đánh cùng, lên cấp bằng linh khí.
+// Thú cưỡi: nhận bằng Thú Lệnh (việc ngày), lên / xuống bằng nút.
+import { talkBeastShop } from './beast-shop.js';
+import { hitMob, shoot, addFx, dist } from './combat.js';
+import { petDef, petMax } from './evolve.js';
+import { hasMount, pickMount } from './inst.js';
+
+export function ensurePets(save) { save.pets ??= {}; save.mounts ??= {}; }
+
+const P = game => game.data.pets;
+export const petNeed = (data, lv) => Math.round(data.pets.exp_base * Math.pow(lv, data.pets.exp_pow));
+export const petLevel = (game, id) => game.save.pets[id]?.lv || 0;
+
+// Quái mọc từ bãi có thể thành dị chủng: mạnh hơn, linh khí nhiều hơn, hạ được thì thu phục
+export function maybeRare(game, m) {
+  const cfg = P(game);
+  if (cfg.pets[m.id] && Math.random() < cfg.rare_chance) lamHiem(game, m);
+}
+// Biến con quái thành dị chủng. Quái chung: máy chủ phòng quyết con nào là dị chủng (quai-chung.js), máy nào cũng gọi hàm này cho con đó
+export function lamHiem(game, m) {
+  const r = P(game).rare, d = m.def;
+  m.def = { ...d, name: r.prefix + d.name, hp: d.hp * r.hp, atk: d.atk * r.atk, qi: d.qi * r.qi };
+  m.hp = m.maxHp = m.def.hp; m.rare = true;
+}
+
+export function petKill(game, m) {
+  const cfg = P(game);
+  if (!m.rare) return;
+  const id = m.id, def = cfg.pets[id];
+  if (game.save.pets[id]) {   // đã có loài này: thêm kinh nghiệm và một bản sao để gộp
+    const st = game.save.pets[id]; st.copies = (st.copies || 0) + 1;
+    gainPetExp(game, petNeed(game.data, st.lv), id);
+    game.toast(cfg.merge.texts.copy.replace('{name}', def.name).replace('{n}', st.copies), 2.4); game.newPets = true;
+  }
+  else gainPet(game, id);
+}
+
+export function gainPet(game, id) {
+  const s = game.save;
+  if (s.pets[id]) return;
+  s.pets[id] = { lv: 1, exp: 0 };
+  if (!s.pet) { s.pet = id; spawnPet(game); }
+  game.toast(`Thu phục được linh thú ${P(game).pets[id].name}!`, 2.6);
+  game.sfx('levelup'); game.newPets = true; game.persist();
+}
+
+export function gainMount(game, id) {
+  const s = game.save;
+  if (s.mounts[id]) return;
+  s.mounts[id] = true;
+  s.mount ??= id;
+  game.toast(`Có thú cưỡi mới: ${P(game).mounts[id].name}!`, 2.6);
+  game.sfx('levelup'); game.newPets = true; game.persist();
+}
+
+// Linh thú hưởng một nửa linh khí chủ thu được
+export function gainPetExp(game, amount, only) {
+  const s = game.save, id = only || s.pet, st = s.pets[id], max = petMax(game.data, s, id);
+  if (!st || st.lv >= max) return;
+  st.exp += only ? amount : amount * 0.5;
+  while (st.lv < max && st.exp >= petNeed(game.data, st.lv)) {
+    st.exp -= petNeed(game.data, st.lv); st.lv++;
+    if (!game.mungLen?.('pet', id, st.lv)) game.toast(`${petDef(game.data, s, id).name} lên cấp ${st.lv}!`, 1.6);   // mốc 5 cấp: thẻ mừng (src/ui/mung-them.js); cấp thường: dòng báo cũ + vòng sáng
+  }
+}
+
+export function setPet(game, id) { game.save.pet = id; spawnPet(game); game.refreshStats(); game.persist(); }   // thưởng bộ Đạo Vận tính linh thú cùng hệ
+export function setMount(game, key) { pickMount(game, key); }   // dòng % của thú cưỡi cộng vào chỉ số (src/game/beast.js)
+
+export function spawnPet(game) {
+  const id = game.save.pet, p = game.player;
+  game.pet = id && p ? { id, def: petDef(game.data, game.save, id), x: p.x - 10, y: p.y + 4, cd: 1, skillCd: 3, hop: 0, target: null, face: 1 } : null;
+}
+
+function nearestMob(game, from, range) {
+  let best = null, bd = range;
+  for (const m of game.mobs) { if (m.dead || (m.def.ai === 'passive' || m.dummy) && !m.aggro && m.hp === m.maxHp) continue; const d = dist(m, from); if (d < bd) { bd = d; best = m; } }
+  return best;
+}
+
+export function updatePet(game, dt) {
+  if (game.pet) updateFollower(game, game.pet, petMul(game), P(game).follow, dt, 0, P(game).side || 0);
+}
+
+// Giãn cách: đẩy kẻ đi theo ra khỏi người chơi và kẻ đi theo khác nếu đứng quá sát (cả lúc cùng lao vào một con quái)
+function spread(game, f, dt) {
+  const S = P(game).spread;
+  if (!S) return;
+  for (const o of [game.player, game.pet, game.comp, game.comp2]) {
+    if (!o || o === f) continue;
+    const min = o === game.player ? S.player : S.other, ox = f.x - o.x, oy = f.y - o.y, od = Math.hypot(ox, oy);
+    if (od >= min) continue;
+    const k = Math.min(1, dt * 8) * (min - od);
+    if (od < 0.01) { f.x += k; continue; }
+    f.x += ox / od * k; f.y += oy / od * k;
+  }
+}
+
+// Kẻ đi theo (linh thú, bạn đồng hành): theo sau chủ, tự đánh quái gần, có một chiêu hồi theo giây
+// lift: đứng lùi lên phía sau (vẽ sau người chơi, không che hình nhân vật); linh thú 0, bạn đồng hành > 0
+// side: lệch sang một bên hướng nhìn (linh thú một bên, bạn đồng hành bên kia), rồi giãn cách (data/pets.json spread)
+export function updateFollower(game, f, mul, follow, dt, lift = 0, side = 0) {
+  const p = game.player, def = f.def;
+  f.cd -= dt; f.skillCd -= dt; f.hop += dt * 8; f.walkT = (f.walkT || 0) + dt;
+  const tgt = nearestMob(game, p, def.range);
+  // Đi theo chủ, hoặc lao tới quái nếu đánh gần
+  const fx = p.face.x || 0, fy = p.face.y || 0;
+  let gx = p.x - fx * follow - fy * side, gy = p.y - fy * follow + fx * side + 2 - lift;
+  f.sleep = p.meditating && !tgt;   // chủ đả tọa: cuộn tròn ngủ cạnh bồ đoàn
+  if (f.sleep) { gx = p.x + (lift ? -11 : 11); gy = p.y + 3; }
+  if (tgt && def.melee) { gx = tgt.x + Math.sign((tgt.x - p.x) || 1) * (tgt.r + 4); gy = tgt.y; }   // đứng phía bên kia con quái, không chen giữa người và quái che hình nhân vật (chủ dự án 16/11/2026 23:34)
+  const dx = gx - f.x, dy = gy - f.y, d = Math.hypot(dx, dy);
+  if (d > 160) { f.x = gx; f.y = gy; }
+  else if (d > 2) { const s = Math.min(d, (60 + d * 1.5) * dt); f.x += dx / d * s; f.y += dy / d * s; if (Math.abs(dx) > 1) f.face = Math.sign(dx); }
+  spread(game, f, dt);
+  f.moving = d > 3;
+  if (!tgt) return;
+  const dmg = p.atk * def.mult * mul;
+  if (f.cd <= 0) {
+    if (def.melee && dist(f, tgt) < tgt.r + 10) { f.cd = def.cd; hitMob(game, tgt, dmg, { soft: true, canCrit: false, color: def.color, fromX: f.x, fromY: f.y }); }
+    else if (!def.melee) { f.cd = def.cd; fire(game, f, tgt, dmg, def.color); }
+  }
+  if (f.skillCd <= 0) { f.skillCd = def.skill.cd; petSkill(game, f, tgt, dmg); }
+}
+
+function fire(game, pet, tgt, dmg, color, spread = 0) {
+  const a = Math.atan2(tgt.y - pet.y, tgt.x - pet.x) + spread;
+  shoot(game, { from: 'player', x: pet.x, y: pet.y - 4, vx: Math.cos(a) * 140, vy: Math.sin(a) * 140, r: 2.5, dmg, color, life: 0.9 });
+}
+
+function petSkill(game, pet, tgt, dmg) {
+  const s = pet.def.skill, p = game.player;
+  if (s.type === 'heal') {
+    if (p.hp >= p.maxHp) { pet.skillCd = 1; return; }
+    const n = Math.round(p.maxHp * s.amount);
+    p.hp = Math.min(p.maxHp, p.hp + n); game.number(p.x, p.y - 18, '+' + n, '#9af0a8');
+    addFx(game, { type: 'ring', x: p.x, y: p.y, r: 14, color: '#9af0a8', life: 0.4 });
+  } else if (s.type === 'aoe' || s.type === 'slow') {
+    addFx(game, { type: 'ring', x: pet.x, y: pet.y, r: s.radius, color: pet.def.color, life: 0.35, fill: true });
+    for (const m of game.mobs) if (!m.dead && dist(m, pet) < s.radius + m.r) {
+      if (s.type === 'aoe') hitMob(game, m, dmg * s.dmg, { soft: true, canCrit: false, color: pet.def.color, fromX: pet.x, fromY: pet.y });
+      else m.slowT = Math.max(m.slowT, s.dur);
+    }
+  } else if (s.type === 'buff') {
+    p.buffT = s.dur; p.buffAmt = s.amount; p.buffColor = pet.def.color;
+    game.number(p.x, p.y - 18, `Công +${Math.round(s.amount * 100)}%`, pet.def.color);
+  } else if (s.type === 'volley') {
+    for (let i = 0; i < s.n; i++) fire(game, pet, tgt, dmg * s.dmg, pet.def.color, (i - (s.n - 1) / 2) * 0.25);
+  }
+}
+
+export const petMul = game => (1 + (petLevel(game, game.save.pet) - 1) * P(game).lv_bonus) * (1 + (game.save.pets[game.save.pet]?.star || 0) * P(game).merge.bonus);
+
+// Gộp linh thú: sao n lên n + 1 tốn 2^n bản sao (hai con cùng sao thành một con sao cao hơn), không giới hạn
+export const mergeCost = st => 2 ** (st?.star || 0);
+export const canMerge = (game, id) => { const st = game.save.pets[id]; return !!st && (st.copies || 0) >= mergeCost(st); };
+export function mergePet(game, id) {
+  const st = game.save.pets[id];
+  if (!canMerge(game, id)) return false;
+  st.copies -= mergeCost(st); st.star = (st.star || 0) + 1;
+  game.persist(); game.sfx('levelup');
+  game.toast(P(game).merge.texts.done.replace('{name}', P(game).pets[id].name).replace('{star}', st.star), 2);
+  return true;
+}
+
+// Thú cưỡi (chủ dự án 16/11/2026 21:57): lên / xuống bằng nút Cưỡi / Xuống (src/ui/ride-btn.js), nhớ trong bản lưu (save.ride).
+// Cưỡi thì thú công kích (src/game/player.js mountSwing), người ngồi đả tọa, vũ khí vẫn hiện nhưng không dùng, pháp bảo dùng bình thường.
+// Không cưỡi được trong nhà và ngoài không gian (ngự kiếm, thien-mang.js)
+export const canRide = game => { const id = game.save.mount, d = game.map?.def || {}; return !!(id && hasMount(game.save, id) && P(game).mounts[id] && !d.indoor && !d.space && !game.player?.kd); };   // đang làm nghi lễ kết đan (ket-dan.js): không cưỡi
+export function updateRide(game, dt) {
+  const p = game.player;
+  p.sword = !!game.map.def.space || !!p.flying;   // ngự kiếm ngoài không gian: đứng yên trên kiếm như cưỡi thú (chủ dự án 06/11/2026 15:50)
+  p.calmT = (p.calmT || 0) + dt;
+  const was = p.riding; p.riding = !!game.save.ride && canRide(game) && !p.flying;
+  if (p.riding && !was) p.meditating = false;
+}
+export function toggleRide(game) {
+  if (game.player.flying) {   // đang bay mà bấm Cưỡi: đáp xuống rồi cưỡi luôn (chủ dự án 18/11/2026 09:10: chuyển đổi cho tiện)
+    if (!canRide(game)) return toggleRide.no(game);
+    game.save.ride = true; game.player.meditating = false; game.sfx('pickup'); game.persist(); return true;
+  }
+  if (!canRide(game)) return toggleRide.no(game);
+  game.save.ride = !game.save.ride; game.player.riding = game.save.ride; game.player.meditating = false;
+  game.sfx('pickup'); game.persist();
+  return true;
+}
+
+toggleRide.no = game => { game.toast(game.save.mount && hasMount(game.save, game.save.mount) ? 'Ở đây không cưỡi thú được.' : `Chưa có thú cưỡi. Làm nhiệm vụ ngày lấy ${P(game).thu_lenh.name}, đổi thú ở Ngự Thú Sư.`, 2.6); return false; };
+
+export const rideSpeed = game => game.map?.def?.space ? game.data['thien-mang']?.arena?.speed || 1.5 : game.player.riding ? 1 + (P(game).mounts[game.save.mount]?.speed || 0) : 1;   // vùng không gian: ngự kiếm bay nhanh
+
+// Ngự Thú Sư: tặng linh thú và thú cưỡi đầu tiên, sau đó chỉ cách săn dị chủng
+export async function talkBeast(game, npc) {
+  const cfg = P(game), s = game.save, name = npc.def.name;
+  if (s.flags.nguThu) { await talkBeastShop(game, npc); return; }   // đã nhận linh thú đầu: bán thú cưỡi, khôi lỗi (src/game/beast-shop.js)
+  await game.dialog.say([
+    [name, 'Ngươi là đệ tử mới? Đệ tử Kiếm tông ai cũng nên có một linh thú bầu bạn.'],
+    [name, `Con ${cfg.pets[cfg.starter_pet].name} này ta nuôi từ hạt mầm, cho ngươi. Muốn thú cưỡi thì chăm làm nhiệm vụ ngày, gom đủ ${cfg.thu_lenh.per_mount} ${cfg.thu_lenh.name} rồi tới ta đổi con mình thích.`],
+    [name, 'Muốn linh thú khác thì săn quái dị chủng: con nào ánh vàng quanh người, mạnh gấp mấy lần. Hạ được là thu phục được.'],
+  ]);
+  s.flags.nguThu = true;
+  gainPet(game, cfg.starter_pet); if (cfg.starter_mount) gainMount(game, cfg.starter_mount);
+}

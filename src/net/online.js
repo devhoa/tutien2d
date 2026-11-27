@@ -1,0 +1,72 @@
+// Thấy người chơi khác: mỗi đảo một kênh Realtime "p2d:<đảo>". Presence = ai đang ở đây (tên, hệ, cảnh giới, hình dáng, thời trang);
+// broadcast "move" = vị trí, gửi theo khoảng game/others.js chọn (mặc định 4 lần/giây khi có người gần) và chỉ khi đã "joined"; broadcast "say" = chào hỏi, trò chuyện
+// (game/social.js lọc chữ). Không ghi gì vào cơ sở dữ liệu.
+// Kênh riêng tư: chỉ người đã đăng nhập vào được (chính sách realtime.messages trong migration p2d_chong_gian_lan).
+import { supabase, realtimeAuth } from './client.js';
+import { rtSent, rtGot } from './rt-dem.js';
+
+const SEND_MS = 250;
+
+export function createOnline(me, handlers) {
+  let ch = null, mapId = null, lastSend = 0, lastPos = '', prof = {};
+
+  async function leave() {
+    if (ch) { const old = ch; ch = null; await supabase.removeChannel(old); }
+    handlers.onClear();
+  }
+
+  async function join(id, profile) {
+    prof = profile || prof;
+    if (id === mapId && ch) return;
+    await leave();
+    mapId = id;
+    if (!id) return;
+    await realtimeAuth();
+    if (mapId !== id) return;   // đã đổi đảo trong lúc chờ
+    const c = supabase.channel(`p2d:${id}`, { config: { private: true, presence: { key: me.id }, broadcast: { self: false } } });
+    ch = c;
+    c.on('presence', { event: 'sync' }, () => {
+      rtGot();
+      if (ch !== c) return;
+      const state = c.presenceState();
+      const list = Object.entries(state).filter(([k]) => k !== me.id).map(([k, metas]) => ({ id: k, ...metas[metas.length - 1] }));
+      handlers.onPresence(list);
+    })
+      .on('broadcast', { event: 'move' }, ({ payload }) => { rtGot(); if (ch === c) handlers.onMove(payload); })
+      .on('broadcast', { event: 'say' }, ({ payload }) => { rtGot(); if (ch === c) handlers.onSay?.(payload); })
+      .subscribe(status => {
+        if (status === 'SUBSCRIBED' && ch === c) c.track({ name: me.name, ...prof });
+      });
+  }
+
+  // gap: mili giây tối thiểu giữa hai lần gửi (game/others.js sendGap: theo số người cùng kênh, Infinity = một mình, không gửi);
+  // đứng yên thì chỉ gửi lại sau idle mili giây. Mỗi tin tính 1 gửi + 1 cho mỗi người nhận (data/config.json → realtime).
+  function send(p, extra = {}, gap = SEND_MS, idle = 10000) {
+    if (!ch || ch.state !== 'joined' || gap === Infinity) return;
+    const now = Date.now();
+    const key = `${Math.round(p.x)},${Math.round(p.y)},${extra.act || ''},${extra.sw || ''}`;
+    if (gap > 0 && (now - lastSend < gap || (key === lastPos && now - lastSend < idle))) return;
+    lastSend = now; lastPos = key;
+    rtSent(); ch.send({ type: 'broadcast', event: 'move', payload: { id: me.id, x: Math.round(p.x), y: Math.round(p.y), fx: +p.face.x.toFixed(2), fy: +p.face.y.toFixed(2), ...extra } });
+  }
+
+  // Chào hỏi, trò chuyện: { e: id } hoặc { m: chữ }, người gửi gắn id của mình
+  function say(body) {
+    if (!ch || ch.state !== 'joined') return;
+    rtSent(); ch.send({ type: 'broadcast', event: 'say', payload: { id: me.id, ...body } });
+  }
+
+  // Đổi tên hiển thị: báo lại cho người cùng đảo
+  function rename(name) {
+    me.name = name;
+    if (ch && ch.state === 'joined') ch.track({ name, ...prof });
+  }
+
+  // Đổi hồ sơ (thời trang, hình dáng, cảnh giới): báo lại cho người cùng đảo để họ vẽ đúng hình
+  function setProfile(p) {
+    prof = { ...prof, ...p };
+    if (ch && ch.state === 'joined') ch.track({ name: me.name, ...prof });
+  }
+
+  return { me, join, leave, send, say, rename, setProfile };
+}

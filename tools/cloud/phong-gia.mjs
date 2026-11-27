@@ -1,0 +1,98 @@
+// Phòng giả cho bài thử hai máy tự động (tools/hai-may.mjs): chạy ĐÚNG mã máy chủ phòng cloud/src/phong.js trong Node (nap.mjs), nối với
+// trình duyệt qua WebSocket do Playwright chặn lại (context.routeWebSocket), nên tin đi đủ đường thật: máy gửi → bộ lọc máy chủ phòng
+// (proto.js cleanProf, cleanMove, cleanCast, gom lô 200 ms) → máy người xem. Không ra mạng, không chạm máy chủ thật.
+// Mỗi phòng ("dao:<bản đồ>#<tuyến>") một lớp Phong riêng như trên Cloudflare. Lõi Mang ở đây là bản giả tối thiểu (MANG_GIA): giữ khiên
+// PvP theo tài khoản trong bộ nhớ, không ghi hạ gục, không gom nhịp, không tính boss; nên PvP qua phòng (tắt khiên, đòn, máu) chạy đúng
+// mã cloud/src/pvp.js, còn boss thế giới và nhịp sống thì im lặng.
+import { join } from 'node:path';
+import { readFileSync } from 'node:fs';
+import { chepCloud } from './nap.mjs';
+
+const TUI_R = JSON.parse(readFileSync(new URL('../../data/pvp.json', import.meta.url), 'utf8')).ma.tui.r;   // tầm nhặt túi Linh Thạch như p2d_lt_nhat
+
+// khDs: danh sách tinh cầu tông môn giả (dạng p2d_kh_ds) cho bài thử quái chung trên tinh cầu tông môn (cloud/src/quai-kh.js đọc qua fetch);
+// không truyền thì phòng không có địa chỉ Supabase, tinh cầu tông môn không có quái chung, không gọi mạng
+export async function taoPhongGia({ khDs } = {}) {
+  const dir = chepCloud('phong-gia-');
+  if (khDs) {
+    const goc = globalThis.fetch;
+    globalThis.fetch = async (url, init) => (String(url).endsWith('/rest/v1/rpc/p2d_kh_ds') ? { ok: true, json: async () => structuredClone(khDs) } : goc(url, init));
+  }
+  globalThis.WebSocketRequestResponsePair ??= class { constructor(a, b) { this.a = a; this.b = b; } };
+  globalThis.Response = class { constructor(body, init) { this.status = init?.status; this.webSocket = init?.webSocket; } };   // Response của Node không nhận mã 101
+  // Đầu máy chủ của một kết nối: phòng gọi send / close / (de)serializeAttachment như WebSocket của Cloudflare; `day` là hàm đẩy xuống trình duyệt
+  let day = null;   // đặt ngay trước room.fetch: fetch tạo WebSocketPair trước mọi lệnh await nên lấy đúng kết nối đang vào
+  class DauMayChu {
+    constructor() { this.readyState = 1; this.att = null; this.day = day; this.dong = null; }
+    send(s) { if (this.readyState !== 1) throw new Error('closed'); this.day?.send(s); }
+    close(code, why) { if (this.readyState !== 1) return; this.readyState = 3; this.dong = code; this.day?.close(code, why); }
+    accept() {}
+    serializeAttachment(a) { this.att = structuredClone(a); }
+    deserializeAttachment() { return this.att ? structuredClone(this.att) : null; }
+  }
+  globalThis.WebSocketPair = class { constructor() { this[0] = { peer: null }; this[1] = new DauMayChu(); } };
+  const P = await import(join(dir, 'proto.js'));
+  const { Phong } = await import(join(dir, 'phong.js'));
+  const phong = new Map();   // tên phòng → { room, ctx }
+  const khien = new Map();   // uid → { off, immune, at, ma }: như mang.js pk
+  // Hóa ma (cloud/src/ma.js): Supabase giả giữ điểm ma, công đức như p2d_ma_ghi; không ghi nợ (no: false) vì không có Supabase để trả nợ
+  const maDb = new Map(), cdDb = new Map(), tui = new Map();
+  const giuMa = (u, m) => khien.set(u, { ...(khien.get(u) || { immune: 0, at: 0 }), off: m > 0 || (m === undefined && !!khien.get(u)?.off), ma: m || 0 });
+  const mang = { pkGet: async u => khien.get(u) || { off: false, immune: 0, at: 0, ma: 0 },
+    pkSet: async (u, off, immune, at, ma) => { khien.set(u, { off: !!off, immune: immune || 0, at: at || 0, ma: typeof ma === 'number' ? ma : khien.get(u)?.ma || 0 }); },
+    ma: async (e, ke, nan) => {
+      if (e === 'hoa') { const m = Math.max(maDb.get(ke) || 0, 1); maDb.set(ke, m); giuMa(ke, m); return { ma: m }; }
+      if (e === 'giet') { const m = (maDb.get(ke) || 0) + 3; maDb.set(ke, m); giuMa(ke, m); return { ma: m, no: false }; }
+      if (e === 'sh') { const m = Math.max(0, (maDb.get(ke) || 0) - 1); maDb.set(ke, m); giuMa(ke, m); return { ma: m, no: false }; }   // sám hối dưới Cổ Thụ (23/11/2026)
+      if (e === 'tp') { const m = Math.max(0, (maDb.get(ke) || 0) - 1); maDb.set(ke, m); giuMa(ke, m); return { ma: m, no: false }; }   // thiên phạt gục ma (22/11/2026 16:14)
+      const m = Math.max(0, (maDb.get(nan) || 0) - 1); maDb.set(nan, m); giuMa(nan, m); cdDb.set(ke, (cdDb.get(ke) || 0) + 1);
+      return { ma: m, cd: cdDb.get(ke), no: false };
+    },
+    // túi Linh Thạch (cloud/src/tui.js): như p2d_lt_nhat, cùng tinh cầu, đủ gần, ai tới trước; bài thử tự đặt túi vào `tui`
+    ltNhat: async (u, id, m, x, y) => { const t = tui.get(id); if (!t || t.nhat) return { loi: 'het' }; if (t.map !== m || Math.hypot(t.x - x, t.y - y) > TUI_R) return { loi: 'xa' }; t.nhat = u; return { so: t.so }; },
+    coThu: async ids => ({ lk: 0, h: Object.fromEntries(ids.map(i => [i, 0])) }),   // Cổ Thụ: cây chưa tích gì
+    pvp: async () => false, nhipGop: async () => null, add: async () => ({ top: [], n: 0, total: 0, ranks: {}, lt: {}, mo: 0 }) };
+  const MANG_GIA = { MANG: { idFromName: () => 'cuu-dau', get: () => mang }, ...(khDs ? { SUPABASE_URL: 'https://gia.invalid', SUPABASE_KEY: 'gia' } : {}) };
+  const lay = ten => {
+    if (!phong.has(ten)) {
+      const ctx = { list: [], storage: { getAlarm: async () => 1, setAlarm: async () => {} }, setWebSocketAutoResponse() {},
+        acceptWebSocket(ws, tags) { ws.tags = tags; this.list.push(ws); },
+        getWebSockets(tag) { return this.list.filter(w => w.readyState === 1 && (!tag || w.tags?.includes(tag))); } };
+      phong.set(ten, { room: new Phong(ctx, MANG_GIA), ctx });
+    }
+    return phong.get(ten);
+  };
+  const dem = { vao: 0, len: {}, xuong: {}, cuoi: {} };   // đếm tin theo loại: bài thử soi được máy nào gửi gì; cuoi: tin gửi lên gần nhất của mỗi loại
+
+  // Nối một kết nối trình duyệt (WebSocketRoute của Playwright) vào phòng nó xin (địa chỉ ...?r=<phòng>&l=<tuyến>) với mã người chơi uid.
+  // Nghe tin ngay từ đầu (tin tới trước lúc vào phòng xong thì xếp hàng), kẻo rơi mất tin đầu của máy khách.
+  // them: header máy chủ gắn thêm cho người này (bài thử Hộ Tông gia trì: x-chuc, x-tinh, x-power như cloud/src/index.js gắn từ Supabase)
+  function noi(route, uid, ten = '', them = null) {
+    const u = new URL(route.url()), r = P.parseRoom(u.searchParams.get('r'), u.searchParams.get('l'));
+    if (!r) { route.close({ code: 1008, reason: 'phong_sai' }); return; }
+    const { room, ctx } = lay(r.name), cho = [];
+    let may = null, dong = false;
+    const xuLy = m => {
+      try { const o = JSON.parse(m), t = o.t; dem.len[t] = (dem.len[t] || 0) + 1; dem.cuoi[t] = { ...o, tu: uid }; } catch { /* tin rác: phòng tự bỏ */ }
+      room.webSocketMessage(may, m).catch(e => console.error('phòng giả: lỗi xử lý tin', e));
+    };
+    route.onMessage(m => {
+      if (m === 'ping') { route.send('pong'); return; }
+      if (typeof m !== 'string') return;
+      if (may) xuLy(m); else cho.push(m);
+    });
+    route.onClose(code => { dong = true; if (may?.readyState === 1) { may.readyState = 3; room.webSocketClose(may, code || 1000).catch(() => {}); } });
+    const cua = day = { send: s => { const t = s[0] === '{' ? JSON.parse(s).t : s; dem.xuong[t] = (dem.xuong[t] || 0) + 1; if (!dong) route.send(s); }, close: (code, reason) => { try { route.close({ code, reason }); } catch { /* đã đóng */ } } };
+    const h = new Map([['x-uid', uid], ['x-kind', r.kind], ['x-cap', String(r.cap)], ['x-map', r.kind === 'dao' ? r.room.slice(4) : ''], ['x-name', ten ? encodeURIComponent(ten) : ''],
+      ['x-tl', '20'], ...Object.entries(them || {})]);   // tổng tầng tu: máy thử coi như Kim Đan (hóa ma được, ma đánh được; chưa có lá chắn Nguyên Anh, từ 27)
+    return room.fetch({ headers: { get: k => h.get(k) || null } }).then(() => {
+      may = ctx.list.find(w => w.day === cua) || null;   // đúng đầu máy chủ của kết nối này; phòng đầy thì không có (phòng đã đóng mã 4009)
+      if (!may) return;
+      dem.vao++;
+      if (dong) { may.readyState = 3; room.webSocketClose(may, 1000).catch(() => {}); return; }
+      for (const m of cho.splice(0)) xuLy(m);
+    });
+  }
+  const datMa = (u, m) => { maDb.set(u, m); giuMa(u, m); };   // bài thử đặt điểm ma (như Supabase đã có sẵn), có hiệu lực từ lần vào phòng sau
+  return { noi, dem, phong, P, tui, datMa, dir };   // dir: bản chép mã phòng (bài thử nạp dir/mang-cfg.js để đổi nhịp cho nhanh)
+}

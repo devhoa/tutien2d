@@ -1,0 +1,135 @@
+// Hòm thư (data/inbox.json): nút ✉ ngay sau nút Menu, số đỏ là tin chưa đọc. Bảng chia mục (Tất cả, Chợ thư, Truyền âm,
+// Tông môn, Thế giới, Hệ thống); chạm tin thì đánh dấu đã đọc và mở đúng chỗ (truyền âm với người đó, bảng Tông môn,
+// kênh Thế giới, chợ, bảng báo lỗi / đề xuất). Kho tin ở src/game/inbox.js, nguồn tin ở src/game/inbox-feed.js.
+// Bảng dựng bằng code (không thêm vào index.html), chữ người chơi chỉ gán textContent.
+import { inboxState, unreadCount, markRead, readAll } from '../game/inbox.js';
+import { every } from '../core/ticker.js';   // trang ẩn thì bỏ lượt
+import { createMailSum, sumGifts } from './mail-sum.js';
+import { khucHong } from '../core/catch-errors.js';
+
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+const fill = (s, o) => String(s).replace(/\{(\w+)\}/g, (m, k) => (k in o ? o[k] : m));
+const press = id => document.getElementById(id)?.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+
+// Lỗi hỏi / nhận thư báo về p2d_loi mỗi loại một lần mỗi phiên (20/11/2026: một người chơi cả phiên không nhận được thư, máy không báo gì)
+const daBao = new Set();
+function baoLoi(loai, e) {
+  khucHong(e);   // khúc code thư của bản cũ đã mất: đọc bản mới, tải lại
+  if (daBao.has(loai)) return; daBao.add(loai);
+  import('../net/errlog.js').then(M => M.sendError(`thu: ${loai}: ${e?.message || e}`, String(e?.stack || '').slice(0, 800), loai)).catch(() => {});
+}
+
+export function createInbox(game) {
+  const I = game.data.inbox, T = I.text, menu = document.getElementById('btn-menu');
+  if (!I || !menu) return;
+  const btn = el('button', 'ib-btn', I.btn), badge = el('i', 'ib-badge');
+  btn.id = 'btn-inbox'; btn.title = I.label; btn.setAttribute('aria-label', I.label);
+  btn.append(badge);
+  menu.after(btn);
+
+  const root = el('div', 'panel ib-panel'); root.hidden = true;
+  const head = el('div', 'bag-head'), all = el('button', 'mini', T.read_all), x = el('button', 'mini', T.close);
+  head.append(el('b', null, T.title), all, x);
+  const tabs = el('div', 'ib-tabs'), list = el('div', 'ib-list');
+  root.append(head, tabs, list);
+  document.body.append(root);
+  let tab = 'all', wait = 0;   // thư máy chủ gửi mà máy này chưa nhận (quà, Linh Thạch, đồ): đếm vào số đỏ, hiện dòng nhận đầu bảng
+
+  // Chủ dự án 06/11/2026 16:33: thư gửi phải vào Hòm thư có dấu đỏ ngay, không vòng qua Chợ. Hỏi máy chủ mỗi phút (kể cả đang mở bảng khác)
+  async function peek() {
+    if (!game.cloud) { wait = 0; return; }   // Hòm thư không cần phòng chơi chung
+    try { const { peekMail } = await import('../net/market.js'); wait = (await peekMail()).length; } catch (e) { baoLoi('xem_thu', e); }   // mạng lỗi: lần sau
+    paint(); if (!root.hidden) render();
+  }
+  async function claim() {
+    try {
+      const { claimMail } = await import('../game/market.js');
+      const got = await claimMail(game);
+      if (got.length) game.toast(got.join(' · '), 3);
+      if (got.full) game.toast(fill(T.full, { n: got.full }), 4);
+    } catch (e) { baoLoi('nhan_thu', e); }   // thư còn đó
+    await peek();
+  }
+
+  function ago(t) {
+    const m = Math.floor((Date.now() - t) / 60000);
+    return m < 1 ? T.ago_now : m < 60 ? fill(T.ago_min, { n: m }) : m < 1440 ? fill(T.ago_hour, { n: Math.floor(m / 60) }) : fill(T.ago_day, { n: Math.floor(m / 1440) });
+  }
+
+  function go(it) {
+    const a = it.arg || {};
+    close();
+    if (it.go === 'whisper' && a.k) game.openWhisper?.(a.k, a.ten);
+    else if (it.go === 'guild') press('btn-guild');
+    else if (it.go === 'world') game.openSocial?.('world');
+    else if (it.go === 'market') game.openMarket?.();
+    else if (it.go === 'mang') import('../game/thien-mang.js').then(M => M.goArena(game));   // boss tới giờ xuất hiện (game/mang-lich.js)
+    else if (it.go === 'feedback') document.getElementById(a.loai === 'de_xuat' ? 'btn-fb-de_xuat' : 'btn-fb-loi')?.click();
+  }
+
+  function render() {
+    tabs.textContent = '';
+    const items = inboxState(game).items, inTab = it => tab === 'all' || it.kind === tab || (tab === 'cho' && it.kind === 'thu');
+    for (const [id, name] of I.tabs) {
+      const n = items.filter(it => !it.read && (id === 'all' || it.kind === id || (id === 'cho' && it.kind === 'thu'))).length;
+      const b = el('button', `mini ib-tab${id === tab ? ' on' : ''}`, n ? `${name} ${n}` : name);
+      b.onclick = () => { tab = id; render(); };
+      tabs.append(b);
+    }
+    list.textContent = '';
+    if (!game.cloud) list.append(el('p', 'muted', T.login));
+    if (wait > 0) { const w = el('button', 'ib-row new ib-wait', fill(T.wait, { n: wait })); w.onclick = claim; list.append(w); }
+    const shown = items.filter(inTab);
+    if (!shown.length) { list.append(el('p', 'muted', T.empty)); return; }
+    for (const it of shown) {
+      const row = el('button', `ib-row${it.read ? '' : ' new'}`);
+      const top = el('div', 'ib-top');
+      top.append(el('i', `ib-env${it.read ? ' xem' : ''}`), el('b', 'ib-title', it.title), el('small', 'ib-ago', ago(it.t)));   // phong bì niêm / đã mở (chủ dự án 07/11/2026)
+      row.append(top);
+      if (it.text) row.append(el('small', 'ib-text', it.text));
+      row.onclick = () => { markRead(game, it.key); paint(); if (it.go) go(it); else render(); };
+      list.append(row);
+    }
+  }
+
+  function paint() {
+    const n = unreadCount(game) + wait;
+    badge.textContent = n > 99 ? '99+' : String(n);
+    badge.hidden = !n;
+  }
+
+  function close() { root.hidden = true; game.uiOpen = false; }
+  x.onclick = close;
+  createMailSum(game);
+  // Đọc hết: nhận nốt thư chờ, gộp quà của các tin chưa đọc thành bảng tổng kết (src/ui/mail-sum.js, chủ dự án 18/11/2026 00:07)
+  all.onclick = async () => {
+    all.disabled = true;
+    await claim();
+    const unread = inboxState(game).items.filter(it => !it.read);
+    readAll(game); paint(); render();
+    all.disabled = false;
+    if (unread.length) game.openMailSum?.(unread.length, sumGifts(unread));
+  };
+  root.addEventListener('pointerdown', e => e.stopPropagation());
+  btn.addEventListener('pointerdown', e => {
+    e.stopPropagation();
+    if (!root.hidden) { close(); return; }
+    if (!game.save || game.dialog.open) return;
+    root.hidden = false; game.uiOpen = true; render();
+    claim();   // mở Hòm thư thì nhận thư chờ ngay (chủ dự án 06/11/2026 16:25)
+  });
+  paint();
+  every(peek, 60000); setTimeout(peek, 8000);
+  let sig = '';   // vẽ lại khi có tin mới hay đổi đã đọc (không vẽ lại vô cớ kẻo nhảy chỗ đang cuộn)
+  every(() => {
+    paint();
+    const s = inboxState(game).items, now = `${s.length}|${s[0]?.key}|${s[0]?.t}|${unreadCount(game)}`;
+    if (!root.hidden && now !== sig) render();
+    sig = now;
+  }, 2000);
+}

@@ -1,0 +1,115 @@
+// Tab Xếp hạng trong bảng Đạo hữu: các bảng con (data/social.json rank), dữ liệu từ game/rank.js.
+import { qtvLedgerButton } from './qtv-ledger.js';
+import { loadRank } from '../game/rank.js';
+import { realmLabel } from '../game/stats.js';
+import { phongHaoDong, ganBang, canBang } from '../game/phong-hao.js';   // phong hào trước tên, cùng luật như trên đầu (chủ dự án 23/11/2026 23:51)
+
+const $ = id => document.getElementById(id);
+
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+
+export function createRankView(game) {
+  const R = game.data.social.rank;
+  let kind = R.tabs[0].id, ticket = 0;
+  const dunIds = Object.keys(game.data.dungeon?.drops || {}).filter(k => !k.startsWith('_') && game.data.maps[k]);
+  let bc = dunIds[0];   // bảng Bí cảnh: bí cảnh đang xem (hàng nút thứ hai)
+  const kindNow = () => (kind === 'bc' ? 'bc:' + bc : kind);
+
+  function value(r) {
+    if (kind === 'canh_gioi') return realmLabel({ realm: r.canh_gioi, layer: r.tang }, game.data.realms);
+    return (R.value[kind] || '{v}').replace('{v}', Number(r.gia_tri ?? r.diem ?? 0).toLocaleString('vi-VN'));
+  }
+
+  // Người bị gắn cờ nghi vấn (máy chủ trả co): tên đỏ, cờ cạnh tên. Chạm dòng: mở hồ sơ người đó (ui/profile-panel.js)
+  function row(r) {
+    const d = el('div', [r.la_toi ? 'me' : '', r.co ? 'co' : '', r.k && game.openProfile ? 'tap' : ''].join(' ').trim() || null);
+    if (r.k && game.openProfile) d.onclick = () => game.openProfile(r.k, r.ten);
+    const name = el('span', null, r.ten);
+    if (r.co) { const f = el('i', 'flag', R.flag); f.title = R.flag_title; name.prepend(f); d.title = R.flag_title; }
+    const ph = !r.co && phongHaoDong(game, r);   // bị gắn cờ thì không phong hào (như trên đầu)
+    if (ph) { const s = el('s', ph.sang ? 'ph sang' : 'ph', ph.chu); s.style.color = ph.mau; name.prepend(s); }
+    d.append(el('b', null, r.hang), name, el('small', null, value(r)));
+    if (kind === 'cau' && r.so) d._cau = cauLoai(r.so);   // dòng chi tiết từng loài, gắn ngay dưới dòng tên
+    return d;
+  }
+
+  // Bảng Câu cá: số con từng loài, loài phẩm cao trước (chủ dự án 27/11/2026: "trong bxh sẽ ghi chi tiết bao nhiêu con gì con gì").
+  // Hiện 6 loài đầu, chạm để mở hết.
+  function cauLoai(so) {
+    const M = game.data.cave.materials, C = R.cau;
+    const ds = Object.entries(so).map(([k, n]) => [k, +n, M[k]?.pham ?? 0]).sort((a, b) => b[2] - a[2] || b[1] - a[1]);
+    const box = el('div', 'rank-cau');
+    const ve = mo => {
+      box.innerHTML = '';
+      for (const [k, n] of mo ? ds : ds.slice(0, 6)) { const s = el('span', null, `${M[k]?.name || k} ×${n.toLocaleString('vi-VN')}`); s.style.color = M[k]?.color || ''; box.append(s); }
+      if (ds.length > 6) box.append(el('i', null, mo ? C.gon : C.them.replace('{n}', ds.length - 6)));
+    };
+    box.onclick = () => { box.classList.toggle('mo'); ve(box.classList.contains('mo')); };
+    ve(false);
+    return box;
+  }
+
+  function msg(text, retry) {
+    const L = $('rank-list'); L.innerHTML = '';
+    const d = el('div', 'empty', text);
+    if (retry) { const b = el('button', null, R.retry); b.onclick = () => render(true); d.append(document.createElement('br'), b); }
+    L.append(d);
+  }
+
+  // Bảng quản trị viên: bảng nhiều cột (điểm, cấp, lỗi được sửa, đề xuất được làm, không thông qua, đang chờ)
+  function renderQtv(L, data) {
+    const Q = R.qtv, t = el('table', 'qtv-table'), hr = el('tr');
+    for (const h of Q.head) hr.append(el('th', null, h));
+    t.append(hr);
+    for (const r of data?.top || []) {
+      const tr = el('tr', r.la_toi ? 'me' : null);
+      if (r.k && game.openProfile) { tr.classList.add('tap'); tr.onclick = () => game.openProfile(r.k, r.ten); }
+      for (const v of [r.hang, r.ten, r.diem, r.cap, r.loi, r.dx + (r.ghi ? ` (+${r.ghi})` : ''), r.moi || 0, r.khong, r.cho]) tr.append(el('td', null, String(v)));
+      t.append(tr);
+    }
+    if (!data?.top?.length) { L.append(el('div', 'empty', R.empty)); } else L.append(t);
+    L.append(el('small', 'qtv-rule', Q.rule));
+    qtvLedgerButton(game, L);   // sổ điểm của mình, đổi Tiên Ngọc
+    $('rank-note').textContent = data?.toi ? Q.me.replace('{n}', data.toi.hang).replace('{d}', data.toi.diem).replace('{c}', data.toi.cap) : Q.me_none;
+  }
+
+  async function render(force) {
+    const tabs = $('rank-tabs'); tabs.innerHTML = '';
+    for (const t of R.tabs) {
+      const b = el('button', t.id === kind ? 'on' : null, t.label);
+      b.onclick = () => { kind = t.id; render(); };
+      tabs.append(b);
+    }
+    if (kind === 'bc') {   // hàng chọn 1 trong 7 bí cảnh
+      const sub = el('div', 'rank-sub');
+      for (const id of dunIds) {
+        const b = el('button', id === bc ? 'on' : null, game.data.maps[id].name);
+        b.onclick = () => { bc = id; render(); };
+        sub.append(b);
+      }
+      tabs.append(sub);
+    }
+    $('rank-note').textContent = R.note;
+    if (!game.online) return msg(R.offline);
+    msg(R.loading);
+    const my = ++ticket;
+    let data;
+    try { [data] = await Promise.all([loadRank(game, kindNow(), force), canBang(game)]); } catch { if (my === ticket) msg(R.error, true); return; }
+    if (my !== ticket) return;
+    ganBang(game, kindNow(), data);   // bảng Sức mạnh / Ma hóa vừa tải: phong hào theo đúng hạng đang hiện
+    const L = $('rank-list'); L.innerHTML = '';
+    if (kind === 'qtv') { renderQtv(L, data); return; }
+    if (!data?.top?.length) { msg(data?.missing && kind === 'dps' ? R.dps_soon : R.empty); if (kind === 'dps') $('rank-note').textContent = R.dps_note; return; }
+    for (const r of data.top) { const d = row(r); L.append(d); if (d._cau) L.append(d._cau); }
+    const cauNote = () => R.cau.diem.replace(/\{p(\d)\}/g, (_, i) => game.data.fishing.bxh.diem[+i]);
+    $('rank-note').textContent = `${data.toi ? R.me.replace('{n}', data.toi.hang) : R.me_none} ${data.toi?.co ? R.me_flag : kind === 'dps' ? R.dps_note : kind === 'cau' ? cauNote() : R.note}`;   // Sát thương/giây: cách ghi kết quả Mộc Nhân
+  }
+
+  game.rankKind = id => { if (R.tabs.some(t => t.id === id)) kind = id; };   // mở thẳng một bảng (Bảng quản trị viên từ bảng báo lỗi)
+  return { render };
+}

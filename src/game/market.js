@@ -1,0 +1,137 @@
+// Chợ trao đổi giữa người chơi (data/market.json). Máy chủ giữ hàng đang rao, hòm thư và tự trừ đồ khi rao,
+// trừ Linh Thạch khi mua, cộng thư (hàng mua, tiền bán, hàng trả về) vào bản lưu trên máy chủ; máy này làm theo.
+import { coins, addCoins } from './shop.js';
+import { addItem, isEquipped, itemName, gemInfo, bagCap } from './items.js';
+import { grade } from './tiers.js';
+import { applyDoi } from './ky-ngoc.js';
+import { addMat, matInfo } from './cave.js';
+import { notify } from './inbox.js';
+import { every } from '../core/ticker.js';   // trang ẩn thì bỏ lượt
+import { baoBan } from './ban-thu.js';   // tiền bán hàng: số bay lên, tiếng, chữ báo rõ (23/11/2026)
+
+const M = game => game.data.market;
+const net = () => import('../net/market.js');
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+export const canTrade = game => !!(game.online && game.cloud && game.save);
+// Hòm thư chỉ cần bản lưu máy chủ, không cần phòng chơi chung (20/11/2026: một người chơi cả phiên không hỏi thư lần nào, quà boss nằm chờ)
+export const canMail = game => !!(game.cloud && game.save);
+
+export function errText(game, e) {
+  const msg = String(e?.message || ''), E = M(game).err;
+  return E[Object.keys(E).find(k => msg.includes(k))] || E.other;
+}
+
+export function goodsName(game, loai, mon) {
+  if (loai === 'mon') { const g = grade(game.data, mon); return { name: itemName(game.data, mon), color: g.color, sub: `${g.name} · cấp ${mon.lvl}` }; }
+  const m = matInfo(game.data, mon.id);
+  return { name: `${m?.name || mon.id} ×${mon.n}`, sub: 'Nguyên liệu' };
+}
+
+// Lệnh chợ chạy qua game.cloud.run: đẩy bản lưu mới nhất, gọi hàm máy chủ (máy chủ tự trừ đồ, trừ tiền, cộng thư
+// vào bản lưu trên máy chủ và trả phien_ban mới), rồi sửa bản lưu trong máy y như vậy.
+// Máy chủ chưa thấy món mới nhặt thì đợi một nhịp và thử lại một lần.
+async function onServer(game, fn, mirror) {
+  try { return await game.cloud.run(fn, mirror); }
+  catch (e) {
+    if (!String(e?.message).includes('khong_co')) throw e;
+    await sleep(1500);
+    return game.cloud.run(fn, mirror);
+  }
+}
+
+// Ngọc đang khảm của một món ({ "loại:cấp": số }), chỉ loại có trong data/items.json gems như máy chủ
+export function gemsOf(game, it) {
+  const out = {}, T = game.data.items.gems.types;
+  for (const g of it?.sockets || []) if (g && T[g.split(':')[0]]) out[g] = (out[g] || 0) + 1;
+  return out;
+}
+
+export async function sellItem(game, uid, price) {
+  const s = game.save, it = s.bag.find(x => x.uid === uid);
+  if (!it || isEquipped(s, uid)) throw new Error('khong_co');
+  // ngọc khảm trả về túi, không bán theo đồ: máy chủ tháo (p2d_rao_ban), máy này cộng lại khi máy chủ nhận
+  // (ô khảm nằm trong phần được ký: tự tháo ở máy trước sẽ bị máy chủ trả lại, migration 20261105020000_p2d_ky_ngoc)
+  const { postListing } = await net();
+  await onServer(game, () => postListing('mon', { uid }, price), () => {
+    applyDoi(s, gemsOf(game, s.bag.find(x => x.uid === uid)));
+    s.bag = s.bag.filter(x => x.uid !== uid);
+    game.refreshStats(); game.persist();
+  });
+}
+
+export async function sellMat(game, id, n, price) {
+  const s = game.save;
+  if ((s.mats[id] || 0) < n || n < 1) throw new Error('khong_co');
+  const { postListing } = await net();
+  await onServer(game, () => postListing('nl', { id, n }, price), () => { s.mats[id] -= n; game.persist(); });
+}
+
+export async function buy(game, row) {
+  if (coins(game.save) < row.gia) throw new Error('thieu_tien');
+  const { buyListing } = await net();
+  await onServer(game, () => buyListing(row.id), () => { addCoins(game, -row.gia, 'cho-mua'); game.persist(); });
+  return claimMail(game);
+}
+
+export async function cancel(game, id) {
+  const { cancelListing } = await net();
+  await cancelListing(id);
+  return claimMail(game);
+}
+
+// Nhận thư còn chỗ trong túi (trang bị cần ô trống); máy chủ cộng vào bản lưu, máy này cộng y như vậy
+// (món nhận được mang mã số máy chủ cấp, bắt đầu từ chỗ máy này giữ sẵn). Trả về các dòng chữ đã nhận. N: Hòm thư giả cho bài thử (tools/pvp-thu.test.mjs)
+export async function claimMail(game, N) {
+  if (!canMail(game)) return [];
+  const { peekMail, takeMail } = N || await net();
+  const mail = await peekMail(), s = game.save;
+  let free = bagCap(game.data, s) - s.bag.length;
+  const ids = mail.filter(m => !m.noi_dung.item || free-- > 0).map(m => m.id);
+  const got = []; got.full = mail.length - ids.length;   // thư có đồ mà túi đầy: để lại, báo người chơi dọn túi (chủ dự án 10/11/2026: "2 thư ẩn không đọc được")
+  if (!ids.length) return got;
+  await game.cloud.run(() => { const from = s.nextUid; s.nextUid += ids.length; return takeMail(ids, from); }, r => {
+    const ban = [];   // thư tiền bán hàng lượt này: báo gộp một lần (src/game/ban-thu.js)
+    for (const m of r.thu || []) {
+      const d = m.noi_dung, gift = [], head = M(game).mail[m.ly_do] || game.data.referral?.mail?.[m.ly_do] || game.data.checkin?.mail?.[m.ly_do] || game.data['thien-mang']?.mail?.[m.ly_do] || game.data.pvp?.mail?.[m.ly_do] || (m.ly_do === 'sk_tong_mon' && game.data.events?.tong_mon?.mail) || (m.ly_do === 'dao_lu' ? `Quà đạo lữ${d.tu ? ' từ ' + d.tu : ''}` : '') || d.tieu_de || '', lines = [];
+      // gift: món quà dạng có cấu trúc, gắn vào tin Hòm thư để bảng tổng kết "Đọc hết" gộp lại (src/ui/mail-sum.js, chủ dự án 18/11/2026 00:07)
+      if (d.coins) { addCoins(game, d.coins, m.ly_do === 'ban' ? 'cho-ban' : 'thu'); lines.push(`+${d.coins} ${game.data.shop.name}`); gift.push({ kind: 'coins', n: d.coins }); }
+      if (d.tn > 0) { lines.push(`+${d.tn} ${game.data.topup.name}`); gift.push({ kind: 'tn', n: d.tn }); }   // Tiên Ngọc: máy chủ cộng, số dư lấy theo r.tn bên dưới
+      if (d.item && game.data.items.bases[d.item.base]) { addItem(game.data, s, d.item); lines.push(itemName(game.data, d.item)); gift.push({ kind: 'item', it: d.item }); }
+      if (d.pill && game.data.cave.pills[d.pill.id]) { s.pills ??= {}; s.pills[d.pill.id] = (s.pills[d.pill.id] || 0) + d.pill.n; lines.push(`${game.data.cave.pills[d.pill.id].name} ×${d.pill.n}`); gift.push({ kind: 'pill', id: d.pill.id, n: d.pill.n }); }   // đan dược thưởng nhiệm vụ hệ thống
+      const D = game.data;   // quà Hệ Thống: thú cưỡi, khôi lỗi, thời trang (máy chủ đã cộng vào bản lưu trên máy chủ)
+      if (d.mount && D.pets.mounts[d.mount]) { (s.mounts ??= {})[d.mount] = true; import('./beast.js').then(B => { B.mountLine(game, d.mount); game.persist(); }).catch(() => {}); lines.push(D.pets.mounts[d.mount].name); gift.push({ kind: 'name', name: D.pets.mounts[d.mount].name, color: '#ffd27a', spr: 'mount.' + d.mount }); }
+      if (d.comp && D.companions.list[d.comp]) { s.comps ??= {}; s.comps[d.comp] ??= { lv: 1, exp: 0 }; const nm = `Khôi lỗi ${D.npcs[d.comp]?.name || D.companions.list[d.comp].name || d.comp}`; lines.push(nm); gift.push({ kind: 'name', name: nm, color: '#c9b6ff', spr: D.art.sprites['comp.' + d.comp] ? 'comp.' + d.comp : 'npc.' + d.comp }); }
+      if (d.outfit && D.fashion.list[d.outfit] && (d.g === 'nam' || d.g === 'nu')) { (s.outfits ??= {})[`${d.outfit}:${d.g}`] = true; lines.push(D.fashion.list[d.outfit].name); gift.push({ kind: 'name', name: D.fashion.list[d.outfit].name, color: '#ff9fd0', spr: 'hero.' + d.outfit }); }
+      if (d.mat && matInfo(game.data, d.mat.id)) { addMat(s, d.mat.id, d.mat.n); lines.push(`${matInfo(game.data, d.mat.id).name} ×${d.mat.n}`); gift.push({ kind: 'mat', id: d.mat.id, n: d.mat.n }); }
+      if (d.gem && /^[a-z-]+:\d+$/.test(d.gem.key) && game.data.items.gems.types[d.gem.key.split(':')[0]]) {   // ngọc thưởng sự kiện, góp ý (máy chủ đã cộng vào bản lưu)
+        s.gems ??= {}; s.gems[d.gem.key] = (s.gems[d.gem.key] || 0) + d.gem.n; gift.push({ kind: 'gem', id: d.gem.key, n: d.gem.n }); lines.push(`${gemInfo(game.data, d.gem.key).name} ×${d.gem.n}${d.tu ? ` (${d.tu})` : d.tieu_de ? ` (${d.tieu_de})` : ''}`);
+      }
+      // Thú Lệnh, điểm Quản trị viên từ mã quà: máy chủ đã cộng lúc nhập mã, thư này để hiện trong Hòm thư và bảng tổng kết (chủ dự án 19/11/2026 12:22)
+      if (d.thu_lenh > 0) { const nm = D.pets.thu_lenh?.name || 'Thú Lệnh'; lines.push(`${nm} ×${d.thu_lenh}`); gift.push({ kind: 'name', name: nm, n: d.thu_lenh, color: '#ffb35a', spr: 'ui.ic-thu-lenh' }); }
+      if (d.qi > 0) { s.qi = (s.qi || 0) + d.qi; const nm = game.data['he-thong']?.moc?.qi_name || 'Linh khí'; lines.push(`+${Math.round(d.qi).toLocaleString('vi-VN')} ${nm}`); gift.push({ kind: 'name', name: nm, n: Math.round(d.qi), color: '#9fe8ff', spr: 'ui.ic-tu-luyen' }); }   // linh khí đền bù: máy chủ đã cộng vào bản lưu kèm hạn mức qi_thuong (migration 20261120030000)
+      if (m.ly_do === 'co_thu') { game.coThuNhan?.(d.qi || 0); continue; }   // linh khí Cổ Thụ mỗi phút: số bay trên đầu, không thêm thư vào Hòm thư (co-thu.js)
+      if (m.ly_do === 'vi_pham' && typeof d.loi === 'string') { lines.push(d.loi.slice(0, 400)); game.toast(d.loi.slice(0, 400), 9); game.sfx?.('warn'); }   // cảnh báo vi phạm do máy chủ gửi (tăng tốc, migration 20261126010000): hiện rõ, nằm lại trong Hòm thư
+      if (d.qtv > 0) { const nm = game.data.community?.qtv?.name || 'Điểm Quản trị viên'; lines.push(`${nm} ×${d.qtv}`); gift.push({ kind: 'name', name: nm, n: d.qtv, color: '#7fe0ff', spr: 'ui.ic-qtv' }); }
+      if (lines.length && game.data.pvp?.mail?.[m.ly_do] && m.ly_do !== 'lt_nhat' && game.chienLoi) game.chienLoi(m, lines);   // túi nhặt được: tui-lt.js đã báo lúc nhặt   // chiến lợi phẩm PvP / hóa ma: số bay lên đầu, chữ báo của ai (src/game/pvp-thu.js)
+      else if (m.ly_do === 'ban' && d.coins > 0) ban.push(m);   // tiền bán hàng: báo riêng, rõ, sau vòng này
+      else for (const l of lines) got.push(head ? `${head}: ${l}` : l);
+      // Hòm thư: hàng chợ vào mục Chợ, thư khác (quà, hệ thống) vào mục Thư. Thư nào cũng tới dạng chưa đọc (phong bì niêm), chạm thì
+      // thành đã đọc, không kéo sang chợ (chủ dự án 07/11/2026 10:52: chạm thư bị kéo ra chợ; mua lần hai thư đã mở sẵn)
+      if (lines.length) notify(game, { key: 'mail:' + m.id, kind: M(game).mail[m.ly_do] ? 'cho' : 'thu', title: head || m.ly_do || '', text: lines.join(' · '), go: '', read: false, gift });
+    }
+    if (ban.length) baoBan(game, ban);
+    s.nextUid = Math.max(s.nextUid, r.next_uid || 0);
+    if (typeof r.tn === 'number') s.tn = r.tn;
+    game.refreshStats(); game.persist();
+  });
+  return got;
+}
+
+// Thỉnh thoảng tự nhận thư (tiền bán hàng) khi đang chơi
+export function startMailCheck(game) {
+  every(async () => {
+    if (!canMail(game) || (game.uiOpen && document.getElementById('social')?.hidden !== false)) return;   // đang mở khung chat vẫn tự nhận (20/11/2026: người ngồi chat tưởng mất quà boss)
+    try { const got = await claimMail(game); if (got.length) game.toast(got.join(' · '), 3); } catch { /* mạng lỗi: lần sau */ }
+  }, 90000);
+}

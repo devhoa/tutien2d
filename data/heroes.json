@@ -1,0 +1,54 @@
+{
+ "_note": "Hình nhân vật chính (chọn ở bảng Thành tựu → Thời trang). sprite: mục trong data/art.json; null thì vẽ hình khối như cũ. Hình gốc nhìn sang phải, quay trái thì lật gương. char_height: chiều cao thân NPC trong thế giới (đơn vị bản đồ; NPC vẽ 1 điểm ảnh = 1 đơn vị, đỉnh đầu đến chân ~24), coi là người chuẩn npc_cm / npc_kg. cm, kg: chỉ số chủ dự án điền cho từng nhân vật; thân cao = char_height × cm / npc_cm (1m75 thấp hơn NPC một xíu), bề ngang theo độ đậm người (kg/cm² so với NPC, lệch dưới 10% thì giữ nguyên để khỏi méo điểm ảnh). body: số điểm ảnh thân người trong hình (đỉnh tóc đến chân, không tính sừng, quầng, vũ khí), đo một lần khi thêm hình; game tự thu phóng để thân cao đúng char_height, làm tròn để mỗi điểm ảnh hình là số nguyên điểm màn hình. anims: danh sách khung, fps: khung mỗi giây. attacks: chuỗi đòn (combo), mỗi lần đánh (cả khi dùng chiêu) ra đòn kế tiếp và chạy hết một lượt; ngừng đánh quá combo_reset giây thì về đòn đầu; bỏ khung đầu giống lúc đứng để thấy rõ động tác. lunge: lúc đánh người nhún tới trước bấy nhiêu đơn vị rồi lùi về (không đổi chỗ đứng thật).",
+ "char_height": 24,
+ "title_gap": 26,
+ "_title_gap": "Danh hiệu trên đầu nhân vật cách đỉnh thân title_gap đơn vị bản đồ (chủ dự án xin 29/10/2026: tách xa đầu một chút, khỏi đè tóc và vũ khí đeo vai). 18/11/2026 09:49: danh hiệu nằm TRÊN tên, tên sát đầu (src/ui/pvp-btn.js đặt tên ở 8), nên title_gap 10 → 26.",
+ "tong_gap": 22,
+ "_tong_gap": "Tên tông môn « … » trên đầu CHÍNH MÌNH (chủ dự án 23/11/2026 23:45) cách đỉnh thân tong_gap đơn vị bản đồ: ngay trên nút tên HTML (src/ui/pvp-btn.js), danh hiệu lên trên thêm một dòng như người khác thấy (src/render/draw-nguoi.js). Không có tông môn thì danh hiệu giữ ở title_gap.",
+ "npc_cm": 180,
+ "npc_kg": 70,
+ "default": "nam",
+ "combo_reset": 1.2,
+ "chop_mat": {"_note": "Chớp mắt lúc đứng nghỉ (chủ dự án 23/11/2026: \"đứng im phải thêm hiệu ứng chớp mắt nữa\"; src/render/chop-mat.js). Hình có khung nhắm mắt (art.json → chop, tools/art/chop_mat.py) mới chớp. cach: khoảng giữa hai lần chớp (giây, ngẫu nhiên trong khoảng); nham: nhắm bao lâu; doi: tỉ lệ chớp đôi; doi_cach: lần nhắm thứ hai sau lần đầu bao lâu.", "cach": [2.2, 5.0], "nham": 0.12, "doi": 0.2, "doi_cach": 0.24},
+ "glow": {"_note": "Nhân vật hơi phát quang (chủ dự án 05/11/2026 02:31, quy tắc chiêu): quầng mềm cộng sáng sau lưng, màu hệ linh căn (chưa có hệ thì color); r: bán kính so với cao thân; day / night: độ đậm ban ngày / ban đêm, trong hầm (src/render/draw-hero.js).", "r": 0.85, "color": "#fff1d0", "day": 0.12, "night": 0.3},
+ "fly": {"_note": "Ngự kiếm (chủ dự án chốt 28/10/2026): vũ khí không cầm tay mà luôn bay sau lưng, đánh thường thì người vẫn ra động tác đánh của mình (chuỗi attacks, cùng lúc với vũ khí; nhân vật chưa có động tác đánh thì nhún tới lean đơn vị), còn vũ khí từ sau lưng lao ra theo đúng động tác đó (moves: động tác người → đường bay vũ khí: bo bổ xuống, hat hất từ thấp lên cao, quet quét ngang, xoay xoay một vòng quanh người, moc móc sát đất kéo về; nhân vật không có attacks thì xoay vòng combo đâm, quét, bổ), cung và đàn thì ra trước mặt bắn, rồi bay về. Chủ dự án chốt thêm 28/10 15:32: ngự kiếm và động tác gốc của nhân vật chuyển động cùng nhau. Hình vũ khí là fw.<loại vũ khí> (tools/art/flyweapons.py, xoay sẵn 32 hướng), loại chưa có hình thì xoay biểu tượng món đang mặc. back [x, y]: chỗ treo sau lưng so với chân (x tính về phía sau lưng); bob: nhấp nhô; follow: tốc độ bám theo (càng lớn càng sát); scale: cỡ hình; times: lấy đà, lao ra, giữ, bay về (giây), sát thương tính lúc lao tới nơi; combo: chuỗi đòn cận chiến đâm / quét / bổ; trail: số bóng mờ phía sau khi lao; orbit: lúc đả tọa vũ khí lượn quanh người (bán kính, vòng mỗi giây); front: khoảng cách vũ khí ra trước mặt khi bắn; tilt: độ nghiêng lúc treo (chéo qua vai cho thấy rõ); halo: độ đậm viền linh lực tám phía (29/10/2026: vũ khí to hơn, treo chéo ra ngoài vai, không bị tóc che).", "back": [-15, -24], "bob": 1.5, "follow": 14, "scale": 1.35, "tilt": 0.6, "halo": 0.55, "times": {"wind": 0.07, "strike": 0.08, "hold": 0.06, "back": 0.2}, "combo": ["dam", "quet", "bo"], "moves": {"bo": "bo", "hat": "hat", "ngang": "quet", "chem": "xoay", "cheo": "hat", "moc": "moc", "chem1": "bo", "chem2": "hat", "dam": "dam"}, "trail": 3, "orbit": {"r": 14, "speed": 0.35}, "front": 9, "lean": 2},
+ "_outfits": "Trang phục chibi (chủ dự án 29/10/2026): bộ thời trang đang mặc có hình hero.y-<bộ>-<nam|nu> (ảnh Canva 5 dáng theo mẫu chibi, tools/art/nguon/ai/ty/) thì nhân vật chính vẽ bằng hình đó với động tác chibi (đứng thở, chạy 2 khung, vận chưởng 2 khung, ngã); bộ chưa có hình thì giữ hình gốc của nhân vật trong list. body: điểm ảnh thân trong hình chibi; breath: đứng thì nhún 1 điểm ảnh; down: khung ngã; fw_scale: cỡ vũ khí bay khi mặc chibi (nhân vật thấp đầu to, vũ khí cỡ thường trông quá dài).",
+ "chibi": {"body": 42, "breath": true, "down": 5, "fw_scale": 0.95, "anims": {"idle": [0], "walk": [1, 2], "chuong": [3, 4, 4], "cast": [3, 4]}, "fps": {"idle": 1, "walk": 7, "chuong": 10, "cast": 8}, "attacks": ["chuong"]},
+ "list": {
+  "nam": {
+   "name": "Nam · Băng Vương",
+   "sprite": "hero.tp-02",
+   "body": 49,
+   "ngoi_h": 50,
+   "cm": 178,
+   "kg": 66,
+   "anims": {
+    "idle": [0, 1, 2, 3, 4, 5, 6, 7],
+    "walk": [8, 9, 10, 11, 12, 13, 14, 15],
+    "danh1": [16, 17, 18, 19, 20, 21, 22, 23],
+    "danh2": [24, 25, 26, 27, 28, 29, 30, 31],
+    "ngoi": [32]
+   },
+   "fps": { "idle": 8, "walk": 12, "danh1": 12, "danh2": 12, "ngoi": 1 },
+   "attacks": ["danh1", "danh2"]
+  },
+  "nu": {
+   "name": "Nữ · Lam Hoa Thiếu Nữ",
+   "sprite": "hero.tp-10",
+   "body": 47,
+   "ngoi_h": 44,
+   "cm": 166,
+   "kg": 50,
+   "anims": {
+    "idle": [0, 1, 2, 3, 4, 5, 6, 7],
+    "walk": [8, 9, 10, 11, 12, 13, 14, 15],
+    "danh1": [16, 17, 18, 19, 20, 21, 22, 23],
+    "danh2": [24, 25, 26, 27, 28, 29, 30, 31],
+    "ngoi": [32]
+   },
+   "fps": { "idle": 8, "walk": 12, "danh1": 12, "danh2": 12, "ngoi": 1 },
+   "attacks": ["danh1", "danh2"]
+  }
+ },
+ "_list_note": "Chủ dự án 16/11/2026 21:57: bỏ nhân vật cũ; nam là trang phục mới #2 Băng Vương, nữ là #10 Lam Hoa Thiếu Nữ (data/fashion.json tp-02, tp-10)."
+}

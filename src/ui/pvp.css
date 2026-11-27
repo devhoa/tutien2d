@@ -1,0 +1,56 @@
+/* Khiên PvP sau tên (src/ui/pvp-btn.js): nhãn "tên 🛡 / ⚔" bám trên đầu nhân vật mình ở Ngoại Vực; chữ trơn viền mực như tên người
+   khác vẽ trên khung game. Còn khiên: chữ sáng, biểu tượng xanh; tắt khiên: chữ đỏ. Bảng xác nhận giữa màn hình. */
+.pvp-tag {
+  position: fixed; left: 0; top: 0; z-index: 6; display: flex; align-items: center; gap: 2px; padding: 1px 2px;
+  font: 700 8px/1 var(--f-body); color: #e6ebf7; background: none; border: 0; cursor: pointer; white-space: nowrap;
+  text-shadow: 1px 0 #000, -1px 0 #000, 0 1px #000, 0 -1px #000; will-change: transform;
+}
+.pvp-tag b { width: 12px; height: 12px; background: url("../../assets/art/ui-k-khien-bat.png") center / contain no-repeat; }   /* còn khiên: khiên sáng */
+.pvp-tag.off { color: #ff6a6a; }
+.pvp-tag.off b { background-image: url("../../assets/art/ui-k-khien-tat.png"); }   /* tắt khiên: khiên kiếm chéo */
+.pvp-tag[hidden], .pvp-ask[hidden] { display: none; }
+/* thanh máu dưới tên (pvp-btn.js) */
+.pvp-hp { position: absolute; left: 50%; width: 26px; margin-left: -13px; bottom: -3px; height: 2px; background: #2a1420; border: 1px solid #1b1830; box-sizing: content-box; }
+.pvp-hp u { display: block; height: 100%; width: 100%; background: #e0484a; text-decoration: none; }
+.pvp-ask { position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center; background: rgba(8, 4, 16, .55); padding: 16px; }
+.pvp-ask-card {
+  width: min(92vw, 320px); padding: 14px 14px 12px; border-radius: 10px; border: 2px solid #000;
+  background: #2a1838; color: #f1e8ff; font: 13px/1.45 var(--f-body); box-shadow: 0 0 0 2px #c79bff inset;
+}
+.pvp-ask-q { margin: 0 0 6px; font-weight: 700; font-size: 15px; color: #ffd0d0; }
+.pvp-ask-note { margin: 0 0 12px; color: #d8cce8; }
+.pvp-ask-row { display: flex; gap: 8px; justify-content: flex-end; }
+.pvp-ask-row button { font: 700 13px/1 var(--f-body); padding: 9px 14px; border-radius: 7px; border: 1px solid #000; cursor: pointer; }
+.pvp-no { background: #4a3c5c; color: #f1e8ff; }
+.pvp-yes { background: #b0222c; color: #fff; }
+/* Hóa ma (chủ dự án 22/11/2026 01:54; 02:21 khiên đổi thành đầu lâu, thanh máu đen): src/ui/pvp-btn.js, src/game/pvp-ma.js. Đầu lâu vẽ bằng code
+   (tools/art/dau_lau.py), số cạnh đầu lâu là điểm ma (số lần còn phải chết). Nút Hóa ma đỏ sẫm; bảng luật hóa ma viền đỏ. */
+.pvp-tag em { font: 800 7px/1 var(--f-body); font-style: normal; color: #ff6a7a; }
+.pvp-tag em:empty { display: none; }
+.pvp-tag s { text-decoration: none; margin-right: 3px; font-weight: 800; }   /* phong hào trước tên (src/game/phong-hao.js): màu theo bậc */
+.pvp-tag s:empty { display: none; }
+.pvp-tag s.sang { text-shadow: 1px 0 #000, -1px 0 #000, 0 1px #000, 0 -1px #000, 0 0 5px currentColor; }   /* bậc Tôn, Đế, Tổ phát sáng (giữ viền mực) */
+.pvp-tag.ma { color: #ff3344; }
+.pvp-tag.ma b { background-image: url("../../assets/art/ui-k-dau-lau.png"); image-rendering: pixelated; filter: drop-shadow(0 0 2px rgba(255, 40, 60, .85)); }
+.pvp-tag.ma .pvp-hp { background: #6a1e2a; }
+.pvp-ma { background: linear-gradient(#5a1020, #2a0610); color: #ffd0d6; border-color: #ff3344 !important; }
+.pvp-ask-card.ma { background: #1c0a12; box-shadow: 0 0 0 2px #ff3344 inset, 0 0 24px rgba(255, 40, 60, .35); }
+.pvp-ask-card.ma .pvp-ask-q { color: #ff6a7a; }
+.pvp-ask-card .pvp-ma-yes { background: #8a0f20; }
+/* thanh máu của mình trên giao diện khi đang là ma: ruột đen trên rãnh đỏ sẫm */
+html body.la-ma #hud .bars .bar.hp { background: #5a0e1a !important; box-shadow: inset 0 0 0 1px #000, 0 0 6px rgba(255, 40, 60, .55) !important; }
+html body.la-ma #hud .bars .bar.hp i#hp-fill { background: linear-gradient(#3a3440, #0a0a0e 45%, #000) !important; }
+
+/* Thẻ chạm người chơi khác (src/ui/other-menu.js; chủ dự án 19/11/2026 10:21) */
+.om-card { position: fixed; left: 0; top: 0; z-index: 40; display: flex; pointer-events: auto; }
+.om-card[hidden] { display: none; }
+.om-name { font: 700 13px/1.1 var(--f-body); color: #ffe7a8; text-shadow: 0 1px 0 #000; white-space: nowrap; }
+.om-row { display: flex; gap: 2px; }
+.om-btn { padding: 2px 4px; box-shadow: 0 0 0 1px #000, 0 1px 3px rgba(0, 0, 0, .5); border-radius: 4px; border: 1px solid #ffd27a; background: linear-gradient(#5a3a9a, #3a2470); color: #fff; font: 700 8px/1 var(--f-body); white-space: nowrap; }   /* nhỏ gọn vừa trên đầu (chủ dự án 10:40) */
+.om-btn:active { filter: brightness(1.3); }
+
+/* Nút Rời đài lúc so tài (src/ui/duel-btn.js) */
+.duel-quit { position: fixed; left: 50%; top: calc(env(safe-area-inset-top, 0px) + var(--tren-h, 88px) + 34px); transform: translateX(-50%); z-index: 30;
+  padding: 7px 16px; border-radius: 8px; border: 1px solid #ffd27a; background: linear-gradient(#a03a3a, #6a1e2a); color: #fff; font: 700 13px/1 var(--f-body);
+  box-shadow: 0 0 0 1px #000, 0 3px 8px rgba(0, 0, 0, .5); }
+.duel-quit[hidden] { display: none; }

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://devhoa.github.io/tutien2d/sitemap.xml

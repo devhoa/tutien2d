@@ -1,0 +1,20 @@
+{
+  // Máy chủ phòng Realtime của Pixel 2D Tu Tiên trên Cloudflare (chủ dự án 06/11/2026: chuyển phần "thấy nhau" khỏi Supabase Realtime,
+  // nhắm 1.000+ người online). Supabase vẫn giữ tài khoản, lưu game, chống hack, chat. Xem cloud/README.md.
+  "name": "p2d-phong",
+  "main": "src/index.js",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": true,
+  // 14:02 UTC = 21:02 giờ VN: boss (20:30–21:00) vừa hết giờ thì tổng kết, phát quà (chủ dự án 06/11/2026 20:59)
+  "triggers": { "crons": ["2 14 * * *"] },
+  "observability": { "enabled": true, "head_sampling_rate": 0.05 },
+  "vars": {
+    "SUPABASE_URL": "https://kceewiahsidixwixalir.supabase.co",
+    "SUPABASE_KEY": "sb_publishable__4rlGMn0rpy3xVU1RSb_ww_J4IfcJmc",
+    "ALLOWED_ORIGINS": "https://devhoa.github.io,http://localhost:8000,http://127.0.0.1:8000,http://localhost:8080,http://127.0.0.1:8080,https://pixel-2d-tu-tien.vercel.app,https://pixel2d.vercel.app,https://www.pixel2dtutien.com,https://pixel2dtutien.com"
+  },
+  "durable_objects": {
+    "bindings": [{ "name": "PHONG", "class_name": "Phong" }, { "name": "MANG", "class_name": "Mang" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Phong"] }, { "tag": "v2", "new_sqlite_classes": ["Mang"] }]
+}

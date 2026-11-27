@@ -1,0 +1,5879 @@
+{
+ "id": "tc-viem-duong",
+ "name": "Viêm Dương Tinh",
+ "_note": "Dựng bằng tools/the-gioi/tinh_cau_moi.py (KHÔNG sửa tay: sửa máy sinh rồi chạy lại). Một loại duy nhất: bộ hình của Xích Diễm Tinh; bố cục kiểu hao; cho Luyện Khí. Bãi gần pháp trận ×1, xa dần ×2, ×4. planet.luat: câu cá chỉ ở nước thật.",
+ "sky": "#f0b890",
+ "dark": 0.12,
+ "ground": "#a88a74",
+ "island": {
+  "top": "#9a8270",
+  "under": "#6a4a3a",
+  "trees": "#3a2a2a"
+ },
+ "world": true,
+ "planet": {
+  "d": 104,
+  "origin": [
+   0,
+   0
+  ],
+  "luat": 1,
+  "terrain": 1,
+  "settle": 1,
+  "open": 1,
+  "grown": 1,
+  "goc": "dao-xich-dien"
+ },
+ "nen": {
+  "nuoc": "nen.tc-xd-nuoc",
+  "mep": "nen.tc-xd-mep",
+  "vach": "nen.tc-xd-vach",
+  "nui": "nen.tc-xd-nui",
+  "hoa": "nen.tc-xd-hoa",
+  "dat": "nen.tc-xd-dat",
+  "san": "nen.tc-xd-san",
+  "gach": "nen.tc-xd-gach",
+  "ky": {
+   "nen": "a",
+   "nuoc": "L"
+  }
+ },
+ "prop_hide": "^",
+ "grid": [
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~aaaaaa~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~",
+  "~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~",
+  "~~~~~~~~~~aaaaaaaaaaaaa,,aaaaaaaaaaaaaaaaaaa,,,aaaaaaaaaa,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~",
+  "~~~~~~~~~~aaaaaaaaaaaaa,,aaaaaaaaaaaaaaaaa,,,,aaaaaaaaaaa,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~",
+  "~~~~~~~~~aaaaaaaaaaaaaa,,aaaaaaaaaaaaaaaa,,,aaaaaaaaaaaaa,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~",
+  "~~~~~~~~aaaaaaaaaaaaaaa,,,aaaaaaaaaaaaa,,,aaaaaaaaaaaaaaaa,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~",
+  "~~~~~~~~aaaaaaaaaaaaaaaa,,,aaaaaaaaaaa,,,aaaaaaaaaaaaaaaaaa,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~",
+  "~~~~~~~aaaaaaaaaaaaaaaaaa,,,aaaaaaaa,,,aaaaaaaaaaaaaaaaaaaaa,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~",
+  "~~~~~~~aaaaaaaaaaaaaaaaaaa,,,aaaaaa,,,aaaaaaaaaaaaaaaaaaaaaaa,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~",
+  "~~~~~~aaaaaaaaaaaaaaaaaaaaa,,,aaa,,,aaaaaaaaaaaaaaaaaaaaaaaaaa,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~",
+  "~~~~~~aaaaaaaaaaaaaaaaaaaaaa,,,a,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaa,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~",
+  "~~~~~aaaaaaaaaaaaaaaaaaaaaaaa,,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,,,,aaaaaaaaaaaaaaaaa,,aaaaaaaaaaaaa~~~~~",
+  "~~~~~aaaaaaaaaaaaaaaaaaaaaaaa,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,,,,,aaaaaaaaaaaaaaaa,,aaaaaaaaaaaaa~~~~~",
+  "~~~~aaaaaaaaaaaaaaaaaaaaaaaa,,,aaaaaaaaaaaaaaaaaaaLLLLaaaaaaaaa,,a,,,aaaaaaaaaaaaaa,,aaaaaaaaaaaaaaa~~~~",
+  "~~~~aaaaaaaaaaaaaaaaaaaaaaaa,,,aaaaaaaaaaaaaLLLLLLLLLLLLLaaaaaa,,aa,,,aaaaaaaaaaaaa,,aaaaaaaaaaaaaaa~~~~",
+  "~~~aaaaaaaaaaaaaaaaaaaaaaaaa,,aaaaaaaaaaaaLLLLLLLLLLLLLLLLLaaaa,,aaa,,,aaaaaaaaaaa,,,,aaaaaaaaaaaaaaa~~~",
+  "~~~aaaaaaaaaaaaaaaaaaaaaaaaa,,aaaaaaaaaaaLLLLLLLLLLLLLLLLLLLLaa,,aaaa,,,aaaaaaaaa,,,,,,aaaaaaaaaaaaaa~~~",
+  "~~~aaaaaaaaaaaaaaaaaaaaaaaa,,aaaaaaaaaaaLLLLLLLLLLLLLLLLLLLLLLa,,aaaaa,,,aaaaaaaa,,,a,,,aaaaaaaaaaaaa~~~",
+  "~~aaaaaaaaaaaaaaaaaaaaaaaaa,,aaaaaaaaaaaLLLLLLaaaaaaaaLLLLLLLLL,,aaaaaa,,,aaaaaa,,,aaa,,,aaaaaaaaaaaaa~~",
+  "~~aaaaaaaaaaaaaaaaaaaaaaaaa,,aaaaaaaaaaaLLLLaaaaaaaaaaaaaLLLLLL,,aaaaaaa,,,aaaa,,,aaaaa,,,aaaaaaaaaaaa~~",
+  "~~aaaaaaaaaaaaaaaaaaaaaaaaa,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaLLLL,,aaaaaaaa,,,aaa,,,aaaaaa,,,aaaaaaaaaaa~~",
+  "~~aaaaaaaaaaaaaaaaaaaaa,,,,,,aaaaaaLLLLaaaaaaaaaaaaaaaaaaaaaaaa,,aaaaaaaaa,,,,,,,aaaaaaaa,,,aaaaaaaaaa~~",
+  "~aaaaaaaaaaaaaaaaaaaa,,,,,,,,aaaaaaLLLLaaaaaaaaaaaaaaaaaaaaaa,,,LLLLaaaaaaa,,,,,aaaaaaaaaa,,,aaaaaaaaaa~",
+  "~aaaaaaaaaaaaaaaaaaaa,,aaaa,,aaaaaLLLLLaaaaaaaaaaaaaaaaaaaaa,,,,LLLLaaaaaaaaaaaaaaaaaaaaaaa,,,aaaaaaaaa~",
+  "~aaaaaaaaaaaaaaaaaaaaaaaaaa,,aaaaaLLLLLaaaaaaaaaaaaaaaaaaaa,,,aaLLLLLaaaaaaaaaaaaaaaaaaaaaaa,,,aaaaaaaa~",
+  "~aaaaaaaaaaaaaaaaaaaaaaaaaa,,aaaaLLLLLaaaaaaaaaaaaaaaaaaaaa,,aaaaLLLLaaaaaaaaaaaaaaaaaaaaaaaa,aaaaaaaaa~",
+  "~aaaaaaaaaaaaaaaaaaaaaaaaaa,,aaaaLLLLLaaaaaaaaaaaaaaaaaaaa,,,aaaaLLLLLaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~",
+  "~aaaaaaaaaaaaaaaaaaaaaaaaaa,,aaaaLLLLaaaaaaaaaaaaaaaaaaaa,,,aaaaaaLLLLaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~",
+  "~aaaaaaaaaaaaaaaaaaaaaaaaaa,,aaaaLLLLaaaaaaaaaaaa2222222a,,aaaaaaaLLLLLaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~",
+  "~aaaaaaaaaaaaaaaaaaaaaaaaaa,,aaaaLLLLaaaaaaaaaaa222222222,,aaaaaaaLLLLLaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaa,,aaaaLLLLaaaaaaaaaa22222222222aaaaaaaaaLLLLaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaa,,aaaLLLLLaaaaaaaaa2222222222222aaaaaaaaLLLLaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaa,,aaaLLLLLaaaaaaaaa2222222222222aaaaaaaaLLLLaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaa,,aaaaLLLLaaaaaaaaa2222222222222aaaaaaaaLLLLaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaa,,,aaaLLLLaaaaaaaaa2222222222222aaaaaaaaLLLLaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaa,,,,aaLLLLaaaaaaaaa2222222222222aaaaaaaaLLLLaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "~aaaaaaaaaaaaaaaaaaaaaaaaaaa,,,,aLLLLaaaaaaaaaa22222222222aaaaaaaaaLLLLaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~",
+  "~aaaaaaaaaaaaaaaaaaaaaaaaaaaa,,,,LLLLLaaaaaaaaaa222222222aaaaaaaaaaLLLLaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~",
+  "~aaaaaaaaaaaaaaaaaaaaaaaaaaaaa,,,,LLLLaaaaaaaaa,,2222222aaaaaaaaaaaLLLLaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~",
+  "~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,,,LLLLLaaaaaaa,,,,aaaaaaaaaaaaaaaaLLLLLaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~",
+  "~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,,,LLLLLaaaa,,,,,aaaaaaaaaaaaaaaaaLLLLaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~",
+  "~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,,LLLLLaaa,,,,,aaaaaaaaaaaaaaaaaLLLLLaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~",
+  "~aaaaaaaaaaa,,aaaaaaaaaaaaaaaaaaa,,,LLLLaa,,,,,,aaaaaaaaaaaaaaaaaLLLLLaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~",
+  "~aaaaaaaaaaa,,aaaaaaaaaaaaaaaaaaaa,,,LLLa,,,,a,,,aaaaaaaaaaaaaaaaLLLLaaaaaaaaaaaaaaaaaaaaaa,,aaaaaaaaaa~",
+  "~~aaaaaaaaaa,,,aaaaaaaaaaaaaaaaaaaa,,,,,,,,,aaa,,,aaaaaaaaaaaaaaaLLLLaaaaaaaaaaaaaaaaaaaaaa,,aaaaaaaaa~~",
+  "~~aaaaaaaaaaa,,,aaaaaaaaaaaaaaaaaa,,,,,,,LLLLaaa,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,,aaaaaaaaaa~~",
+  "~~aaaaaaaaaaaa,,,aaaaaaaaaaaaaaaa,,aaaaa,LLLLLLaa,,aaaaaaaaaLLLLaaaaaaaaaaaaaaaaaaaaaaaaaa,,aaaaaaaaaa~~",
+  "~~aaaaaaaaaaaaa,,,aaaaaaaaaaaaaa,,aaaaaa,LLLLLLLLLaaaaaaaLLLLLLLaaaaaaaaaaaaaaaaaaaaaaaaa,,aaaaaaaaaaa~~",
+  "~~~aaaaaaaaaaaaa,,,aaaaaaaaaaaaa,,aaaaaa,LLLLLLLLLLLLLLLLLLLLLLLaaaaaaaaaaaaaaaaaaaaaaaa,,aaaaaaaaaaa~~~",
+  "~~~aaaaaaaaaaaaaa,,,aaaaaaaaaaa,,aaaaaaa,,,LLLLLLLLLLLLLLLLLLLLLaaaaaaaaaaaaaaaaaaaaaaaa,,aaaaaaaaaaa~~~",
+  "~~~aaaaaaaaaaaaaaa,,aaaaaaaaaa,,aaaaaaaa,,,,LLLLLLLLLLLLLLLLLLaaaaaaaaaaaaaaaaaaaaaaaaa,,aaaaaaaaaaaa~~~",
+  "~~~~aaaaaaaaaaaaaa,,aaaaaaaaaa,,aaaaaaaaaa,,,aLLLLLLLLLLLLLaaaaaaaaaaaaaaaaaaaaaaaaaaa,,aaaaaaaaaaaa~~~~",
+  "~~~~aaaaaaaaaaaaaa,,,,,,,,,,,,,aaaaaaaaaaaa,,,,,aaaaaLLLaaaaaaaaaaaaaaaaaa,,,,,,,,,,,,,,aaaaaaaaaaaa~~~~",
+  "~~~~~aaaaaaaaaaaaa,,,,,,,,,,,,,aaaaaaaaaaaaa,,,,,aaaaaaaaaaaaaaaaaaaaa,,,,,,,,,,,,,,,,,aaaaaaaaaaaa~~~~~",
+  "~~~~~aaaaaaaaaaaaaa,,aaaaaaaa,,aaaaaaaaaaaaaaaa,,,aaaaaaaaaaaaaaaaaa,,,,,,,aaaaaaaaaaaaaaaaaaaaaaaa~~~~~",
+  "~~~~~~aaaaaaaaaaaaa,,aaaaaaaa,,aaaaaaaaaaaaaaaaa,,,aaaaaaaaaaaaaaaa,,,aaa,,,aaaaaaaaaaaaaaaaaaaaaa~~~~~~",
+  "~~~~~~aaaaaaaaaaaaa,,,aaaaaaa,,,aaaaaaaaaaaaaaaaa,,,aaaaaaaaaaaaa,,,aaaaaa,,,aaaaaaaaaaaaaaaaaaaaa~~~~~~",
+  "~~~~~~~aaaaaaaaaaaaa,,,aaaaaaa,,,aaaaaaaaaaaaaaaaa,,,aaaaaaaaaaa,,,aaaaaaaa,,,aaaaaaaaaaaaaaaaaaa~~~~~~~",
+  "~~~~~~~aaaaaaaaaaaaaa,,,aaaaaaa,,,aaaaaaaaaaaaaaaaa,,,aaaaaaaa,,,aaaaaaaaaaa,,,aaaaaaaaaaaaaaaaaa~~~~~~~",
+  "~~~~~~~~aaaaaaaaaaaaaa,,,aaaaaaa,,,aaaaaaaaaaaaaaaaa,,,aaaaaa,,,aaaaaaaaaaaaa,,,aaaaaaaaaaaaaaaa~~~~~~~~",
+  "~~~~~~~~aaaaaaaaaaaaaaa,,aaaaaaaa,,,aaaaaaaaaaaaaaaa,,,,aaa,,,aaaaaaaaaaaaaaaa,,aaaaaaaaaaaaaaaa~~~~~~~~",
+  "~~~~~~~~~aaaaaaaaaaaaaa,,aaaaaaaaa,,aaaaaaaaaaaaaa,,,,,,,,,,,aaaaaaaaaaaaaaaaa,,aaaaaaaaaaaaaaa~~~~~~~~~",
+  "~~~~~~~~~~aaaaaaaaaaaaa,aaaaaaaaaa,,aaaaaaaaaaaaa,,,aa,,,,,,aaaaaaaaaaaaaaaaaa,,aaaaaaaaaaaaaa~~~~~~~~~~",
+  "~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaa,,aaaaaaaaaaa,,,aaaaaaaa,,aaaaaaaaaaaaaaaaaa,aaaaaaaaaaaaaaa~~~~~~~~~~",
+  "~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaa,aaaaaaaaaaaa,,aaaaaaaaa,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~",
+  "~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,,,aaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,,,aaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,,,aaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,,aaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,,aaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,,aaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,aaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~aaaaaa~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "spawns": {
+  "vao": [
+   52,
+   52
+  ]
+ },
+ "phap_tran": {
+  "at": [
+   52,
+   52
+  ]
+ },
+ "portals": [],
+ "npcs": [],
+ "spawners": [
+  {
+   "mob": "hoa-lang",
+   "at": [
+    63,
+    30
+   ],
+   "farm": true
+  },
+  {
+   "mob": "hoa-lang",
+   "at": [
+    27,
+    53
+   ],
+   "farm": true
+  },
+  {
+   "mob": "hoa-lang",
+   "at": [
+    57,
+    80
+   ],
+   "farm": true
+  },
+  {
+   "mob": "hoa-lang",
+   "at": [
+    74,
+    71
+   ],
+   "farm": true
+  },
+  {
+   "mob": "hoa-lang",
+   "at": [
+    79,
+    40
+   ],
+   "farm": true
+  },
+  {
+   "mob": "hoa-lang",
+   "at": [
+    29,
+    71
+   ],
+   "farm": true
+  },
+  {
+   "mob": "hoa-lang",
+   "at": [
+    47,
+    82
+   ],
+   "farm": true
+  },
+  {
+   "mob": "hoa-lang",
+   "at": [
+    29,
+    31
+   ],
+   "farm": true,
+   "mul": 2
+  },
+  {
+   "mob": "hoa-lang",
+   "at": [
+    45,
+    21
+   ],
+   "farm": true,
+   "mul": 2
+  },
+  {
+   "mob": "viem-linh",
+   "at": [
+    57,
+    20
+   ],
+   "farm": true,
+   "mul": 2
+  },
+  {
+   "mob": "hoa-lang",
+   "at": [
+    21,
+    41
+   ],
+   "farm": true,
+   "mul": 2
+  },
+  {
+   "mob": "hoa-lang",
+   "at": [
+    34,
+    82
+   ],
+   "farm": true,
+   "mul": 2
+  },
+  {
+   "mob": "viem-linh",
+   "at": [
+    84,
+    30
+   ],
+   "farm": true,
+   "mul": 2
+  },
+  {
+   "mob": "hoa-lang",
+   "at": [
+    18,
+    71
+   ],
+   "farm": true,
+   "mul": 2
+  },
+  {
+   "mob": "hoa-lang",
+   "at": [
+    86,
+    71
+   ],
+   "farm": true,
+   "mul": 4
+  },
+  {
+   "mob": "hoa-lang",
+   "at": [
+    78,
+    81
+   ],
+   "farm": true,
+   "mul": 4
+  },
+  {
+   "mob": "hoa-lang",
+   "at": [
+    62,
+    90
+   ],
+   "farm": true,
+   "mul": 4
+  },
+  {
+   "mob": "viem-linh",
+   "at": [
+    91,
+    62
+   ],
+   "farm": true,
+   "mul": 4
+  },
+  {
+   "mob": "hoa-lang",
+   "at": [
+    23,
+    80
+   ],
+   "farm": true,
+   "mul": 4
+  },
+  {
+   "mob": "hoa-lang",
+   "at": [
+    12,
+    61
+   ],
+   "farm": true,
+   "mul": 4
+  },
+  {
+   "mob": "hoa-lang",
+   "at": [
+    93,
+    43
+   ],
+   "farm": true,
+   "mul": 4
+  },
+  {
+   "mob": "viem-linh",
+   "at": [
+    23,
+    21
+   ],
+   "farm": true,
+   "mul": 4
+  }
+ ],
+ "rooms": [],
+ "hoi": {
+  "do": [
+   [
+    "tc.bui-tro-sc",
+    41.7,
+    1.0,
+    null,
+    {
+     "s": 0.59
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    56.2,
+    1.8,
+    null,
+    {
+     "s": 0.55,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    60.7,
+    2.2,
+    null,
+    {
+     "s": 0.54
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    45.3,
+    2.6,
+    null,
+    {
+     "s": 0.98
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    52.0,
+    2.7
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    57.2,
+    2.9,
+    null,
+    {
+     "s": 1.06
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    61.5,
+    2.9,
+    null,
+    {
+     "s": 0.55,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    49.2,
+    3.3,
+    null,
+    {
+     "s": 0.86
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    44.6,
+    3.7,
+    null,
+    {
+     "s": 0.89,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    54.3,
+    3.8,
+    null,
+    {
+     "s": 0.92,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    42.0,
+    4.2,
+    null,
+    {
+     "s": 0.99
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    65.7,
+    4.2,
+    null,
+    {
+     "s": 0.56,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    56.9,
+    4.4,
+    null,
+    {
+     "s": 0.89
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    67.3,
+    4.5,
+    null,
+    {
+     "s": 0.98
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    62.5,
+    4.7,
+    null,
+    {
+     "s": 0.91
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    44.7,
+    4.8,
+    null,
+    {
+     "s": 0.6
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    61.8,
+    5.5,
+    null,
+    {
+     "s": 0.56
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    33.5,
+    6.8,
+    null,
+    {
+     "s": 0.96
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    62.7,
+    6.8,
+    null,
+    {
+     "s": 1.1
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    53.1,
+    6.9,
+    null,
+    {
+     "s": 0.99
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    51.0,
+    7.0,
+    null,
+    {
+     "s": 0.61
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    45.5,
+    7.7,
+    null,
+    {
+     "s": 0.64
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    45.4,
+    7.8,
+    null,
+    {
+     "s": 0.96,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    42.9,
+    7.9,
+    null,
+    {
+     "s": 0.5,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    50.1,
+    8.1,
+    null,
+    {
+     "s": 0.58
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    53.3,
+    8.8,
+    null,
+    {
+     "s": 0.53,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    71.5,
+    9.5,
+    null,
+    {
+     "s": 0.87
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    54.7,
+    9.7,
+    null,
+    {
+     "s": 0.86
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    51.1,
+    9.8,
+    null,
+    {
+     "s": 0.7
+    }
+   ],
+   [
+    "tc.cay-chay-la-sc",
+    47.8,
+    10.4,
+    null,
+    {
+     "s": 0.91
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    58.7,
+    10.5,
+    null,
+    {
+     "s": 0.88,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    71.9,
+    10.6,
+    null,
+    {
+     "s": 0.7,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    28.4,
+    10.8,
+    null,
+    {
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    45.5,
+    11.1,
+    null,
+    {
+     "s": 0.92,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    73.9,
+    11.9,
+    null,
+    {
+     "s": 0.62,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    21.5,
+    12.6,
+    null,
+    {
+     "s": 0.93,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    38.4,
+    12.7,
+    null,
+    {
+     "s": 1.09
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    72.3,
+    12.7,
+    null,
+    {
+     "s": 0.88,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    74.3,
+    12.7,
+    null,
+    {
+     "s": 0.96,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-la-sc",
+    26.5,
+    13.1,
+    null,
+    {
+     "s": 0.86,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    59.8,
+    13.1,
+    null,
+    {
+     "s": 0.61,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    53.0,
+    13.2,
+    null,
+    {
+     "s": 0.89
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    72.8,
+    13.6,
+    null,
+    {
+     "s": 1.08,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    29.3,
+    13.7,
+    null,
+    {
+     "s": 1.1,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    79.7,
+    13.8,
+    null,
+    {
+     "s": 0.92
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    29.1,
+    13.9,
+    null,
+    {
+     "s": 0.91,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    58.8,
+    13.9,
+    null,
+    {
+     "s": 0.77
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    24.3,
+    14.6,
+    null,
+    {
+     "s": 0.51
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    62.3,
+    14.6,
+    null,
+    {
+     "s": 0.61
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    28.5,
+    14.7,
+    null,
+    {
+     "s": 1.08
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    72.6,
+    14.8,
+    null,
+    {
+     "s": 0.97
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    42.5,
+    14.9,
+    null,
+    {
+     "s": 1.09,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-la-sc",
+    62.4,
+    15.0,
+    null,
+    {
+     "s": 0.92,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    44.3,
+    15.3,
+    null,
+    {
+     "s": 0.86,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    57.1,
+    15.4,
+    null,
+    {
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    76.8,
+    15.4,
+    null,
+    {
+     "s": 0.9,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    58.9,
+    15.5,
+    null,
+    {
+     "s": 0.71,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    46.6,
+    15.7,
+    null,
+    {
+     "s": 0.92,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    59.1,
+    15.7,
+    null,
+    {
+     "s": 0.61
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    60.4,
+    15.8,
+    null,
+    {
+     "s": 0.92
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    74.3,
+    16.7,
+    null,
+    {
+     "s": 0.9
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    30.6,
+    16.8,
+    null,
+    {
+     "s": 1.02,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    82.8,
+    16.8,
+    null,
+    {
+     "s": 0.92
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    62.4,
+    17.7,
+    null,
+    {
+     "s": 0.64,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    75.6,
+    17.8,
+    null,
+    {
+     "s": 1.02
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    73.0,
+    18.0,
+    null,
+    {
+     "s": 0.72
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    73.3,
+    18.0,
+    null,
+    {
+     "s": 0.59
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    63.5,
+    18.6,
+    null,
+    {
+     "s": 0.93
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    39.6,
+    18.7,
+    null,
+    {
+     "s": 0.98
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    81.6,
+    18.7,
+    null,
+    {
+     "s": 0.94
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    32.3,
+    18.8,
+    null,
+    {
+     "s": 0.99,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    35.6,
+    18.8,
+    null,
+    {
+     "s": 0.97
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    76.5,
+    18.8,
+    null,
+    {
+     "s": 0.87
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    80.3,
+    18.8,
+    null,
+    {
+     "s": 0.91
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    53.9,
+    19.0,
+    null,
+    {
+     "s": 0.53
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    74.2,
+    19.0,
+    null,
+    {
+     "s": 0.64,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    79.1,
+    19.0,
+    null,
+    {
+     "s": 0.89
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    36.0,
+    19.2,
+    null,
+    {
+     "s": 0.71,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    45.4,
+    19.2,
+    null,
+    {
+     "s": 0.54,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    74.8,
+    19.4,
+    null,
+    {
+     "s": 0.61
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    24.2,
+    19.5,
+    null,
+    {
+     "s": 0.59,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    26.3,
+    19.7,
+    null,
+    {
+     "s": 0.63
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    28.2,
+    19.7,
+    null,
+    {
+     "s": 1.08,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    81.4,
+    19.8,
+    null,
+    {
+     "s": 0.98
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    35.9,
+    20.1,
+    null,
+    {
+     "s": 0.64,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    45.7,
+    20.3,
+    null,
+    {
+     "s": 0.7,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    40.8,
+    20.5,
+    null,
+    {
+     "s": 0.54
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    31.1,
+    20.6,
+    null,
+    {
+     "s": 0.7
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    89.8,
+    20.7,
+    null,
+    {
+     "s": 0.92,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    41.2,
+    20.8,
+    null,
+    {
+     "s": 0.66
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    46.1,
+    20.8,
+    null,
+    {
+     "s": 0.7
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    64.5,
+    21.1,
+    null,
+    {
+     "s": 0.94,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    40.7,
+    21.2,
+    null,
+    {
+     "s": 0.53,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    91.7,
+    21.7,
+    null,
+    {
+     "s": 1.06,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    79.4,
+    21.8,
+    null,
+    {
+     "s": 0.99
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    85.3,
+    21.8,
+    null,
+    {
+     "s": 0.97
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    24.9,
+    21.9,
+    null,
+    {
+     "s": 0.56
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    47.6,
+    21.9,
+    null,
+    {
+     "s": 1.03,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    83.8,
+    21.9,
+    null,
+    {
+     "s": 1.01,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    91.7,
+    21.9,
+    null,
+    {
+     "s": 0.53
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    29.9,
+    22.0,
+    null,
+    {
+     "s": 0.89
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    38.1,
+    22.2,
+    null,
+    {
+     "s": 0.87
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    32.8,
+    22.4,
+    null,
+    {
+     "s": 0.9
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    89.2,
+    22.5,
+    null,
+    {
+     "s": 0.65
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    91.9,
+    22.6,
+    null,
+    {
+     "s": 0.57,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    16.2,
+    22.7,
+    null,
+    {
+     "s": 0.93,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    90.6,
+    22.7,
+    null,
+    {
+     "s": 1.06,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    29.5,
+    22.8,
+    null,
+    {
+     "s": 1.06,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    82.4,
+    22.8,
+    null,
+    {
+     "s": 0.9
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    21.8,
+    22.9,
+    null,
+    {
+     "s": 0.91
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    26.8,
+    23.7,
+    null,
+    {
+     "s": 0.59,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-la-sc",
+    51.8,
+    23.7,
+    null,
+    {
+     "s": 0.89,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    20.4,
+    23.8,
+    null,
+    {
+     "s": 1.02
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    28.5,
+    23.9,
+    null,
+    {
+     "s": 0.65
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    30.5,
+    23.9,
+    null,
+    {
+     "s": 0.95,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    73.5,
+    23.9,
+    null,
+    {
+     "s": 0.96
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    87.4,
+    24.0,
+    null,
+    {
+     "s": 0.77
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    79.8,
+    24.1,
+    null,
+    {
+     "s": 0.6
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    34.0,
+    24.3,
+    null,
+    {
+     "s": 0.95,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    53.4,
+    24.3,
+    null,
+    {
+     "s": 0.74
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    90.5,
+    24.6,
+    null,
+    {
+     "s": 0.72
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    51.5,
+    24.8,
+    null,
+    {
+     "s": 1.02,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    48.9,
+    25.0,
+    null,
+    {
+     "s": 0.73,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    85.0,
+    25.2,
+    null,
+    {
+     "s": 0.66
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    77.3,
+    25.3,
+    null,
+    {
+     "s": 0.92,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    94.3,
+    25.3,
+    null,
+    {
+     "s": 0.93,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    32.5,
+    25.6,
+    null,
+    {
+     "s": 0.78,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-la-sc",
+    89.4,
+    25.8,
+    null,
+    {
+     "s": 0.9
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    89.5,
+    25.8,
+    null,
+    {
+     "s": 1.01,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    52.3,
+    26.5,
+    null,
+    {
+     "s": 0.96,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    30.7,
+    26.6,
+    null,
+    {
+     "s": 1.05
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    95.5,
+    26.6,
+    null,
+    {
+     "s": 0.64,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    90.5,
+    26.9,
+    null,
+    {
+     "s": 1.08,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    30.4,
+    27.1,
+    null,
+    {
+     "s": 0.97,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    80.5,
+    27.2,
+    null,
+    {
+     "s": 0.92,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    65.1,
+    27.3,
+    null,
+    {
+     "s": 0.74,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    68.7,
+    27.4,
+    null,
+    {
+     "s": 0.77
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    73.6,
+    27.6,
+    null,
+    {
+     "s": 0.99
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    42.5,
+    27.7,
+    null,
+    {
+     "s": 1.09
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    44.2,
+    27.7,
+    null,
+    {
+     "s": 0.78
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    54.8,
+    27.7,
+    null,
+    {
+     "s": 1.05
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    17.6,
+    27.9,
+    null,
+    {
+     "s": 0.91,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    23.9,
+    28.0,
+    null,
+    {
+     "s": 0.68,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    77.8,
+    28.1,
+    null,
+    {
+     "s": 0.66
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    67.3,
+    28.6,
+    null,
+    {
+     "s": 1.05
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    81.3,
+    28.7,
+    null,
+    {
+     "s": 1.02
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    20.6,
+    28.9,
+    null,
+    {
+     "s": 0.91
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    41.6,
+    28.9,
+    null,
+    {
+     "s": 1.03
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    90.2,
+    29.1,
+    null,
+    {
+     "s": 0.9
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    76.7,
+    29.2,
+    null,
+    {
+     "s": 0.88,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    73.6,
+    29.6,
+    null,
+    {
+     "s": 1.04
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    80.1,
+    29.6,
+    null,
+    {
+     "s": 0.7
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    74.4,
+    29.8,
+    null,
+    {
+     "s": 0.99
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    9.7,
+    30.3,
+    null,
+    {
+     "s": 0.67
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    25.2,
+    30.3,
+    null,
+    {
+     "s": 0.55
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    94.7,
+    30.6,
+    null,
+    {
+     "s": 0.91,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    13.4,
+    30.9,
+    null,
+    {
+     "s": 0.93
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    25.2,
+    30.9,
+    null,
+    {
+     "s": 0.73,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    61.4,
+    30.9,
+    null,
+    {
+     "s": 0.99
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    9.2,
+    31.0,
+    null,
+    {
+     "s": 0.65
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    15.9,
+    31.2,
+    null,
+    {
+     "s": 0.96,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    24.7,
+    31.5,
+    null,
+    {
+     "s": 0.87,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-la-sc",
+    10.4,
+    31.6,
+    null,
+    {
+     "s": 0.89,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    92.9,
+    31.6,
+    null,
+    {
+     "s": 0.9
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    13.3,
+    31.7,
+    null,
+    {
+     "s": 0.99,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    24.4,
+    31.7,
+    null,
+    {
+     "s": 0.94,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    61.2,
+    31.7,
+    null,
+    {
+     "s": 0.94
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    19.2,
+    31.8,
+    null,
+    {
+     "s": 0.87
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    21.7,
+    31.8,
+    null,
+    {
+     "s": 1.06
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    39.5,
+    31.8,
+    null,
+    {
+     "s": 1.04,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    41.3,
+    31.9,
+    null,
+    {
+     "s": 0.9,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-la-sc",
+    21.5,
+    32.1,
+    null,
+    {
+     "s": 0.9
+    }
+   ],
+   [
+    "tc.cay-chay-la-sc",
+    74.8,
+    32.2,
+    null,
+    {
+     "s": 0.94
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    91.1,
+    32.2,
+    null,
+    {
+     "s": 0.99
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    12.0,
+    32.7,
+    null,
+    {
+     "s": 0.7
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    7.7,
+    32.8,
+    null,
+    {
+     "s": 0.76,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    12.4,
+    32.9,
+    null,
+    {
+     "s": 1.05,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    24.0,
+    33.1,
+    null,
+    {
+     "s": 0.89,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    89.4,
+    33.2,
+    null,
+    {
+     "s": 0.94,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    24.7,
+    33.3,
+    null,
+    {
+     "s": 0.7,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    8.7,
+    33.5,
+    null,
+    {
+     "s": 0.91,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    33.0,
+    33.5,
+    null,
+    {
+     "s": 0.66
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    18.9,
+    33.7,
+    null,
+    {
+     "s": 0.88,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    33.6,
+    33.8,
+    null,
+    {
+     "s": 0.95,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    10.1,
+    34.0,
+    null,
+    {
+     "s": 0.63
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    20.2,
+    34.0,
+    null,
+    {
+     "s": 0.6
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    14.4,
+    34.4,
+    null,
+    {
+     "s": 0.66,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    98.9,
+    34.4,
+    null,
+    {
+     "s": 0.87
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    97.0,
+    34.5,
+    null,
+    {
+     "s": 0.58
+    }
+   ],
+   [
+    "tc.cay-chay-la-sc",
+    21.4,
+    34.6,
+    null,
+    {
+     "s": 0.9,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    29.9,
+    34.6,
+    null,
+    {
+     "s": 0.61,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    77.8,
+    34.6,
+    null,
+    {
+     "s": 1.09,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    7.6,
+    34.7,
+    null,
+    {
+     "s": 0.68,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    71.2,
+    34.7,
+    null,
+    {
+     "s": 1.07
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    37.7,
+    34.8,
+    null,
+    {
+     "s": 0.92
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    94.2,
+    34.8,
+    null,
+    {
+     "s": 0.69,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    21.1,
+    35.3,
+    null,
+    {
+     "s": 0.6,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    12.6,
+    35.4,
+    null,
+    {
+     "s": 0.58,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    14.4,
+    35.4,
+    null,
+    {
+     "s": 0.71,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    13.4,
+    35.5,
+    null,
+    {
+     "s": 0.61,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    14.5,
+    35.7,
+    null,
+    {
+     "s": 0.75
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    36.5,
+    35.7,
+    null,
+    {
+     "s": 0.97
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    19.4,
+    35.8,
+    null,
+    {
+     "s": 0.97
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    22.3,
+    35.8,
+    null,
+    {
+     "s": 0.57
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    26.7,
+    35.8,
+    null,
+    {
+     "s": 0.93,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    92.6,
+    35.8,
+    null,
+    {
+     "s": 0.68,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-la-sc",
+    96.1,
+    36.0,
+    null,
+    {
+     "s": 0.93,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    15.2,
+    36.3,
+    null,
+    {
+     "s": 0.67,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    31.3,
+    36.4,
+    null,
+    {
+     "s": 0.7,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    13.9,
+    36.5,
+    null,
+    {
+     "s": 0.96
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    96.8,
+    36.6,
+    null,
+    {
+     "s": 0.58,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    37.6,
+    37.0,
+    null,
+    {
+     "s": 0.92
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    4.1,
+    37.4,
+    null,
+    {
+     "s": 0.71,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    36.7,
+    37.6,
+    null,
+    {
+     "s": 0.87
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    94.8,
+    37.6,
+    null,
+    {
+     "s": 0.63
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    7.8,
+    37.8,
+    null,
+    {
+     "s": 0.64,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    12.6,
+    37.8,
+    null,
+    {
+     "s": 0.92,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    6.3,
+    37.9,
+    null,
+    {
+     "s": 1.07,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    4.8,
+    38.3,
+    null,
+    {
+     "s": 0.88,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    8.5,
+    38.3,
+    null,
+    {
+     "s": 0.65,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    98.2,
+    38.4,
+    null,
+    {
+     "s": 0.63,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    52.9,
+    38.5,
+    null,
+    {
+     "s": 0.52
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    95.0,
+    38.5,
+    null,
+    {
+     "s": 0.96,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    23.7,
+    38.7,
+    null,
+    {
+     "s": 0.99,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    96.6,
+    38.7,
+    null,
+    {
+     "s": 0.7,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    21.7,
+    39.0,
+    null,
+    {
+     "s": 0.69
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    17.0,
+    39.3,
+    null,
+    {
+     "s": 0.58,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    22.4,
+    39.9,
+    null,
+    {
+     "s": 0.92
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    43.3,
+    39.9,
+    null,
+    {
+     "s": 1.01
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    48.6,
+    39.9,
+    null,
+    {
+     "s": 0.96
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    41.8,
+    40.3,
+    null,
+    {
+     "s": 0.75
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    3.1,
+    40.5,
+    null,
+    {
+     "s": 0.97
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    54.6,
+    40.6,
+    null,
+    {
+     "s": 0.79
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    6.5,
+    40.7,
+    null,
+    {
+     "s": 1.1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    7.8,
+    40.7,
+    null,
+    {
+     "s": 0.73
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    97.8,
+    40.7,
+    null,
+    {
+     "s": 0.8
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    14.9,
+    40.8,
+    null,
+    {
+     "s": 0.8,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    42.3,
+    40.8,
+    null,
+    {
+     "s": 0.92,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    70.2,
+    40.8,
+    null,
+    {
+     "s": 1.04,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    5.6,
+    40.9,
+    null,
+    {
+     "s": 0.98,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    22.4,
+    40.9,
+    null,
+    {
+     "s": 0.92
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    5.7,
+    41.4,
+    null,
+    {
+     "s": 0.9
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    48.3,
+    41.9,
+    null,
+    {
+     "s": 1.01,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    84.6,
+    42.1,
+    null,
+    {
+     "s": 0.59
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    45.4,
+    42.3,
+    null,
+    {
+     "s": 0.69,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    44.2,
+    42.4,
+    null,
+    {
+     "s": 0.87
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    90.7,
+    42.4,
+    null,
+    {
+     "s": 0.51,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    99.9,
+    42.5,
+    null,
+    {
+     "s": 0.7,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    15.4,
+    42.6,
+    null,
+    {
+     "s": 0.98
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    47.6,
+    42.6,
+    null,
+    {
+     "s": 0.98
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    17.5,
+    42.8,
+    null,
+    {
+     "s": 1.05
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    12.3,
+    42.9,
+    null,
+    {
+     "s": 0.95
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    24.6,
+    43.0,
+    null,
+    {
+     "s": 0.6,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    39.9,
+    43.2,
+    null,
+    {
+     "s": 0.74,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    2.8,
+    43.6,
+    null,
+    {
+     "s": 1.01,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    54.5,
+    43.7,
+    null,
+    {
+     "s": 0.94
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    71.7,
+    43.8,
+    null,
+    {
+     "s": 1.01
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    97.0,
+    43.9,
+    null,
+    {
+     "s": 0.67,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    98.0,
+    43.9,
+    null,
+    {
+     "s": 0.59
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    15.1,
+    44.0,
+    null,
+    {
+     "s": 0.52
+    }
+   ],
+   [
+    "tc.cay-chay-la-sc",
+    42.8,
+    44.0,
+    null,
+    {
+     "s": 0.87
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    23.9,
+    44.4,
+    null,
+    {
+     "s": 0.67
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    27.9,
+    44.4,
+    null,
+    {
+     "s": 0.56
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    16.7,
+    44.6,
+    null,
+    {
+     "s": 0.94
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    18.3,
+    44.7,
+    null,
+    {
+     "s": 0.56,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    19.3,
+    44.7,
+    null,
+    {
+     "s": 1.06
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    85.4,
+    44.7,
+    null,
+    {
+     "s": 0.95,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    75.7,
+    44.8,
+    null,
+    {
+     "s": 1.04
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    43.2,
+    44.9,
+    null,
+    {
+     "s": 0.97
+    }
+   ],
+   [
+    "chung.bien-go",
+    49.2,
+    45.2,
+    "→ Quái mạnh"
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    76.5,
+    45.7,
+    null,
+    {
+     "s": 1.08
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    99.6,
+    45.7,
+    null,
+    {
+     "s": 0.99
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    77.7,
+    45.8,
+    null,
+    {
+     "s": 0.67,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    79.2,
+    45.9,
+    null,
+    {
+     "s": 0.56
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    25.8,
+    46.6,
+    null,
+    {
+     "s": 0.69
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    88.1,
+    46.7,
+    null,
+    {
+     "s": 0.99
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    12.3,
+    46.8,
+    null,
+    {
+     "s": 1.08
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    25.2,
+    46.8,
+    null,
+    {
+     "s": 0.77
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    91.2,
+    47.1,
+    null,
+    {
+     "s": 0.53,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    6.0,
+    47.6,
+    null,
+    {
+     "s": 0.71,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    12.8,
+    47.7,
+    null,
+    {
+     "s": 1.02
+    }
+   ],
+   [
+    "tc.cay-chay-la-sc",
+    44.6,
+    47.7,
+    null,
+    {
+     "s": 0.91,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    77.2,
+    47.7,
+    null,
+    {
+     "s": 0.7,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    42.6,
+    47.8,
+    null,
+    {
+     "s": 0.95
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    40.6,
+    47.9,
+    null,
+    {
+     "s": 0.93
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    12.1,
+    48.0,
+    null,
+    {
+     "s": 0.87,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    90.3,
+    48.1,
+    null,
+    {
+     "s": 0.75,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    91.2,
+    48.4,
+    null,
+    {
+     "s": 0.6,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    14.9,
+    48.7,
+    null,
+    {
+     "s": 0.63,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    64.3,
+    48.7,
+    null,
+    {
+     "s": 1.1,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    78.0,
+    48.7,
+    null,
+    {
+     "s": 0.63
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    80.3,
+    48.7,
+    null,
+    {
+     "s": 1.05,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    26.9,
+    48.8,
+    null,
+    {
+     "s": 0.58,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    19.4,
+    48.9,
+    null,
+    {
+     "s": 0.98
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    3.7,
+    49.5,
+    null,
+    {
+     "s": 0.97,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    63.8,
+    49.6,
+    null,
+    {
+     "s": 0.9,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    74.3,
+    49.6,
+    null,
+    {
+     "s": 0.61,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    5.9,
+    49.7,
+    null,
+    {
+     "s": 0.7
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    73.1,
+    49.7,
+    null,
+    {
+     "s": 0.98,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    79.8,
+    49.7,
+    null,
+    {
+     "s": 0.92,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    22.5,
+    49.8,
+    null,
+    {
+     "s": 1.05,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    41.6,
+    49.8,
+    null,
+    {
+     "s": 0.5,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    75.6,
+    49.8,
+    null,
+    {
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    20.7,
+    49.9,
+    null,
+    {
+     "s": 0.59,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    24.8,
+    49.9,
+    null,
+    {
+     "s": 0.72,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    81.9,
+    49.9,
+    null,
+    {
+     "s": 0.69,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    91.4,
+    49.9,
+    null,
+    {
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    21.2,
+    50.6,
+    null,
+    {
+     "s": 0.54
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    31.4,
+    50.6,
+    null,
+    {
+     "s": 0.87
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    82.9,
+    50.6,
+    null,
+    {
+     "s": 0.9
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    73.4,
+    50.7,
+    null,
+    {
+     "s": 0.91
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    20.5,
+    50.8,
+    null,
+    {
+     "s": 1.1
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    2.6,
+    50.9,
+    null,
+    {
+     "s": 0.97
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    75.5,
+    50.9,
+    null,
+    {
+     "s": 0.91,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    12.1,
+    51.3,
+    null,
+    {
+     "s": 0.95,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    100.7,
+    51.5,
+    null,
+    {
+     "s": 0.87
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    23.0,
+    51.6,
+    null,
+    {
+     "s": 0.59
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    26.6,
+    51.7,
+    null,
+    {
+     "s": 0.74,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    42.5,
+    51.7,
+    null,
+    {
+     "s": 0.98,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    81.2,
+    51.8,
+    null,
+    {
+     "s": 0.58
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    99.2,
+    51.8,
+    null,
+    {
+     "s": 1.01,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    85.1,
+    52.1,
+    null,
+    {
+     "s": 0.61,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    43.8,
+    52.3,
+    null,
+    {
+     "s": 0.58
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    63.1,
+    52.8,
+    null,
+    {
+     "s": 0.57,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    1.4,
+    52.9,
+    null,
+    {
+     "s": 1.08
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    78.7,
+    52.9,
+    null,
+    {
+     "s": 0.85,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    20.1,
+    53.0,
+    null,
+    {
+     "s": 0.75
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    15.3,
+    53.2,
+    null,
+    {
+     "s": 0.7
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    10.3,
+    53.3,
+    null,
+    {
+     "s": 0.72
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    40.8,
+    53.4,
+    null,
+    {
+     "s": 0.71
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    9.7,
+    53.7,
+    null,
+    {
+     "s": 0.78
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    22.5,
+    53.8,
+    null,
+    {
+     "s": 0.57
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    6.7,
+    53.9,
+    null,
+    {
+     "s": 1.07
+    }
+   ],
+   [
+    "tc.cay-chay-la-sc",
+    13.6,
+    54.2,
+    null,
+    {
+     "s": 0.9,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    86.4,
+    54.2,
+    null,
+    {
+     "s": 0.99
+    }
+   ],
+   [
+    "tc.cay-chay-la-sc",
+    11.9,
+    54.8,
+    null,
+    {
+     "s": 0.86
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    17.3,
+    54.8
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    31.9,
+    54.8,
+    null,
+    {
+     "s": 0.76
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    77.4,
+    54.8,
+    null,
+    {
+     "s": 0.76
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    9.8,
+    54.9,
+    null,
+    {
+     "s": 0.91
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    18.7,
+    54.9,
+    null,
+    {
+     "s": 1.06
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    23.2,
+    55.0,
+    null,
+    {
+     "s": 0.5,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    86.1,
+    55.0,
+    null,
+    {
+     "s": 0.56
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    22.2,
+    55.3,
+    null,
+    {
+     "s": 0.58,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    20.3,
+    55.5,
+    null,
+    {
+     "s": 0.96
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    43.4,
+    55.7,
+    null,
+    {
+     "s": 1.04,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    94.3,
+    55.7,
+    null,
+    {
+     "s": 0.98,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    20.5,
+    55.8,
+    null,
+    {
+     "s": 0.54,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    81.3,
+    55.9,
+    null,
+    {
+     "s": 0.63,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-la-sc",
+    81.4,
+    56.1,
+    null,
+    {
+     "s": 0.88,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    42.5,
+    56.2,
+    null,
+    {
+     "s": 0.88,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    7.4,
+    56.3,
+    null,
+    {
+     "s": 0.54
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    17.4,
+    56.4,
+    null,
+    {
+     "s": 0.93
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    6.3,
+    56.5,
+    null,
+    {
+     "s": 0.93
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    39.9,
+    56.6,
+    null,
+    {
+     "s": 0.71
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    7.5,
+    56.7,
+    null,
+    {
+     "s": 0.91
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    6.6,
+    56.8,
+    null,
+    {
+     "s": 0.68,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    20.4,
+    56.8,
+    null,
+    {
+     "s": 1.05,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    99.3,
+    56.8,
+    null,
+    {
+     "s": 1.1,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    72.2,
+    56.9,
+    null,
+    {
+     "s": 1.02,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    3.8,
+    57.2,
+    null,
+    {
+     "s": 0.74
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    88.4,
+    57.5,
+    null,
+    {
+     "s": 0.53
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    18.7,
+    57.6,
+    null,
+    {
+     "s": 0.72
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    2.6,
+    57.7,
+    null,
+    {
+     "s": 0.93
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    5.1,
+    57.7,
+    null,
+    {
+     "s": 0.51,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    12.7,
+    57.8,
+    null,
+    {
+     "s": 0.94,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    21.0,
+    57.8,
+    null,
+    {
+     "s": 0.7,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    27.4,
+    57.8,
+    null,
+    {
+     "s": 0.96
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    76.6,
+    57.8,
+    null,
+    {
+     "s": 0.91
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    99.8,
+    57.8,
+    null,
+    {
+     "s": 0.74
+    }
+   ],
+   [
+    "tc.cay-chay-la-sc",
+    82.1,
+    58.2,
+    null,
+    {
+     "s": 0.94
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    80.2,
+    58.7,
+    null,
+    {
+     "s": 0.72
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    18.2,
+    58.9,
+    null,
+    {
+     "s": 1.07,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    82.6,
+    58.9,
+    null,
+    {
+     "s": 0.54,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    83.6,
+    59.0,
+    null,
+    {
+     "s": 0.56,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    79.1,
+    59.1,
+    null,
+    {
+     "s": 0.95,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    60.9,
+    59.4,
+    null,
+    {
+     "s": 0.72
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    87.2,
+    59.4,
+    null,
+    {
+     "s": 0.88,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    5.1,
+    59.5,
+    null,
+    {
+     "s": 0.62
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    9.6,
+    59.8,
+    null,
+    {
+     "s": 1.02,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    22.3,
+    59.8,
+    null,
+    {
+     "s": 1.02
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    26.8,
+    59.8,
+    null,
+    {
+     "s": 1.08,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    29.3,
+    59.8,
+    null,
+    {
+     "s": 1.05
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    85.5,
+    59.8,
+    null,
+    {
+     "s": 0.69
+    }
+   ],
+   [
+    "tc.cay-chay-la-sc",
+    84.3,
+    59.9,
+    null,
+    {
+     "s": 0.92
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    5.1,
+    60.0,
+    null,
+    {
+     "s": 0.5
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    100.9,
+    60.2,
+    null,
+    {
+     "s": 0.95,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    78.3,
+    60.7,
+    null,
+    {
+     "s": 0.51
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    16.8,
+    60.8,
+    null,
+    {
+     "s": 0.96,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    57.3,
+    60.8,
+    null,
+    {
+     "s": 1.04
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    99.4,
+    60.8,
+    null,
+    {
+     "s": 1.05
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    9.1,
+    60.9,
+    null,
+    {
+     "s": 0.63
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    81.2,
+    61.0,
+    null,
+    {
+     "s": 0.64,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    5.8,
+    61.3,
+    null,
+    {
+     "s": 0.61
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    84.9,
+    61.3,
+    null,
+    {
+     "s": 0.72,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    23.1,
+    61.4,
+    null,
+    {
+     "s": 0.63
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    5.1,
+    61.5,
+    null,
+    {
+     "s": 0.71,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    2.3,
+    61.8,
+    null,
+    {
+     "s": 0.89
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    41.6,
+    61.8,
+    null,
+    {
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    99.9,
+    62.8,
+    null,
+    {
+     "s": 0.98,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    27.0,
+    63.0,
+    null,
+    {
+     "s": 0.71,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    8.7,
+    63.3,
+    null,
+    {
+     "s": 0.6,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    56.9,
+    63.3,
+    null,
+    {
+     "s": 0.95
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    56.7,
+    63.6,
+    null,
+    {
+     "s": 1.04
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    62.6,
+    63.6,
+    null,
+    {
+     "s": 0.86,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    88.4,
+    63.6,
+    null,
+    {
+     "s": 0.97,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    12.7,
+    63.7,
+    null,
+    {
+     "s": 0.73,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    10.6,
+    63.8,
+    null,
+    {
+     "s": 1.06,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    60.9,
+    63.9,
+    null,
+    {
+     "s": 0.74,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    69.7,
+    63.9,
+    null,
+    {
+     "s": 1.09,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    27.4,
+    64.6,
+    null,
+    {
+     "s": 0.89,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    17.3,
+    65.0,
+    null,
+    {
+     "s": 0.71,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    10.0,
+    65.2,
+    null,
+    {
+     "s": 0.77,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    20.9,
+    65.4,
+    null,
+    {
+     "s": 0.68
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    11.5,
+    65.7,
+    null,
+    {
+     "s": 0.68
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    25.3,
+    65.7,
+    null,
+    {
+     "s": 0.87,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    35.7,
+    65.7,
+    null,
+    {
+     "s": 1.05,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    30.1,
+    65.9,
+    null,
+    {
+     "s": 0.92
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    77.6,
+    65.9,
+    null,
+    {
+     "s": 0.97,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    9.2,
+    66.1,
+    null,
+    {
+     "s": 0.59
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    31.2,
+    66.2,
+    null,
+    {
+     "s": 0.56
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    14.7,
+    66.3,
+    null,
+    {
+     "s": 0.61
+    }
+   ],
+   [
+    "tc.cay-chay-la-sc",
+    5.4,
+    66.5,
+    null,
+    {
+     "s": 0.94,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    13.3,
+    66.5,
+    null,
+    {
+     "s": 0.63
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    22.1,
+    66.5,
+    null,
+    {
+     "s": 0.58
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    18.7,
+    66.7,
+    null,
+    {
+     "s": 1.08
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    55.4,
+    66.7,
+    null,
+    {
+     "s": 1.09
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    26.4,
+    66.8,
+    null,
+    {
+     "s": 1.01,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    82.7,
+    66.9,
+    null,
+    {
+     "s": 1.05
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    11.9,
+    67.1,
+    null,
+    {
+     "s": 0.66
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    19.9,
+    67.1,
+    null,
+    {
+     "s": 0.87
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    24.6,
+    67.2,
+    null,
+    {
+     "s": 0.61,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    79.7,
+    67.2,
+    null,
+    {
+     "s": 0.6
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    29.2,
+    67.3,
+    null,
+    {
+     "s": 0.7,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    26.6,
+    67.5,
+    null,
+    {
+     "s": 0.64
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    27.3,
+    67.5,
+    null,
+    {
+     "s": 0.72,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    25.5,
+    67.6,
+    null,
+    {
+     "s": 0.71
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    91.7,
+    67.6,
+    null,
+    {
+     "s": 0.91
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    12.1,
+    67.8,
+    null,
+    {
+     "s": 0.66
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    21.9,
+    68.0,
+    null,
+    {
+     "s": 0.94
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    27.2,
+    68.3,
+    null,
+    {
+     "s": 0.59
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    34.8,
+    68.9,
+    null,
+    {
+     "s": 0.97
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    23.4,
+    69.1,
+    null,
+    {
+     "s": 0.57
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    26.2,
+    69.4,
+    null,
+    {
+     "s": 0.54,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    25.5,
+    69.5,
+    null,
+    {
+     "s": 0.61,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    15.7,
+    69.7,
+    null,
+    {
+     "s": 1.02,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    35.4,
+    69.8,
+    null,
+    {
+     "s": 1.01
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    37.8,
+    69.8,
+    null,
+    {
+     "s": 0.96
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    76.5,
+    69.8,
+    null,
+    {
+     "s": 0.95,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    34.3,
+    70.1,
+    null,
+    {
+     "s": 0.73
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    12.7,
+    70.6,
+    null,
+    {
+     "s": 1.05,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    32.1,
+    70.6,
+    null,
+    {
+     "s": 0.66
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    39.5,
+    70.7,
+    null,
+    {
+     "s": 1.01,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    28.5,
+    70.8,
+    null,
+    {
+     "s": 0.94
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    9.7,
+    71.7,
+    null,
+    {
+     "s": 1.06
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    67.7,
+    71.7,
+    null,
+    {
+     "s": 0.98
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    36.7,
+    72.7,
+    null,
+    {
+     "s": 1.09
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    38.4,
+    72.8,
+    null,
+    {
+     "s": 1.09
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    62.4,
+    72.8,
+    null,
+    {
+     "s": 1.07,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    33.1,
+    73.1,
+    null,
+    {
+     "s": 0.73
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    43.3,
+    73.7,
+    null,
+    {
+     "s": 1.03,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    53.3,
+    73.7,
+    null,
+    {
+     "s": 0.94
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    6.2,
+    73.8,
+    null,
+    {
+     "s": 0.91
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    78.3,
+    74.7,
+    null,
+    {
+     "s": 0.95,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    26.4,
+    74.8,
+    null,
+    {
+     "s": 1.01,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    23.4,
+    75.7,
+    null,
+    {
+     "s": 0.91
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    24.5,
+    75.8,
+    null,
+    {
+     "s": 1.09
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    69.8,
+    75.8,
+    null,
+    {
+     "s": 0.94,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    78.7,
+    75.8,
+    null,
+    {
+     "s": 0.9,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    71.4,
+    75.9,
+    null,
+    {
+     "s": 0.64
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    90.7,
+    75.9,
+    null,
+    {
+     "s": 0.9
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    36.6,
+    76.7,
+    null,
+    {
+     "s": 0.95
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    44.3,
+    76.7,
+    null,
+    {
+     "s": 1.03
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    45.5,
+    76.8,
+    null,
+    {
+     "s": 0.94
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    67.6,
+    76.8,
+    null,
+    {
+     "s": 1.01,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    26.3,
+    77.0,
+    null,
+    {
+     "s": 0.66
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    70.1,
+    77.2,
+    null,
+    {
+     "s": 0.65
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    25.6,
+    77.5,
+    null,
+    {
+     "s": 0.77
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    24.7,
+    77.7,
+    null,
+    {
+     "s": 0.98
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    67.9,
+    77.9,
+    null,
+    {
+     "s": 0.57
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    69.4,
+    78.0,
+    null,
+    {
+     "s": 0.59
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    85.0,
+    78.5,
+    null,
+    {
+     "s": 0.64
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    15.5,
+    78.8,
+    null,
+    {
+     "s": 1.08,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    71.8,
+    78.9,
+    null,
+    {
+     "s": 0.92,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    74.2,
+    78.9,
+    null,
+    {
+     "s": 0.53,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    41.6,
+    79.6,
+    null,
+    {
+     "s": 0.67,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    83.5,
+    79.8,
+    null,
+    {
+     "s": 0.99
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    41.4,
+    80.7,
+    null,
+    {
+     "s": 0.98
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    70.0,
+    80.7,
+    null,
+    {
+     "s": 0.66
+    }
+   ],
+   [
+    "tc.cay-chay-la-sc",
+    85.3,
+    80.8,
+    null,
+    {
+     "s": 0.92
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    64.2,
+    80.9,
+    null,
+    {
+     "s": 1.1,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    77.5,
+    81.0,
+    null,
+    {
+     "s": 0.74
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    68.6,
+    81.2,
+    null,
+    {
+     "s": 0.63
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    91.6,
+    81.7,
+    null,
+    {
+     "s": 0.94
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    30.3,
+    81.8,
+    null,
+    {
+     "s": 0.91
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    65.7,
+    81.8,
+    null,
+    {
+     "s": 0.53,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    66.5,
+    82.0,
+    null,
+    {
+     "s": 0.72
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    90.3,
+    82.2,
+    null,
+    {
+     "s": 0.97
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    88.9,
+    82.5,
+    null,
+    {
+     "s": 0.53,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    86.2,
+    82.8,
+    null,
+    {
+     "s": 0.55,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    53.2,
+    82.9,
+    null,
+    {
+     "s": 0.96,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    52.8,
+    83.4,
+    null,
+    {
+     "s": 0.59
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    68.0,
+    83.6,
+    null,
+    {
+     "s": 0.54
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    41.3,
+    83.7,
+    null,
+    {
+     "s": 1.06
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    23.3,
+    83.8,
+    null,
+    {
+     "s": 0.97
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    74.3,
+    83.8,
+    null,
+    {
+     "s": 0.93,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    63.5,
+    83.9,
+    null,
+    {
+     "s": 0.96,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    67.8,
+    84.0,
+    null,
+    {
+     "s": 0.97
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    29.5,
+    84.3,
+    null,
+    {
+     "s": 0.6
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    71.0,
+    84.6,
+    null,
+    {
+     "s": 0.61,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    34.8,
+    84.9,
+    null,
+    {
+     "s": 1.01,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    53.1,
+    85.7,
+    null,
+    {
+     "s": 0.67
+    }
+   ],
+   [
+    "tc.cay-chay-la-sc",
+    87.8,
+    85.9,
+    null,
+    {
+     "s": 0.92
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    21.7,
+    86.2,
+    null,
+    {
+     "s": 0.52
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    55.6,
+    86.7,
+    null,
+    {
+     "s": 1.04,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    69.7,
+    86.7,
+    null,
+    {
+     "s": 0.91
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    76.6,
+    86.7,
+    null,
+    {
+     "s": 1.06,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    86.2,
+    86.8,
+    null,
+    {
+     "s": 0.93,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    28.1,
+    87.2,
+    null,
+    {
+     "s": 0.56,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    57.6,
+    87.5,
+    null,
+    {
+     "s": 0.5
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    50.5,
+    87.8,
+    null,
+    {
+     "s": 1.05
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    73.6,
+    87.8,
+    null,
+    {
+     "s": 0.76
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    41.8,
+    87.9,
+    null,
+    {
+     "s": 0.95,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    54.6,
+    87.9,
+    null,
+    {
+     "s": 0.99
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    20.7,
+    88.0,
+    null,
+    {
+     "s": 0.64
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    21.4,
+    88.2,
+    null,
+    {
+     "s": 0.66,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    24.4,
+    88.8,
+    null,
+    {
+     "s": 0.51
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    29.8,
+    88.9,
+    null,
+    {
+     "s": 1.06,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    84.2,
+    89.0,
+    null,
+    {
+     "s": 0.86,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    24.7,
+    89.2,
+    null,
+    {
+     "s": 0.71
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    23.7,
+    89.3,
+    null,
+    {
+     "s": 0.59,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    81.8,
+    89.3,
+    null,
+    {
+     "s": 0.61,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    77.5,
+    89.5,
+    null,
+    {
+     "s": 0.52,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    46.5,
+    89.6,
+    null,
+    {
+     "s": 0.97,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    61.3,
+    89.8,
+    null,
+    {
+     "s": 1.01
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    69.3,
+    89.9,
+    null,
+    {
+     "s": 1.1
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    57.7,
+    90.7,
+    null,
+    {
+     "s": 0.91,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    40.2,
+    90.8,
+    null,
+    {
+     "s": 1.08,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    74.5,
+    90.9,
+    null,
+    {
+     "s": 0.74
+    }
+   ],
+   [
+    "tc.cay-chay-la-sc",
+    28.1,
+    91.0,
+    null,
+    {
+     "s": 0.86,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    24.6,
+    91.6,
+    null,
+    {
+     "s": 0.67
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    34.3,
+    91.7,
+    null,
+    {
+     "s": 1.08
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    74.7,
+    91.7,
+    null,
+    {
+     "s": 0.56,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    76.8,
+    91.7,
+    null,
+    {
+     "s": 0.86
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    40.4,
+    91.8,
+    null,
+    {
+     "s": 1.03
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    20.5,
+    91.9,
+    null,
+    {
+     "s": 1.07
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    22.2,
+    92.0,
+    null,
+    {
+     "s": 0.66
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    27.4,
+    92.4,
+    null,
+    {
+     "s": 0.74,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    27.5,
+    92.7,
+    null,
+    {
+     "s": 0.77
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    58.3,
+    92.7,
+    null,
+    {
+     "s": 1.01
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    43.3,
+    92.8,
+    null,
+    {
+     "s": 0.9
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    47.7,
+    92.8,
+    null,
+    {
+     "s": 1.04,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    45.3,
+    92.9,
+    null,
+    {
+     "s": 0.97,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    44.7,
+    93.3,
+    null,
+    {
+     "s": 0.91
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    37.6,
+    93.6,
+    null,
+    {
+     "s": 1.07,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    23.7,
+    93.9,
+    null,
+    {
+     "s": 1.02
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    47.1,
+    93.9,
+    null,
+    {
+     "s": 0.95
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    24.5,
+    94.0,
+    null,
+    {
+     "s": 0.91,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    78.8,
+    94.7,
+    null,
+    {
+     "s": 1.04,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    70.3,
+    95.6,
+    null,
+    {
+     "s": 0.51
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    70.4,
+    96.1,
+    null,
+    {
+     "s": 0.63
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    41.6,
+    96.4,
+    null,
+    {
+     "s": 0.71,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    49.7,
+    96.7,
+    null,
+    {
+     "s": 0.99,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    56.2,
+    96.7,
+    null,
+    {
+     "s": 0.96,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    30.3,
+    96.9,
+    null,
+    {
+     "s": 1.03,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    47.7,
+    96.9,
+    null,
+    {
+     "s": 0.91,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-la-sc",
+    44.9,
+    97.5,
+    null,
+    {
+     "s": 0.9
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    69.8,
+    97.5,
+    null,
+    {
+     "s": 0.89,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    30.6,
+    97.7,
+    null,
+    {
+     "s": 1.07
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    66.3,
+    97.7,
+    null,
+    {
+     "s": 0.97
+    }
+   ],
+   [
+    "tc.cay-chay-la-sc",
+    42.8,
+    97.9,
+    null,
+    {
+     "s": 0.89,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    71.5,
+    98.0,
+    null,
+    {
+     "s": 0.95
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    39.6,
+    98.4,
+    null,
+    {
+     "s": 0.88
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    38.3,
+    98.7,
+    null,
+    {
+     "s": 0.98,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    58.7,
+    98.7,
+    null,
+    {
+     "s": 0.93
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    41.4,
+    99.1,
+    null,
+    {
+     "s": 0.72
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    72.0,
+    99.1,
+    null,
+    {
+     "s": 0.59
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    68.9,
+    99.9,
+    null,
+    {
+     "s": 0.9,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    36.6,
+    100.1,
+    null,
+    {
+     "s": 0.95
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    44.6,
+    100.7,
+    null,
+    {
+     "s": 0.97
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    48.8,
+    100.9,
+    null,
+    {
+     "s": 0.94
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    47.2,
+    101.7
+   ],
+   [
+    "tc.cay-chay-la-sc",
+    44.8,
+    101.8,
+    null,
+    {
+     "s": 0.86
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    44.6,
+    101.9,
+    null,
+    {
+     "s": 1.09
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    50.1,
+    102.1,
+    null,
+    {
+     "s": 0.61,
+     "f": 1
+    }
+   ]
+  ]
+ },
+ "moc": {
+  "phap-tran": [
+   52,
+   52
+  ],
+  "ben-cau": [
+   49,
+   65
+  ]
+ }
+}

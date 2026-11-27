@@ -1,0 +1,159 @@
+"""Hình trang bị thật hiện trong ô đồ (chủ dự án 04/11/2026 11:33–11:39, ảnh GPT nguon/ai/ui/<loại>-1.png): mỗi ảnh một loại ô,
+món xếp trái sang phải, trên xuống dưới theo đúng thứ tự data/items.json → bases của loại đó. Biểu tượng loại (ui-ic-<ô>) vẫn dùng
+cho ô trống, món chưa có hình. src/ui/bag-detail.js đọc data/art.json → 'ui.vk-<món>'. Tách món: chia hàng theo dải trống ngang,
+trong hàng chia cột theo dải trống dọc (thiếu thì cắt cột rộng nhất ở chỗ ít điểm nhất); bỏ quầng mờ (alpha dưới 64), đặt giữa nền
+vuông trong suốt. Dựng riêng: python3 -I tools/art/ui_kit_only.py."""
+import json
+from pathlib import Path
+import numpy as np
+from PIL import Image
+from scipy import ndimage as nd
+from px import Canvas, MANIFEST
+
+ART = Path(__file__).resolve().parent
+SRC = ART / 'nguon' / 'ai' / 'ui'
+SHEETS = {'vu-khi': 'vu-khi-1.png', 'mu': 'mu-1.png', 'giap': 'giap-1.png', 'giay': 'giay-1.png', 'phap-bao': 'phap-bao-1.png'}
+# Pháp tượng thay ô Ngọc bội (chủ dự án 16/11/2026 21:57 gửi ảnh 16 icon pháp tượng có quầng sáng; ô trên ảnh không đều, nền loang màu):
+# hình lấy từ bảng gốc nền trong suốt cùng nét vẽ (nguon/ai/phap-tuong/goc/NN.png, ảnh GPT của chủ dự án 20:36), thêm quầng sáng màu chính của
+# pháp tượng như ảnh icon (làm mờ mặt nạ, đặt dưới hình), giữa nền vuông trong suốt; món nào dùng hình nào theo bases.*.pt
+PT_SHEET = ART / 'nguon' / 'ai' / 'phap-tuong' / 'goc' / 'icon-16.png'
+# thứ tự vũ khí trên ảnh khác thứ tự trong data (ba kiếm đứng liền nhau)
+ORDER = {'vu-khi': ['thiet-kiem', 'thanh-van-kiem', 'thien-mach-kiem', 'thiet-thuong', 'ba-tieu-phien', 'moc-cam', 'tu-nguyet-liem', 'truc-cung', 'dao-van-binh']}
+# nguyên liệu (chủ dự án 11:43, 11:45): mỗi hàng một danh sách, id theo data/cave.json → materials, data/items.json → materials
+ROWS = {
+    'ren-1.png': [['tinh-thiet', 'manh-phap-bao', 'tay-luyen-thach', 'khoa-linh-thach'], ['dao-van-thach', 'bi-kip-chieu', 'yeu-vuong-dan']],
+    'ca-1.png': [['linh-ngu', 'van-ngu', 'nguyet-ngu', 'hoa-ly', 'bang-ngu', 'dao-hoa-ngu', 'ha-quang-ngu'], ['phong-ngu', 'tuyet-ngu', 'vu-ngu', 'kim-ly', 'kim-tu-ngu', 'nham-ngu']],
+    'chau-1.png': [['chau-1', 'chau-2', 'chau-3', 'chau-4'], ['chau-5', 'chau-6', 'chau-7']],   # chậu dược viên theo cấp (chủ dự án 12:27)
+    'cay-1.png': [['cay-non-linh-thao', 'cay-non-yeu-huyet', 'cay-non-hoa-linh-chi', 'cay-non-ngoc-lo-hoa', 'cay-non-linh-mach', 'cay-non-linh-dau', 'cay-non-hong-qua', 'cay-non-kim-tieu', 'cay-non-tu-van-sam', 'cay-non-thai-hu-lien'], ['cay-linh-thao', 'cay-yeu-huyet', 'cay-hoa-linh-chi', 'cay-ngoc-lo-hoa', 'cay-linh-mach', 'cay-linh-dau', 'cay-hong-qua', 'cay-kim-tieu', 'cay-tu-van-sam', 'cay-thai-hu-lien']],   # cây non / cây lớn trong chậu (chủ dự án 12:38)
+    'dan-1.png': [['hoi-xuan-dan', 'tu-khi-dan', 'thanh-tam-dan', 'tu-van-dan', 'tay-tuy-dan'],   # đan dược, canh (chủ dự án 15:37)
+                  ['boi-nguyen-dan', 'thang-linh-dan', 'tinh-lien-dan', 'linh-ngu-thang', 'van-ngu-thang', 'nguyet-ngu-thang']],
+    'cong-phap-1.png': [['kiem-tong-tam-phap', 'truong-sinh-quyet', 'kim-chung-trao', 'huyet-ma-kinh', 'loi-am-quyet', 'phong-hanh-thuat', 'ngu-hanh-quy-nguyen'],   # công pháp (chủ dự án 05/11/2026 01:30, theo danh sách 1–21)
+                        ['thai-thuong-vong-tinh', 'huyen-bang-quyet', 'han-phong-bo', 'hac-phong-quyet', 'thanh-moc-truong-xuan', 'canh-kim-kiem-quyet', 'hau-tho-quyet'],
+                        ['thai-hu-quyet', 'canh-kim-tu-linh', 'thanh-moc-duong-linh', 'bich-hai-hoi-linh', 'xich-viem-luyen-linh', 'hau-tho-tang-linh', 'van-linh-quy-nguyen']],
+    'nguyen-lieu-1.png': [['linh-thao', 'yeu-huyet', 'hoa-linh-chi'], ['ngoc-lo-hoa', 'linh-mach', 'linh-dau', 'hong-qua', 'kim-tieu', 'tu-van-sam', 'thai-hu-lien']],
+}
+# câu cá (chủ dự án 24/11/2026 03:54 gửi 5 bảng theo tools/art/nguon/ai/cau-ca/lenh-gpt.md): lưới đều, nền trong suốt, mỗi ô một món
+# theo thứ tự trái sang phải, trên xuống dưới; cắt theo ô (quầng sáng các ô chạm nhau nên không dò dải trống), thu về cạnh ONE_S
+LUOI = {
+    'cau-1.png': (4, 'ngan-ty-ngu luc-tao-ngu kiem-ngu diep-ngu anh-ngu khe-ly song-dau-ngu luu-ly-ngu loi-ngu huynh-man hoa-lan-ngu bang-phach-ngu ma-khi-ngu kiem-van-ly that-thai-ngu long-tu-ly'),
+    'cau-2.png': (4, 'tinh-sa-ngu hu-khong-lan linh-nhat-ngu cuu-vi-ly thien-mach-ngu bac-minh-con thanh-long-ngu ha-tom linh-ha kim-long-ha long-ha-vuong cua-dong hoa-giai huyet-giai oc-suoi bang-loa'),
+    'cau-3.png': (4, 'luu-quang-mau thien-thuy-mau mac-chuong trai-song so-diep trai-huyen co-bang long-bang tran-chau huyen-chau long-chau giay-rach rong-reu binh-gom kiem-gay bi-kip-uot'),
+    'cau-4.png': (4, 'ruong-chim ngoc-ty giun-dat linh-me hoa-trung bang-ha kim-sa da-quang huyet-nhuc tinh-sa long-tien truc-can thanh-dang-can han-thiet-can ngoc-linh-can long-cot-can'),
+    'cau-5.png': (3, 'thien-tam-can dinh-hai-can ca-nuong canh-chua hap-la-sen kho-to goi-bang ngoc-thang con-yen'),
+    # icon còn thiếu (ảnh GPT 25/11/2026, lệnh ở nguon/ai/icon-thieu/lenh-gpt.md): mã có dấu chấm là khoá đầy đủ, không thêm ui.vk-
+    'icon-a.png': (4, 'thiet-gioi linh-ngoc-gioi xich-diem-gioi han-bang-gioi hac-phong-gioi thanh-moc-gioi kim-cang-gioi hau-tho-gioi dao-van-gioi thai-hu-gioi manh-vo-tinh-cau ui.ic-thu-lenh ui.ic-qtv keo-gay bao-li-xi keo-bi'),
+    'icon-b.png': (4, 'pha-van-thuc viem-nhan han-nhan dang-nhan kim-nhan thach-nhan liep-phong-bo mau-thu-tan'),   # kỹ năng: 4 cột × 2 hàng
+    'icon-c.png': (4, 'pb-phi-kiem pb-linh-chau pb-bao-phien pb-dai-an pb-ho-thuan pb-dong-chung pb-tran-ky pb-ho-lo'),   # 8 pháp bảo (icon ô, ảnh GPT 25/11/2026), 4 cột × 2 hàng
+    'icon-vu-khi-lang.png': (4, 'lang-nha-kiem khieu-nguyet-dao lang-hon-kich tuyet-lang-phien huyen-nguyet-liem u-nguyet-luan phe-lang-phu lang-ngam-cam truy-nguyet-cung song-lang-chuy tinh-nguyet-truong phe-hon-ho-lo lang-vuong-chuy am-nguyet-tan song-phong-nhan lang-than-thu'),   # 16 vũ khí hệ sói tím vàng (ảnh GPT 26/11/2026), 4 × 4
+}
+
+
+def build_luoi(save, chi=None):
+    n = 0
+    for f, (k, ten) in LUOI.items():
+        if chi and f not in chi: continue
+        if not (SRC / f).exists(): continue
+        a = np.array(Image.open(SRC / f).convert('RGBA')); a[:, :, 3] = np.where(a[:, :, 3] >= 64, a[:, :, 3], 0)
+        H, W = a.shape[:2]; R = -(-len(ten.split()) // k)   # số hàng theo số món (bảng kỹ năng 4 × 2)
+        for i, m in enumerate(ten.split()):
+            r, c = divmod(i, k); o = a[r * H // R:(r + 1) * H // R, c * W // k:(c + 1) * W // k]
+            lab, nl = nd.label(o[:, :, 3] > 0)
+            if nl:   # chỉ giữ khối lớn (bỏ vụn quầng của ô bên cạnh lấn sang)
+                cnt = nd.sum(np.ones_like(lab), lab, range(1, nl + 1)); keep = np.isin(lab, [j + 1 for j, v in enumerate(cnt) if v >= cnt.max() * 0.04])
+                o = o.copy(); o[~keep] = 0
+            ys, xs = np.nonzero(o[:, :, 3]); c2 = o[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
+            S = max(c2.shape[:2]); sq = np.zeros((S, S, 4), np.uint8)
+            oy, ox = (S - c2.shape[0]) // 2, (S - c2.shape[1]) // 2; sq[oy:oy + c2.shape[0], ox:ox + c2.shape[1]] = c2
+            sq = np.array(Image.fromarray(sq).resize((ONE_S, ONE_S), Image.LANCZOS))
+            cv = Canvas(ONE_S, ONE_S); cv.a = np.ascontiguousarray(sq)
+            key = m if '.' in m else 'ui.vk-' + m
+            save(key, [cv], (ONE_S // 2, ONE_S // 2), f"{'icon' if f.startswith('icon') else 'câu cá'} {m} (ảnh GPT {f})"); n += 1
+    return n
+
+
+# món lẻ một ảnh một món (chủ dự án 04/11/2026 21:46: Hồi Linh Đan), thu về cạnh ONE_S như các đan khác trên dan-1.png
+ONE = {'hoi-linh-dan.png': 'hoi-linh-dan'}
+ONE_S = 360
+
+
+def _segs(mask, axis, gap, need=None):
+    prof = mask.sum(axis=axis)
+    lab, n = nd.label(nd.binary_dilation(prof > 3, iterations=gap))
+    segs = [[s[0].start, s[0].stop] for s in nd.find_objects(lab)]
+    while need and len(segs) < need:   # thiếu: cắt đoạn rộng nhất ở chỗ ít điểm nhất quanh giữa
+        i = max(range(len(segs)), key=lambda j: segs[j][1] - segs[j][0]); a, b = segs[i]
+        w = b - a; lo, hi = a + w // 4, b - w // 4; cut = lo + int(np.argmin(prof[lo:hi]))
+        segs[i:i + 1] = [[a, cut], [cut, b]]
+    return segs
+
+
+def _soil(a):
+    """Dải đất trong miệng chậu [trên, dưới] theo tỉ lệ cao hình: hàng có trên 30% điểm giữa chậu màu đất nâu, lấy dải liền dài nhất.
+    'dưới' là mép thành trước của chậu (src/world/draw-chau.js cắt cây ở đó)."""
+    h, w = a.shape[:2]; b = a[:, int(w * .3):int(w * .7)].astype(int); r, g, bl, al = (b[:, :, i] for i in range(4))
+    soil = ((al > 200) & (r > g + 8) & (g > bl) & (r < 175) & (r > 55)).mean(1) > 0.3
+    best, s0 = (0, 0), None
+    for y in range(h + 1):
+        v = y < h and soil[y]
+        if v and s0 is None: s0 = y
+        if not v and s0 is not None:
+            if y - s0 > best[1] - best[0]: best = (s0, y)
+            s0 = None
+    return [round(best[0] / h, 3), round(best[1] / h, 3)]
+
+
+def build(save):
+    bases = json.loads((ART.parents[1] / 'data' / 'items.json').read_text(encoding='utf-8'))['bases']
+    n = 0
+    jobs = [(slot, f, ORDER.get(slot) or [k for k, v in bases.items() if v['slot'] == slot], None) for slot, f in SHEETS.items()]
+    jobs += [('nguyen-lieu', f, [k for r in rows for k in r], rows) for f, rows in ROWS.items()]
+    for slot, f, names, fixed in jobs:
+        a = np.array(Image.open(SRC / f).convert('RGBA')); a[:, :, 3] = np.where(a[:, :, 3] >= 64, a[:, :, 3], 0)
+        m = a[:, :, 3] > 0
+        rows = _segs(m, 1, 4, len(fixed) if fixed else (2 if len(names) > 5 else 1))
+        per = -(-len(names) // len(rows))
+        boxes = []
+        for r, (y0, y1) in enumerate(rows):
+            left = len(names) - len(boxes)
+            want = len(fixed[r]) if fixed and r < len(fixed) else min(per, left)
+            segs = _segs(m[y0:y1], 0, 8, want)
+            segs = sorted(sorted(segs, key=lambda s: s[1] - s[0], reverse=True)[:want])   # bỏ vụn quầng
+            for x0, x1 in segs:
+                boxes.append((x0, y0, x1, y1))
+        for k, (x0, y0, x1, y1) in zip(names, boxes):
+            c = a[y0:y1, x0:x1]; ys, xs = np.nonzero(c[:, :, 3])
+            c = c[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
+            S = max(c.shape[:2]); sq = np.zeros((S, S, 4), np.uint8)
+            oy, ox = (S - c.shape[0]) // 2, (S - c.shape[1]) // 2; sq[oy:oy + c.shape[0], ox:ox + c.shape[1]] = c
+            cv = Canvas(S, S); cv.a = sq
+            save('ui.vk-' + k, [cv], (S // 2, S // 2), f'{slot} {k} (ảnh GPT {f})'); n += 1
+            if k.startswith('chau-'): MANIFEST['ui.vk-' + k]['soil'] = _soil(sq)   # mặt đất trong chậu: cây đứng trên đó, không vượt thành trước
+        print(slot, len(rows), 'hàng', len(boxes), 'ô /', len(names), 'món')
+    from PIL import ImageFilter
+    for k, v in bases.items():
+        if not v.get('pt'): continue
+        g = Image.open(PT_SHEET.parent / f"{v['pt']}.png").convert('RGBA'); g.thumbnail((292, 292), Image.LANCZOS)
+        q = np.array(g).astype(float); m = q[:, :, 3] > 128; lum = q[:, :, :3].sum(2)
+        sel = m & (lum > np.percentile(lum[m], 60)); col = q[:, :, :3][sel].mean(0)   # màu sáng chính của pháp tượng
+        sq = Image.new('RGBA', (ONE_S, ONE_S), (0, 0, 0, 0)); ox, oy = (ONE_S - g.width) // 2, (ONE_S - g.height) // 2
+        al = Image.new('L', (ONE_S, ONE_S), 0); al.paste(g.getchannel('A'), (ox, oy)); al = al.filter(ImageFilter.GaussianBlur(16))
+        halo = Image.new('RGBA', (ONE_S, ONE_S), tuple(int(c) for c in col) + (0,)); halo.putalpha(al.point(lambda x: min(255, int(x * 1.1))))
+        sq.alpha_composite(halo); sq.alpha_composite(g, (ox, oy))
+        cv = Canvas(ONE_S, ONE_S); cv.a = np.ascontiguousarray(np.array(sq))
+        save('ui.vk-' + k, [cv], (ONE_S // 2, ONE_S // 2), f"pháp tượng {k} (ảnh GPT goc/{v['pt']}.png, quầng sáng như {PT_SHEET.name})"); n += 1
+    for f, k in ONE.items():
+        a = np.array(Image.open(SRC / f).convert('RGBA')); a[:, :, 3] = np.where(a[:, :, 3] >= 64, a[:, :, 3], 0)
+        ys, xs = np.nonzero(a[:, :, 3]); c = a[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
+        S = max(c.shape[:2]); sq = np.zeros((S, S, 4), np.uint8)
+        oy, ox = (S - c.shape[0]) // 2, (S - c.shape[1]) // 2; sq[oy:oy + c.shape[0], ox:ox + c.shape[1]] = c
+        sq = np.array(Image.fromarray(sq).resize((ONE_S, ONE_S), Image.LANCZOS))
+        cv = Canvas(ONE_S, ONE_S); cv.a = np.ascontiguousarray(sq)
+        save('ui.vk-' + k, [cv], (ONE_S // 2, ONE_S // 2), f'đan {k} (ảnh GPT {f})'); n += 1
+    # bể cá động phủ (chủ dự án 11:57): giữ vệt kính mờ (độ trong thấp nhưng sáng), chỉ bỏ quầng tối nền
+    a = np.array(Image.open(SRC / 'be-ca.png').convert('RGBA')).astype(int)
+    lum = a[:, :, :3].sum(axis=2) / 3
+    a[:, :, 3] = np.where((a[:, :, 3] < 64) & (lum < 140), 0, a[:, :, 3])
+    ys, xs = np.nonzero(a[:, :, 3] >= 64); c = a[ys.min():ys.max() + 1, xs.min():xs.max() + 1].astype(np.uint8)
+    cv = Canvas(c.shape[1], c.shape[0]); cv.a = np.ascontiguousarray(c)
+    save('ui.vk-be-ca', [cv], (c.shape[1] // 2, c.shape[0]), 'bể cá động phủ (ảnh GPT be-ca.png)'); n += 1
+    return n + build_luoi(save)

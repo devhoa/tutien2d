@@ -1,0 +1,155 @@
+// Bảng Nhân vật (chủ dự án 11/11/2026 01:47: khuôn bảng ngang thấp như mẫu gửi, nằm giữa màn hình dọc; game nhiều chức năng hơn mẫu).
+// Cột trái: các mục lớn Trang bị, Tiềm năng (ngay dưới Trang bị), Kho, Linh thú (cả thú cưỡi, khôi lỗi), Công pháp, Thời trang. Giữa: thẻ nhân vật (src/ui/self-left.js). Khung phải: hàng mục con
+// trên đầu (đổi theo mục lớn, src/ui/self-bag.js → SUBS), lưới ô ở giữa, thanh dưới cùng. Chạm món (đang mặc hoặc trong kho):
+// phần mặc / cường hoá / tẩy luyện / khảm hiện ngay ở khung phải, ✕ về lưới (dùng chung src/ui/bag-detail.js, bag-stock.js với
+// Túi đồ). Công pháp, Thời trang: gắn chính bảng có sẵn của game vào khung phải (src/ui/self-host.js). Kiểu ở style-self.css.
+import { pbOn } from '../game/phap-bao.js';
+import { knOn } from '../game/ky-nang.js';
+import { pbGrid, pbSheet } from './self-pb-page.js';
+import { playerStats } from '../game/stats.js';
+import { el, renderDetail } from './bag-detail.js';
+import { uiIco } from './self-gear.js';
+import { leftCard, statsSheet } from './self-left.js';
+import { renderStore, SUBS, groupOf, subsOf } from './self-bag.js';
+import { renderStockSheet } from './bag-stock.js';
+import { renderCoinLog } from './coin-log-sheet.js';
+import { host, unhost, HOSTS, routeOld } from './self-host.js';
+import { snap, react } from './self-fx.js';
+import { renderLoDan } from './lo-dan-view.js';
+import { renderTiem } from './tiem-nang-view.js';
+import { renderKyNang } from './ky-nang-view.js';
+import { renderThanPhap } from './than-phap-view.js';
+import { renderCongPhap } from './cong-phap-view.js';
+import { renderCau } from './cau-view.js';
+import { hoTongAp } from '../game/ho-tong.js';
+import { patch, patchList } from './morph.js';
+
+const PAGES = [['do', 'ui.nv-tab-trang-bi', 'Trang bị'], ['tiem', 'ui.nv-tu-luyen', 'Huyết mạch'], ['kho', 'ui.nv-tab-kho', 'Kho'], ['lt', 'ui.ic-linh-thu', 'Linh thú'], ['cp', 'ui.nv-tab-cong-phap', 'Công pháp'], ['ca', 'ui.nv-tab-ca', 'Câu cá'], ['tt', 'ui.nv-tab-thoi-trang', 'Thời trang'], ['ld', 'ui.k-i-lo-dan', 'Luyện đan']];   // biểu tượng mục; Luyện đan: lò luyện đan (chủ dự án 20/11/2026 13:3x, src/ui/lo-dan-view.js) (ảnh GPT 03:03)
+const SUB0 = { do: 'all', tiem: 'tiem', kho: 'ngoc', lt: 'linh-thu', cp: 'chieu', ca: 'ca', tt: 'thoi-trang', ld: 'nl' };
+// Biểu tượng trước nút trong phần chi tiết (bag-detail.js, bag-stock.js viết chữ; ở đây gắn hình theo chữ đầu nút)
+const ACT_ICO = [[/^(Mặc vào|Thay vào)/, 'mac-tot'], [/^Tháo/, 'tab-trang-bi'], [/^Cường hóa/, 'cuong-hoa'], [/^(Khoá|🔒)/, 'khoa'], [/^Bán/, 'ban'], [/^Ghép/, 'ghep'],
+  [/^\+ Khảm/, 'kham'], [/^Tẩy luyện/, 'tu-luyen'], [/^Dùng/, 'hoi-mau'], [/^Mua nhanh/, 'lich-su'], [/^Đổi hệ/, 'tho'], [/^Phân giải/, 'st-bao'], [/^Luyện/, 'tab-phap-bao']];
+const SHORT = [[/^Cường hóa/, 'Cường'], [/^Tẩy luyện.*$/, 'Tẩy luyện'], [/^Mặc vào/, 'Mặc'], [/^Thay vào/, 'Thay'], [/^Tháo xuống/, 'Tháo'], [/^Mua nhanh/, 'Mua']];
+function decorate(game, box) {   // nút gọn (chủ dự án 03:26: thấy hết chức năng trong một góc): hình + tên một dòng + giá một dòng nhỏ
+  for (const b of box.querySelectorAll('.act-btn, .socket:not(.full)')) {
+    const t = b.textContent.trim(), k = ACT_ICO.find(([re]) => re.test(t))?.[1];
+    if (k) b.prepend(uiIco(game.data, 'ui.nv-' + k, 'sv-aico'));
+    if (/^(Khoá|🔒)/.test(t)) { b.querySelector('small')?.remove(); const bb = b.querySelector('b'); if (bb) bb.textContent = /^🔒/.test(t) ? 'Đã khoá' : 'Khoá'; }
+    const bb = b.querySelector('b') || [...b.childNodes].find(n => n.nodeType === 3 && n.textContent.trim());   // tên: thẻ b, hoặc chữ trần (nút Mặc / Thay)
+    const short = bb && SHORT.find(([re]) => re.test(bb.textContent.trim()));   // tên ngắn cho vừa ô
+    if (short) bb.textContent = bb.textContent.trim().replace(short[0], short[1]);
+  }
+}
+
+export function createSelfPanel(game) {
+  const root = el('div', 'panel self-panel sv'); root.hidden = true;
+  const x = el('button', 'sv-x', '✕'), frame = el('div', 'sv-frame'), rail = el('div', 'sv-pages'), left = el('div', 'sv-left');
+  const right = el('div', 'sv-right'), subs = el('div', 'sv-subs'), mid = el('div', 'sv-mid'), bar = el('div', 'sv-barbox'), hostBox = el('div', 'sv-hostbox');
+  x.setAttribute('aria-label', 'Đóng');
+  right.append(subs, mid, hostBox, bar);
+  frame.append(rail, left, right);
+  root.append(frame, x);
+  document.body.append(root);
+  const st = { page: 'do', sub: 'all', sel: null, stock: null, coinLog: false, more: false, pickSocket: null, sort: 'moi', qs: false };
+  const sub0 = page => (page === 'cp' && pbOn(game) && !knOn(game) ? 'cong-phap' : SUB0[page]);   // hệ pháp bảo mới: mục Chiêu cũ đã ẩn
+  const reset = () => { st.sel = null; st.stock = null; st.coinLog = false; st.more = false; st.pbSel = null; st.knSel = null; st.tpSel = null; st.cpSel = null; st.cauSel = null; };   // kn / tp / cp: tấm chi tiết Kỹ năng, Thân pháp, Công pháp
+  function close() { unhost(); root.hidden = true; game.uiOpen = false; reset(); st.pickSocket = null; st.qs = false; }
+  x.onclick = close;
+  const go = (page, sub) => { st.page = page; st.sub = sub || sub0(page); reset(); st.qs = false; if (page !== 'kho') st.pickSocket = null; render(); };
+
+  let lastSel = null;   // món đang mở chi tiết lần vẽ trước
+  let before = null;   // trạng thái lúc vẽ gần nhất, để so sau thao tác mà chạy hiệu ứng (src/ui/self-fx.js)
+  function changed(full = true) {
+    if (full) { game.refreshStats(); game.persist(); }
+    if (st.pickSocket && st.page !== 'kho') { st.page = 'kho'; st.sub = 'ngoc'; st.sel = null; }   // "+ Khảm ngọc": Kho → Ngọc chọn viên
+    const msg = st.msg, prev = before;
+    render();
+    if (full) react(game, prev, msg, fxTarget, () => left.querySelector('.sv-center'));
+  }
+  // Ô của món uid: ô đang mặc bên trái nếu đang mặc, không thì hình món ở đầu tấm chi tiết bên phải
+  function fxTarget(uid) {
+    const s = game.save, slot = Object.keys(s.equip).find(k => s.equip[k] === uid);
+    return (slot && left.querySelector(`.sv-slot[aria-label="${game.data.items.slots[slot]}"]`)) || mid.querySelector('.d-head .ico') || left.querySelector('.sv-center');
+  }
+  // Thao tác trong bảng gắn ở khung phải (src/ui/self-host.js): vẽ lại thẻ nhân vật, lực chiến tăng thì chạy hiệu ứng
+  function hostedChanged() {
+    if (root.hidden || !HOSTS[st.page]) return;
+    const prev = before; before = snap(game);
+    patch(left, leftCard(game, playerStats(game.save, game.data), h));
+    react(game, prev, null, fxTarget, () => left.querySelector('.sv-center'));
+  }
+  const h = {
+    pick: (slot, it) => {
+      if (!it) { st.sort = 'manh'; go('do', groupOf(slot)); return; }   // ô trống: kho lọc đúng nhóm, mạnh nhất lên đầu
+      if (st.page !== 'kho') st.page = 'do';
+      reset(); st.sel = it.uid; render();
+    },
+    openExtra: k => go('lt', k === 'pet' ? 'linh-thu' : k === 'mount' ? 'thu-cuoi' : 'dong-hanh'),   // ô linh thú / thú cưỡi / khôi lỗi: mở ngay trong khung phải
+    rename: () => { close(); game.openRename?.(); },
+    stats: () => { const m = !st.more; reset(); st.more = m; if (st.page !== 'do' && st.page !== 'kho') st.page = 'do'; render(); },
+  };
+
+  function tabBtn(cls, on, ico, name, fn) {
+    const b = el('button', cls + (on ? ' on' : '')); b.title = name;
+    b.append(uiIco(game.data, ico, 'sv-rico'), el('small', null, name)); b.onclick = fn;
+    return b;
+  }
+
+  function render() {
+    const s = game.save, d = game.data, stt = hoTongAp(game, playerStats(s, d));   // đang có Hộ Tông gia trì thì hiện chỉ số đã nhân (src/game/ho-tong.js)
+    before = snap(game);
+    root.classList.toggle('ld-on', st.page === 'ld');   // Luyện đan: ẩn thẻ nhân vật, lò + kho chiếm cả khung (src/ui/lo-dan.css)
+    patchList(rail, PAGES.map(([id, ico, name]) => tabBtn('sv-pg', st.page === id, ico, name, () => go(id))));
+    patch(left, leftCard(game, stt, h));   // vá thẻ cũ, không thay cả thẻ (src/ui/morph.js)
+    const SB = subsOf(game, st.page);   // hệ pháp bảo mới: ẩn mục Chiêu, P.bảo cũ (self-bag.js)
+    if (!SB.some(([id]) => id === st.sub)) st.sub = SB[0][0];
+    subs.classList.toggle('many', SB.length > 3);   // nhiều mục con: chỉ hiện hình cho khỏi cắt chữ
+    patchList(subs, SB.map(([id, ico, name]) => tabBtn('sv-sb', st.sub === id, ico, name, () => {
+      st.sub = id; reset(); st.qs = false;
+      if (HOSTS[st.page] && id !== 'chieu' && id !== 'than-phap' && id !== 'cong-phap') document.querySelector(`#${HOSTS[st.page][2]} [data-tab="${id}"]`)?.click();   // tab của bảng đang gắn
+      render();
+    })));
+    const knTab = st.page === 'cp' && st.sub === 'chieu', tpTab = st.page === 'cp' && st.sub === 'than-phap', cpTab = st.page === 'cp' && st.sub === 'cong-phap';   // Kỹ năng (chủ dự án 21/11/2026 17:23): mục riêng tự vẽ (src/ui/ky-nang-view.js), không gắn bảng Chiêu cũ
+    const hosted = !!HOSTS[st.page] && !knTab && !tpTab && !cpTab;
+    hostBox.hidden = !hosted; mid.hidden = hosted; bar.hidden = hosted;
+    if (hosted) { host(hostBox, st.page, st.sub, game, hostedChanged); return; }
+    unhost();
+    if (knTab) { renderKyNang(game, st, mid, bar, changed); return; }
+    if (tpTab) { renderThanPhap(game, st, mid, bar); return; }
+    if (cpTab) { renderCongPhap(game, st, mid, bar, changed); return; }   // Công pháp: ô như Kho, số thật sau trần (chủ dự án 23/11/2026 12:43, src/ui/cong-phap-view.js)   // Thân pháp: chuỗi liên hoàn đánh thường, hai ô khảm thức (src/ui/than-phap-view.js)
+    if (st.page === 'ca') { renderCau(game, st, mid, bar, changed); return; }   // Câu cá: Cá, Mồi, Cần, Món (src/ui/cau-view.js)
+    if (st.page === 'tiem') { renderTiem(game, st, mid, bar, changed); return; }   // Tiềm năng: huyết mạch và điểm tiềm năng (chủ dự án 21/11/2026 17:23, src/ui/tiem-nang-view.js)
+    if (st.page === 'ld') { mid.classList.remove('sheet'); bar.hidden = false; renderLoDan(game, st, mid, bar, () => { if (!root.hidden && st.page === 'ld') render(); }); return; }
+    const keep = mid.scrollTop, same = mid.classList.contains('sheet') && st.sel != null && st.sel === lastSel;   // vẽ lại cùng món (bấm −/+ ô mua): giữ chỗ đang cuộn
+    lastSel = st.sel;
+    if (game.pbPick != null) { st.pbSel = game.pbPick; game.pbPick = null; }   // chạm ô pháp bảo dưới thẻ nhân vật
+    const pbPage = st.page === 'do' && st.sub === 'pb' && pbOn(game);
+    let has = false;   // phần chi tiết thay chỗ lưới
+    if (st.more) has = statsSheet(game, stt, mid, () => { st.more = false; render(); });
+    else if (st.coinLog) has = renderCoinLog(game, mid, () => { st.coinLog = false; render(); });
+    else if (st.sel != null) has = renderDetail(game, st, mid, changed, () => { st.sel = null; render(); });
+    else if (pbPage && st.pbSel != null) has = pbSheet(game, st, mid, changed, () => { st.pbSel = null; render(); });   // Trang bị → Pháp bảo (self-pb-page.js)
+    else if (st.stock) has = renderStockSheet(game, st, mid, changed, () => { st.stock = null; render(); });
+    mid.classList.toggle('sheet', has);
+    if (has) decorate(game, mid);
+    if (has) { bar.hidden = true; mid.scrollTop = same ? keep : 0; return; }
+    reset();
+    if (pbPage) { pbGrid(game, st, mid, bar, render); mid.scrollTop = keep; return; }
+    const r = renderStore(game, st, changed, render);
+    mid.replaceChildren(r.wrap); bar.replaceChildren(r.bar);
+    mid.scrollTop = keep;
+  }
+
+  function open(page, sub) {   // page, sub: mở thẳng một mục (vd 'kho', 'dan')
+    if (!game.save || game.dialog.open || game.trip) return;
+    for (const p of document.querySelectorAll('.panel, #bag')) if (p !== root && !p.hidden) p.querySelector('[id$="-close"]')?.click();
+    if (SUBS[page]) { st.page = page; st.sub = sub || sub0(page); st.qs = false; st.pickSocket = null; }
+    game.uiOpen = true; root.hidden = false; reset(); render();
+  }
+  game.openSelf = open;
+  routeOld(game);   // nút cũ mở bảng Chiêu / Linh thú thì vào đây (src/ui/self-host.js)
+  game.toggleSelf = (page, sub) => (root.hidden ? open(page, sub) : close());   // nút Túi đồ (src/ui/bag.js): bấm lần nữa thì đóng
+  const R = document.getElementById('realm');   // chạm khung tên, cảnh giới
+  R?.addEventListener('click', e => { e.stopPropagation(); open(); }, true);
+  document.getElementById('power')?.addEventListener('click', e => { e.stopPropagation(); open(); });
+}

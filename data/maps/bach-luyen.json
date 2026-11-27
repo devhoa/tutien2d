@@ -1,0 +1,3629 @@
+{
+ "id": "bach-luyen",
+ "name": "Bách Luyện Tinh",
+ "_note": "Dựng bằng tools/the-gioi/bach_luyen.py (KHÔNG sửa tay: sửa máy sinh rồi chạy lại). Bảy vùng đất của bảy tinh cầu farm quanh pháp trận, mỗi vùng một bãi gần ×1 và một bãi xa ×2, quái mạnh dần theo chiều kim đồng hồ từ phía bắc. nen.ky.them: ô nền mỗi vùng lót bộ nền đá chân núi của tinh cầu đó (src/world/draw-nen.js). planet.luat: câu cá chỉ ở nước thật (ba hồ ven đường).",
+ "sky": "#b8d8f8",
+ "dark": 0.04,
+ "ground": "#7cc46a",
+ "island": {
+  "top": "#9cd08a",
+  "under": "#8a7a6a",
+  "trees": "#2f7a44"
+ },
+ "world": true,
+ "planet": {
+  "d": 96,
+  "origin": [
+   0,
+   0
+  ],
+  "luat": 1,
+  "terrain": 1,
+  "settle": 1,
+  "open": 1,
+  "grown": 1
+ },
+ "nen": {
+  "nuoc": "nen.tk-nuoc",
+  "dat": "nen.tk-dat",
+  "san": "nen.tk-san",
+  "gach": "nen.tk-gach",
+  "nui": "nen.tk-nui",
+  "mep": "nen.tk-mep",
+  "vach": "nen.tk-vach",
+  "hoa": "nen.tk-hoa",
+  "ky": {
+   "nen": ".",
+   "them": [
+    [
+     "nen.tc-xd-nui",
+     "a"
+    ],
+    [
+     "nen.tc-hb-nui",
+     "w"
+    ],
+    [
+     "nen.tc-hp-nui",
+     "d"
+    ],
+    [
+     "nen.tc-tm-nui",
+     "m"
+    ],
+    [
+     "nen.tc-tkim-nui",
+     "s"
+    ],
+    [
+     "nen.tc-ht-nui",
+     "t"
+    ],
+    [
+     "nen.tc-nv-nui",
+     "p"
+    ]
+   ]
+  }
+ },
+ "prop_hide": "^",
+ "grid": [
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.aaaaa~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~aa......aaaaaaaaaa..~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~aaaaaaa.....aaaaaaaaaaa...aa~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~aaaaaaaaaa....aaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaa..aaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~p..aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa..aaaaa~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~.pp...aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...aaa...~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~...pp....aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...........~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~pp.ppp....aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa........ww..~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~ppppppp.....aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa........wwww..~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~ppppppppp......aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.....wwwwwwwwwww~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~pppppppppp.......aaaaaaaaaa.aaaaaaaaaaaaaaaaaaaa...wwwwwwwwwwwww~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~ppppppppppp.......aaaaaaaaa...aaaaaaa,,aaaaaaaaaa...wwwwwwwwwwwwww~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~pppppppppppp.......aaaaaaaaa...aaaaaaa,,aaaaaaaaaa...wwwwwwwwwwwwwww~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~ppppppppppppp.......aaaaaaaaaaaaaaaaaa,,,aaaaaaaaaa...wwwwwwwwwwwwwwww~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~ppppppppppppppppppp...aaaaaaaaaaaaaaaaa,,aaaaaaaaaaa....wwwwwwwwwwwwwwww~~~~~~~~~~~~",
+  "~~~~~~~~~~~pppppppppp..ppppppppp...aaaaaaaaaaaaaaaa,,aaaaaaaaaaa.....wwwwwwwwwwwwwwww~~~~~~~~~~~",
+  "~~~~~~~~~~~ppppppppp....ppppppppp...aaaaaaaaaaaaaaa,,aaaaaaaaaaa.....wwwwwwwwwwwwwwww~~~~~~~~~~~",
+  "~~~~~~~~~~ppppp.........ppppppppp...aaaaaaaaaaaaaa,,,aaaaaaaaaa.......wwwwwwwwwwwwwwww~~~~~~~~~~",
+  "~~~~~~~~~ppppp..........pppppppppp...aaaaaaaaaaaaa,,aaaaaaaaa.........wwwwwwwwwwwwwwwww~~~~~~~~~",
+  "~~~~~~~~ppppp...........pppppppppp...aaaaaaaaaaaa,,,aaaaaaaa.........wwwwwwwwwwwwwwwwwww~~~~~~~~",
+  "~~~~~~~~ppppp...........ppppppppppp...aaaaaaaaaa,,,aaaaaaaaa....wwwwwwwwwwwwwwwwwwwwwwww~~~~~~~~",
+  "~~~~~~~pppppp..........,,ppppppppppp...aaaaaaaaa,,aaaaaaaaa....wwwwwwwwwwwwwwwwwwwwwwwwww~~~~~~~",
+  "~~~~~~~pppppp..........,,,pppppppppp...aaaaaaaa,,,aaaaaaaaa...wwwwwwwwwwwwwwwwwwwwwwwwwww~~~~~~~",
+  "~~~~~~ppppppp...........,,,ppppppppp....aaaaaa,,,aaaaaaaaa...wwwwwwwwwwwwwwwwwwwwwwwwwwwww~~~~~~",
+  "~~~~~~ppppppp...........p,,,ppppppp.........aa,,aaaaaaaaaa..wwwwwwwwwwwwwwwwwwwwwwwwwwwwww~~~~~~",
+  "~~~~~pppppppp...........pp,,,pppppp..........,,,aaaaaaaaaa..wwwwwwwwwwwwwwwwwwwwwwwwwwwwwww~~~~~",
+  "~~~~~pppppppp...........ppp,,,,pppp..........,,aaaaaaaaaa...wwwwwwwwww...wwwwwwwwwwwwwwwwww~~~~~",
+  "~~~~pppppppppp..........=====,,pppp..........,,aaaaaaaaaa...wwwwwww====..wwww,,wwwwwwwwwwwww~~~~",
+  "~~~~pppppppppppppppp...p=====,,,ppp..........,,aaaaaaaaaa..wwwwwww======.ww,,,,wwwwwwwwwwwww~~~~",
+  "~~~ppppppppppppppppppppp======,,,pp..........,,,aaaaaaaa...wwwwwww=======w,,,,wwwwwwwwwwwwwww~~~",
+  "~~~.ppppppppppppppppppppp=====p,,pp...........,,,...aaa...wwwwwwwww=====w,,,wwwwwwwwwww...www~~~",
+  "~~~..pppppppppppppppppppppppppp,,pp.........a..,,,........wwwwwwwwwwwww,,,,wwwwwwwwwww.....ww~~~",
+  "~~tt..ppppppppppppppppppppppppp,,pp.........a...,,.........ww,,,,,,,,,,,,,ww....wwwwww......ww~~",
+  "~~tt..ppppppppppppppppppppppppp,,pp.............,,.........w,,,,,,,,,,,,www........ww........w~~",
+  "~~ttt..pppppppppppppppppppppppp,,pp.............,,........w,,,wwwwwwwwwwwww...................~~",
+  "~~ttt...pppp..ppppppppppppppppp,,,p.............,,.......,,,,wwwwwwwwwwwwww.............ddd...~~",
+  "~ttttt.............pppppppppppp,,,,.............,,......,,,,wwwwwwwwwwwwwwww...........dddddd..~",
+  "~tttttttt...............ppppppppp,,,............,,.....,,,wwwwwwwwwwwwwwwwww...........ddddddd.~",
+  "~tttttttttttttttt........ppppppppp,,,...........,,.....,,.wwwwwwwwwwwwwwwwww...........ddddddd.~",
+  "~tttttttttttttttttt......pppppppppp,,,..........,,....,,,..wwww..wwwwwwwwwww...........dddddddd~",
+  "~tttttttttttttttttttt...pppppppppppp,,,.....22222222.,,,....ww....wwwwwwwww............dddddddd~",
+  "~ttttttttttttttttttttt..ppppppppppp..,,,,,,2222222222,,................................dddddddd~",
+  "~ttttttttttttttttttttt...ppppppppp....,,,,222222222222,.............................ddddddddddd~",
+  "ttttttttttttttttttttttt...ppp............22222222222222...........................dddddddddddddd",
+  "tttttttttttttttttttttttt.................22222222222222...................dd.....ddddddddddddddd",
+  "tttttttttttttttttttttttttt...............22222222222222..........dd..dddddddd....ddddddddddddddd",
+  "ttttttttttttttttttttttttttt..............22222222222222........dddddddddddddd....ddddddddddddddd",
+  "ttttttttttttttttttttttttttt..........,,,,22222222222222,,,,,,,,,,,,,,,,dddddd....ddddddddddddddd",
+  "ttttttttttttttttttttttttttt........,,,,,,22222222222222,,,,,,,,,,,,,,,,,ddddd....ddddddddddddddd",
+  "~tttttttttttt,,,,,ttttttttt.......,,,,....222222222222.......ddddddddd,,,dddd....dddddddddddddd~",
+  "~tttttttttttt,,,,,,tttttttt.....,,,,.......2222222222.......ddddddddddd,,,dddd..ddddddddddddddd~",
+  "~tttttttttttttttt,,,tttttt.....,,,,t........22222222.........ddddddddddd,,,dddddddddddddddddddd~",
+  "~tttttttttttttt..t,,,,,,,,,,,,,,,tt.........,,.....,,............dddddddd,,,ddddddddddddd......~",
+  "~ttttttttttttt.....,,,,,,,,,,,,,............,,.....,,.............dddddddd,,,dddddddddd........~",
+  "~ttttttttttttt..............................,,.....,,......m......ddddddddd,,,dddddddd.........~",
+  "~ttttttttttttt........................ss...,,,.....,,,..mmmmm.....dddddddddd,,,dddddddd........~",
+  "~~ttttttttttttt......................ssss..,,.......,,,mmmmmm.....ddddddddddd,,,dddddddddd....~~",
+  "~~ttttttttttttttttttt...ttt.........sssssss,,........,,,mmmmm......ddddddddddd,,,,dddddddddddd~~",
+  "~~ttttttttttttttttttttttttt........ssssssss,,......mmm,,,mmmm......ddddddddd...,,,dddddddddddd~~",
+  "~~ttttttttttttttttttttttt..........sssssss,,,..mmmmmmmm,,,mmm.....dddddddd......dddddddddddddd~~",
+  "~~~tttttttttttttttttt.......ss....ssssssss,,..mmmmmmmmmm,,,mmm....dddddd........ddddddddddddd~~~",
+  "~~~ttttttttttttttt.........sssssssssssssss,,..mmmmmmmmmmm,,,mm.....dddd.........ddddddddddddd~~~",
+  "~~~tttttttttttttt.........ssssssssssssssss,,..mmmmmmmmmmmm,,mmm.....dd..........ddddddddddddd~~~",
+  "~~~~ttttttttttttt........ssssssssssssssss,,,...mmmmmmmmmmm,,,mmmm...............dddddddddddd~~~~",
+  "~~~~ttttttttttttt.......sssssssssssssssss,,s....mmmmmmmmmmm,,mmmmmm.............dddddddddddd~~~~",
+  "~~~~~ttttttttttttt.......sssssssssssssss,,,s......mmmmmmmmm,,mmmmmmmm...........ddddddddddd~~~~~",
+  "~~~~~ttttttttttttt........sssssssss,,,,,,,,ss......mmmmmmmm,,mmmmmmmmmm.........ddddddd...d~~~~~",
+  "~~~~~~tttttttttttt.........ssssss,,,==,,,ssss......mmmmmmmm,,mmmmmmmmmmmm.......dddddd....~~~~~~",
+  "~~~~~~tttttttttttt.........ssssss,=====sssssss.....mmmmmmmm,,mm...mmmmmmmmm......ddd......~~~~~~",
+  "~~~~~~~ttttttttt..........ssssss,,======ssssss......mmmmmmm,,mm...mmmmmmmmmm............d~~~~~~~",
+  "~~~~~~~tttttttt.......ssssssssss,,======ssssss......mmmmmmm,,mmm.mmmmmmmmmmmm...........d~~~~~~~",
+  "~~~~~~~~ttttttt......ssssssssss,,,ss=s=ssssss.......mmmmmmm,,mmmmmmmmmmmmmmmmm..........~~~~~~~~",
+  "~~~~~~~~tttttttt.....sssssssss,,,ssssssssssss......mmmmmmmm,,mmmmmmmmmmmmmmmmmm.........~~~~~~~~",
+  "~~~~~~~~~ttttttttt...sssssssss,,sssssssssssss.....mmmmmmmmm,,mmmmmmmmmmmmmmmmmm........~~~~~~~~~",
+  "~~~~~~~~~~..tttttt...ssssssss,,,sssssssssssss....mmmmmmmmmm,,mmmmmmmmm..mmmmmmm.......~~~~~~~~~~",
+  "~~~~~~~~~~~s....tt..sssssssss,,sssssssssssssss...mmmmmmmmmm,,mmmmmmmm....mmmmmmm.....~~~~~~~~~~~",
+  "~~~~~~~~~~~sss.....ssssssssss,,ssssssssssssssss...mmmmmmmmm,,mmmmmmmm....mmmmmmm.....~~~~~~~~~~~",
+  "~~~~~~~~~~~~sss...ssssssssssssssssssssssssssssss..mmmmmmmmm,,mmmmmmmmm..mmmmmmmm....~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~ssssssssssssssssssssssssssssssssssss.mmmmmmmmm,,mmmmmmmmmmmmmmmmmmmm..~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~ssssssssssssssssssssssssssssssssss..mmmmmmmmm,,mmmmmmmmmmmmmmmmmmmmm~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~ssssssssssssssssssss................mmmmmmmm,,mmm..mmmmmmmmmmmmmmm~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~ssssssssssssssssss.................mmmmmmmmmmmm....mmmmmmmmmmmmm~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~ssssssssssssssss...................mmmmmmmmmmm....mmmmmmmmmmmm~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~ssssssssssssss...................mmmmmmmmmmmm..mmmmmmmmmmm~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~ssssssssssssss..................mmmmmmmmmmmmmmmmmmmmmmmm~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~sssssssssssssss................mmmmmmmmmmmmmmmmmmmmmmm~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~ssssssssssssssss........s....mmmmmmmmmmmmmmmmmmmmm~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~sssssssssssssss......sss....mmmmmmmmmmmmmmmmm.~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~sssssssssssss......ssss...mmmmmmmmmmmmmmmm~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~sssssssssss......sssss..mmmmmmmmmmmmmm~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~sssssssss......sssss..mmmmmmmmmmmm~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ssssss......ssss...mmmmmmmmm~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~s.......ssss..mmmmmm~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+  "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~..sss.~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+ ],
+ "spawns": {
+  "vao": [
+   48,
+   48
+  ],
+  "tu-thien-kiem": [
+   48,
+   51
+  ]
+ },
+ "phap_tran": {
+  "at": [
+   48,
+   48
+  ]
+ },
+ "portals": [
+  {
+   "at": [
+    48,
+    43
+   ],
+   "to": "thien-kiem-phong",
+   "spawn": "tu-bach-luyen",
+   "label": "Truyền tống về Thiên Kiếm Tinh",
+   "fly": true
+  }
+ ],
+ "npcs": [],
+ "spawners": [
+  {
+   "mob": "hoa-lang",
+   "at": [
+    45,
+    28
+   ],
+   "farm": true
+  },
+  {
+   "mob": "viem-linh",
+   "at": [
+    52,
+    13
+   ],
+   "farm": true,
+   "mul": 2
+  },
+  {
+   "mob": "tuyet-lang",
+   "at": [
+    61,
+    34
+   ],
+   "farm": true
+  },
+  {
+   "mob": "bang-tinh",
+   "at": [
+    77,
+    29
+   ],
+   "farm": true,
+   "mul": 2
+  },
+  {
+   "mob": "phong-yeu",
+   "at": [
+    67,
+    49
+   ],
+   "farm": true
+  },
+  {
+   "mob": "hac-diep",
+   "at": [
+    80,
+    59
+   ],
+   "farm": true,
+   "mul": 2
+  },
+  {
+   "mob": "moc-yeu",
+   "at": [
+    58,
+    64
+   ],
+   "farm": true
+  },
+  {
+   "mob": "doc-dang",
+   "at": [
+    59,
+    81
+   ],
+   "farm": true,
+   "mul": 2
+  },
+  {
+   "mob": "kim-giap-trung",
+   "at": [
+    41,
+    66
+   ],
+   "farm": true
+  },
+  {
+   "mob": "kiem-hon",
+   "at": [
+    29,
+    77
+   ],
+   "farm": true,
+   "mul": 2
+  },
+  {
+   "mob": "tho-khoi",
+   "at": [
+    29,
+    54
+   ],
+   "farm": true
+  },
+  {
+   "mob": "thach-doi",
+   "at": [
+    13,
+    51
+   ],
+   "farm": true,
+   "mul": 2
+  },
+  {
+   "mob": "hu-khong-ma",
+   "at": [
+    31,
+    37
+   ],
+   "farm": true
+  },
+  {
+   "mob": "hu-anh",
+   "at": [
+    23,
+    23
+   ],
+   "farm": true,
+   "mul": 2
+  }
+ ],
+ "rooms": [],
+ "hoi": {
+  "do": [
+   [
+    "tc.cay-chay-mai-sc",
+    53.5,
+    4.0,
+    null,
+    {
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    59.1,
+    5.8,
+    null,
+    {
+     "s": 0.7
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    39.6,
+    6.7
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    43.3,
+    6.7,
+    null,
+    {
+     "s": 0.91,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-3-sc",
+    46.3,
+    6.8,
+    null,
+    {
+     "s": 0.91,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    54.3,
+    7.3,
+    null,
+    {
+     "s": 0.66
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    56.4,
+    7.3,
+    null,
+    {
+     "s": 0.76,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-la-sc",
+    59.1,
+    7.6,
+    null,
+    {
+     "s": 0.91
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    44.0,
+    7.9,
+    null,
+    {
+     "s": 0.53,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    54.0,
+    8.2,
+    null,
+    {
+     "s": 0.53,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    54.5,
+    8.4,
+    null,
+    {
+     "s": 0.53
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    63.7,
+    8.6,
+    null,
+    {
+     "s": 0.91
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    49.5,
+    8.7,
+    null,
+    {
+     "s": 1.07
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    55.9,
+    8.8,
+    null,
+    {
+     "s": 0.58,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    38.8,
+    9.0,
+    null,
+    {
+     "s": 0.98,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    43.3,
+    9.1,
+    null,
+    {
+     "s": 0.61
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    61.1,
+    9.1,
+    null,
+    {
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    36.8,
+    9.2,
+    null,
+    {
+     "s": 0.76,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    46.3,
+    9.8,
+    null,
+    {
+     "s": 1.05,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    56.6,
+    9.9,
+    null,
+    {
+     "s": 0.88,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    54.1,
+    10.2,
+    null,
+    {
+     "s": 0.67,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    41.1,
+    10.4,
+    null,
+    {
+     "s": 0.6,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    59.4,
+    10.7,
+    null,
+    {
+     "s": 1.02
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    46.5,
+    10.8,
+    null,
+    {
+     "s": 0.52,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    40.2,
+    11.2,
+    null,
+    {
+     "s": 0.89,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    57.9,
+    11.4,
+    null,
+    {
+     "s": 0.87,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    62.4,
+    11.7,
+    null,
+    {
+     "s": 0.91
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    61.1,
+    11.8,
+    null,
+    {
+     "s": 0.64,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-la-sc",
+    59.7,
+    12.1,
+    null,
+    {
+     "s": 0.95,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    42.2,
+    12.2,
+    null,
+    {
+     "s": 0.93,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-hb-0-sc",
+    72.3,
+    12.6,
+    null,
+    {
+     "s": 1.01,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    43.4,
+    13.2,
+    null,
+    {
+     "s": 0.89
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    37.7,
+    13.3,
+    null,
+    {
+     "s": 0.86
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    49.3,
+    13.7,
+    null,
+    {
+     "s": 0.94,
+     "f": 1
+    }
+   ],
+   [
+    "tc.pha-le-cao-sc",
+    20.1,
+    14.2,
+    null,
+    {
+     "s": 0.8,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-noi-hk-sc",
+    26.3,
+    14.3,
+    null,
+    {
+     "s": 0.85,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-hu-khong-sc",
+    21.6,
+    14.4,
+    null,
+    {
+     "s": 0.85
+    }
+   ],
+   [
+    "tc.da-tuyet-sc",
+    73.6,
+    14.4,
+    null,
+    {
+     "s": 0.82
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    37.6,
+    16.7,
+    null,
+    {
+     "s": 0.89,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    50.6,
+    16.7,
+    null,
+    {
+     "s": 1.03,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-hu-khong-sc",
+    22.8,
+    16.8,
+    null,
+    {
+     "s": 0.85
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    35.4,
+    16.9,
+    null,
+    {
+     "s": 0.87,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-noi-hk-sc",
+    24.5,
+    17.1,
+    null,
+    {
+     "s": 0.85,
+     "f": 1
+    }
+   ],
+   [
+    "tc.pha-le-cao-sc",
+    23.0,
+    17.6,
+    null,
+    {
+     "s": 0.8,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    36.5,
+    17.9,
+    null,
+    {
+     "s": 0.97
+    }
+   ],
+   [
+    "tc.tung-tuyet-sc",
+    80.2,
+    18.1,
+    null,
+    {
+     "s": 0.95
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    38.0,
+    18.8,
+    null,
+    {
+     "s": 0.54,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    57.6,
+    18.9,
+    null,
+    {
+     "s": 0.99
+    }
+   ],
+   [
+    "tc.nho-hb-0-sc",
+    73.6,
+    18.9,
+    null,
+    {
+     "s": 1.06,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-tuyet-sc",
+    74.8,
+    19.1,
+    null,
+    {
+     "s": 0.8
+    }
+   ],
+   [
+    "tc.bui-tuyet-sc",
+    74.0,
+    19.6,
+    null,
+    {
+     "s": 0.53
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    40.5,
+    19.7,
+    null,
+    {
+     "s": 1.02
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    56.2,
+    19.7,
+    null,
+    {
+     "s": 1.05
+    }
+   ],
+   [
+    "tc.nho-hb-4-sc",
+    73.6,
+    19.7,
+    null,
+    {
+     "s": 1.08,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    41.3,
+    20.0,
+    null,
+    {
+     "s": 0.91,
+     "f": 1
+    }
+   ],
+   [
+    "tc.tung-tuyet-vua-sc",
+    83.3,
+    20.4,
+    null,
+    {
+     "s": 0.94
+    }
+   ],
+   [
+    "tc.tung-tuyet-sc",
+    81.5,
+    20.6,
+    null,
+    {
+     "s": 0.99
+    }
+   ],
+   [
+    "tc.cay-chay-sc",
+    36.6,
+    21.1,
+    null,
+    {
+     "s": 0.95
+    }
+   ],
+   [
+    "tc.bui-tuyet-sc",
+    81.5,
+    21.7,
+    null,
+    {
+     "s": 0.56
+    }
+   ],
+   [
+    "tc.da-tuyet-sc",
+    82.8,
+    21.7,
+    null,
+    {
+     "s": 0.84,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    38.9,
+    22.3,
+    null,
+    {
+     "s": 0.67,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    46.1,
+    22.4,
+    null,
+    {
+     "s": 0.68,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-hb-3-sc",
+    79.6,
+    22.7,
+    null,
+    {
+     "s": 0.98,
+     "f": 1
+    }
+   ],
+   [
+    "tc.tung-tuyet-vua-sc",
+    82.0,
+    22.8,
+    null,
+    {
+     "s": 0.97,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-nv-4-sc",
+    24.5,
+    22.9,
+    null,
+    {
+     "s": 1.1,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    40.9,
+    22.9,
+    null,
+    {
+     "s": 0.63,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    54.2,
+    24.1,
+    null,
+    {
+     "s": 0.85
+    }
+   ],
+   [
+    "tc.nho-hb-1-sc",
+    70.6,
+    24.6,
+    null,
+    {
+     "s": 1.08
+    }
+   ],
+   [
+    "tc.cay-bang-sc",
+    72.0,
+    24.6,
+    null,
+    {
+     "s": 0.96
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    53.2,
+    24.7,
+    null,
+    {
+     "s": 0.75
+    }
+   ],
+   [
+    "tc.bui-tuyet-sc",
+    80.1,
+    24.8,
+    null,
+    {
+     "s": 0.58,
+     "f": 1
+    }
+   ],
+   [
+    "tc.soi-nui-lua-sc",
+    51.2,
+    25.0,
+    null,
+    {
+     "s": 0.62,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tuyet-sc",
+    68.6,
+    25.4,
+    null,
+    {
+     "s": 0.57,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-0-sc",
+    52.3,
+    25.9
+   ],
+   [
+    "tc.nho-hb-4-sc",
+    68.5,
+    25.9,
+    null,
+    {
+     "s": 1.08,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-hb-3-sc",
+    79.4,
+    25.9,
+    null,
+    {
+     "s": 0.94
+    }
+   ],
+   [
+    "tc.da-tuyet-sc",
+    71.8,
+    26.1,
+    null,
+    {
+     "s": 0.72,
+     "f": 1
+    }
+   ],
+   [
+    "tc.tung-tuyet-vua-sc",
+    66.9,
+    26.4,
+    null,
+    {
+     "s": 0.94,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-hb-2-sc",
+    81.7,
+    26.8,
+    null,
+    {
+     "s": 0.96
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    53.7,
+    27.6,
+    null,
+    {
+     "s": 0.89,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-nv-1-sc",
+    29.4,
+    27.9,
+    null,
+    {
+     "s": 0.92
+    }
+   ],
+   [
+    "tc.bui-tro-sc",
+    52.7,
+    28.4,
+    null,
+    {
+     "s": 0.54,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    58.1,
+    28.4,
+    null,
+    {
+     "s": 0.98,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tuyet-sc",
+    70.9,
+    28.5,
+    null,
+    {
+     "s": 0.54
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    56.6,
+    28.7,
+    null,
+    {
+     "s": 0.91,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-1-sc",
+    49.8,
+    28.8,
+    null,
+    {
+     "s": 1.05
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    54.8,
+    28.9,
+    null,
+    {
+     "s": 0.78
+    }
+   ],
+   [
+    "tc.da-nui-lua-sc",
+    55.7,
+    29.5,
+    null,
+    {
+     "s": 0.76,
+     "f": 1
+    }
+   ],
+   [
+    "tk.bui-co-cao-sc",
+    22.2,
+    30.4
+   ],
+   [
+    "tc.nho-nv-0-sc",
+    23.3,
+    30.9,
+    null,
+    {
+     "s": 1.06
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    53.4,
+    31.2,
+    null,
+    {
+     "s": 0.96
+    }
+   ],
+   [
+    "tc.bui-tuyet-sc",
+    62.6,
+    31.2,
+    null,
+    {
+     "s": 0.54,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-hu-khong-sc",
+    34.6,
+    31.4,
+    null,
+    {
+     "s": 0.75,
+     "f": 1
+    }
+   ],
+   [
+    "tc.tung-tuyet-sc",
+    85.0,
+    31.4
+   ],
+   [
+    "tc.nho-nv-2-sc",
+    19.8,
+    31.8,
+    null,
+    {
+     "s": 1.09
+    }
+   ],
+   [
+    "tc.nho-xd-2-sc",
+    52.5,
+    31.8,
+    null,
+    {
+     "s": 0.96,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-xd-4-sc",
+    50.4,
+    31.9,
+    null,
+    {
+     "s": 1.04,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-hb-0-sc",
+    83.3,
+    31.9,
+    null,
+    {
+     "s": 0.95,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-bang-sc",
+    86.5,
+    32.3,
+    null,
+    {
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-hu-khong-sc",
+    22.1,
+    32.6,
+    null,
+    {
+     "s": 0.73,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-hb-3-sc",
+    84.4,
+    32.8,
+    null,
+    {
+     "s": 0.93
+    }
+   ],
+   [
+    "tc.pha-le-cum-sc",
+    25.1,
+    33.2,
+    null,
+    {
+     "s": 0.89
+    }
+   ],
+   [
+    "tc.pha-le-cao-sc",
+    18.9,
+    33.8,
+    null,
+    {
+     "s": 0.8,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-hu-khong-sc",
+    14.1,
+    34.2,
+    null,
+    {
+     "s": 0.84,
+     "f": 1
+    }
+   ],
+   [
+    "tc.pha-le-cum-sc",
+    16.6,
+    34.2,
+    null,
+    {
+     "s": 0.91
+    }
+   ],
+   [
+    "tc.tung-tuyet-vua-sc",
+    84.6,
+    34.2,
+    null,
+    {
+     "s": 1.05
+    }
+   ],
+   [
+    "tc.cay-hu-khong-sc",
+    24.1,
+    34.3,
+    null,
+    {
+     "s": 0.77,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-hu-khong-sc",
+    21.6,
+    34.4,
+    null,
+    {
+     "s": 0.72,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-nv-4-sc",
+    17.6,
+    34.8,
+    null,
+    {
+     "s": 1.07
+    }
+   ],
+   [
+    "tc.nho-nv-4-sc",
+    6.4,
+    35.6,
+    null,
+    {
+     "s": 1.09
+    }
+   ],
+   [
+    "tc.cay-hu-khong-sc",
+    6.7,
+    36.0,
+    null,
+    {
+     "s": 0.78,
+     "f": 1
+    }
+   ],
+   [
+    "tc.pha-le-cum-sc",
+    16.7,
+    36.1,
+    null,
+    {
+     "s": 0.92,
+     "f": 1
+    }
+   ],
+   [
+    "tc.pha-le-cum-sc",
+    22.6,
+    36.1,
+    null,
+    {
+     "s": 0.62,
+     "f": 1
+    }
+   ],
+   [
+    "tc.pha-le-cao-sc",
+    25.5,
+    36.4,
+    null,
+    {
+     "s": 0.72
+    }
+   ],
+   [
+    "tc.da-hac-dieu-sc",
+    23.2,
+    36.6,
+    null,
+    {
+     "s": 0.85,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-kho-gio-sc",
+    87.6,
+    37.2,
+    null,
+    {
+     "s": 0.83,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-tuyet-sc",
+    57.9,
+    37.4,
+    null,
+    {
+     "s": 0.56,
+     "f": 1
+    }
+   ],
+   [
+    "tc.tru-da-gay-sc",
+    90.4,
+    37.5,
+    null,
+    {
+     "s": 0.89
+    }
+   ],
+   [
+    "tc.tru-da-gay-sc",
+    87.8,
+    37.9,
+    null,
+    {
+     "s": 0.87,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-hu-khong-sc",
+    10.5,
+    38.1,
+    null,
+    {
+     "s": 0.77,
+     "f": 1
+    }
+   ],
+   [
+    "tk.cay-phong-sc",
+    17.0,
+    38.1,
+    null,
+    {
+     "s": 0.77,
+     "f": 1
+    }
+   ],
+   [
+    "tc.tru-da-den-sc",
+    90.0,
+    38.3,
+    null,
+    {
+     "s": 0.95,
+     "f": 1
+    }
+   ],
+   [
+    "tc.pha-le-cao-sc",
+    8.1,
+    38.4,
+    null,
+    {
+     "s": 0.71
+    }
+   ],
+   [
+    "tc.pha-le-cum-sc",
+    20.8,
+    38.5,
+    null,
+    {
+     "s": 0.87,
+     "f": 1
+    }
+   ],
+   [
+    "tc.tru-da-gay-sc",
+    88.4,
+    39.0,
+    null,
+    {
+     "s": 0.99
+    }
+   ],
+   [
+    "tc.da-dat-set-sc",
+    6.7,
+    39.2,
+    null,
+    {
+     "s": 0.61,
+     "f": 1
+    }
+   ],
+   [
+    "tc.pha-le-cum-sc",
+    10.4,
+    39.5,
+    null,
+    {
+     "s": 0.92,
+     "f": 1
+    }
+   ],
+   [
+    "tc.pha-le-cum-sc",
+    11.5,
+    39.6,
+    null,
+    {
+     "s": 0.8,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-hac-dieu-sc",
+    28.6,
+    39.6,
+    null,
+    {
+     "s": 0.75
+    }
+   ],
+   [
+    "tc.cay-hu-khong-sc",
+    23.4,
+    39.7,
+    null,
+    {
+     "s": 0.81
+    }
+   ],
+   [
+    "tc.nho-ht-2-sc",
+    5.4,
+    39.9,
+    null,
+    {
+     "s": 0.98
+    }
+   ],
+   [
+    "tc.nho-hp-4-sc",
+    87.6,
+    39.9,
+    null,
+    {
+     "s": 0.91
+    }
+   ],
+   [
+    "tc.tru-da-gay-sc",
+    86.6,
+    40.0
+   ],
+   [
+    "tc.da-den-sc",
+    87.4,
+    40.1,
+    null,
+    {
+     "s": 0.57
+    }
+   ],
+   [
+    "tc.tru-dat-cao-sc",
+    16.5,
+    40.3,
+    null,
+    {
+     "s": 0.68
+    }
+   ],
+   [
+    "tc.pha-le-cum-sc",
+    25.9,
+    40.3,
+    null,
+    {
+     "s": 0.93
+    }
+   ],
+   [
+    "tc.da-tuyet-sc",
+    61.5,
+    40.5,
+    null,
+    {
+     "s": 0.72,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-den-sc",
+    89.7,
+    40.6,
+    null,
+    {
+     "s": 0.56
+    }
+   ],
+   [
+    "tk.cay-phong-sc",
+    10.1,
+    40.8,
+    null,
+    {
+     "s": 0.85,
+     "f": 1
+    }
+   ],
+   [
+    "chung.bien-go",
+    49.9,
+    40.8,
+    "→ Xích Diễm"
+   ],
+   [
+    "tc.tru-dat-sc",
+    13.4,
+    41.1,
+    null,
+    {
+     "s": 0.68,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-hu-khong-sc",
+    22.7,
+    41.2,
+    null,
+    {
+     "s": 0.75,
+     "f": 1
+    }
+   ],
+   [
+    "tk.cay-ngan-hanh-sc",
+    6.9,
+    41.4,
+    null,
+    {
+     "s": 0.83
+    }
+   ],
+   [
+    "tc.da-tuyet-sc",
+    60.4,
+    41.6,
+    null,
+    {
+     "s": 0.74
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    90.0,
+    41.6,
+    null,
+    {
+     "s": 0.8,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bo-lua-chin-sc",
+    16.3,
+    41.9,
+    null,
+    {
+     "s": 0.5
+    }
+   ],
+   [
+    "tc.nho-hb-4-sc",
+    60.4,
+    41.9,
+    null,
+    {
+     "s": 1.09,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-den-sc",
+    83.9,
+    41.9,
+    null,
+    {
+     "s": 0.69,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-dat-set-sc",
+    16.9,
+    42.1,
+    null,
+    {
+     "s": 0.69,
+     "f": 1
+    }
+   ],
+   [
+    "chung.bien-go",
+    42.5,
+    42.1,
+    "→ Ngoại Vực"
+   ],
+   [
+    "tc.da-dat-set-sc",
+    7.5,
+    42.4,
+    null,
+    {
+     "s": 0.64
+    }
+   ],
+   [
+    "tc.da-tuyet-sc",
+    71.8,
+    42.4,
+    null,
+    {
+     "s": 0.79,
+     "f": 1
+    }
+   ],
+   [
+    "tc.tru-da-gay-sc",
+    88.8,
+    42.4,
+    null,
+    {
+     "s": 0.93,
+     "f": 1
+    }
+   ],
+   [
+    "tc.tru-dat-cao-sc",
+    15.9,
+    42.6,
+    null,
+    {
+     "s": 0.74
+    }
+   ],
+   [
+    "tc.pha-le-cum-sc",
+    29.1,
+    42.6,
+    null,
+    {
+     "s": 0.89
+    }
+   ],
+   [
+    "tc.da-tuyet-sc",
+    59.2,
+    42.7,
+    null,
+    {
+     "s": 0.74
+    }
+   ],
+   [
+    "tc.nho-hb-1-sc",
+    67.5,
+    42.8,
+    null,
+    {
+     "s": 0.97
+    }
+   ],
+   [
+    "tc.tru-da-den-sc",
+    86.7,
+    42.8,
+    null,
+    {
+     "s": 0.93,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-hp-3-sc",
+    89.5,
+    42.9,
+    null,
+    {
+     "s": 1.05,
+     "f": 1
+    }
+   ],
+   [
+    "tk.cay-ngan-hanh-sc",
+    5.1,
+    43.3,
+    null,
+    {
+     "s": 0.91
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    91.4,
+    43.3,
+    null,
+    {
+     "s": 0.76
+    }
+   ],
+   [
+    "tk.cay-ngan-hanh-sc",
+    7.9,
+    43.4,
+    null,
+    {
+     "s": 0.92
+    }
+   ],
+   [
+    "tc.cay-bang-sc",
+    73.7,
+    43.4,
+    null,
+    {
+     "s": 0.97,
+     "f": 1
+    }
+   ],
+   [
+    "tc.tru-dat-sc",
+    10.7,
+    43.5,
+    null,
+    {
+     "s": 0.74
+    }
+   ],
+   [
+    "tc.nho-nv-1-sc",
+    28.5,
+    43.7,
+    null,
+    {
+     "s": 1.05
+    }
+   ],
+   [
+    "tc.da-hac-dieu-sc",
+    31.3,
+    43.7,
+    null,
+    {
+     "s": 0.77,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-nv-0-sc",
+    32.6,
+    43.7,
+    null,
+    {
+     "s": 0.93
+    }
+   ],
+   [
+    "tc.da-tuyet-sc",
+    75.6,
+    44.0,
+    null,
+    {
+     "s": 0.72,
+     "f": 1
+    }
+   ],
+   [
+    "chung.bien-go",
+    55.3,
+    44.3,
+    "→ Hàn Băng"
+   ],
+   [
+    "tc.tru-da-gay-sc",
+    87.3,
+    44.3,
+    null,
+    {
+     "s": 0.89
+    }
+   ],
+   [
+    "tc.nho-ht-3-sc",
+    14.3,
+    44.9,
+    null,
+    {
+     "s": 1.09,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-hu-khong-sc",
+    27.9,
+    45.0,
+    null,
+    {
+     "s": 0.77,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-thu-sc",
+    19.8,
+    45.4,
+    null,
+    {
+     "s": 0.92,
+     "f": 1
+    }
+   ],
+   [
+    "tc.tru-da-gay-sc",
+    73.1,
+    45.8,
+    null,
+    {
+     "s": 0.87
+    }
+   ],
+   [
+    "tc.da-den-sc",
+    91.4,
+    46.3,
+    null,
+    {
+     "s": 0.46,
+     "f": 1
+    }
+   ],
+   [
+    "tk.cay-ngan-hanh-sc",
+    9.1,
+    46.4,
+    null,
+    {
+     "s": 0.89
+    }
+   ],
+   [
+    "tc.tru-da-den-sc",
+    87.0,
+    46.6,
+    null,
+    {
+     "s": 0.9,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-thu-sc",
+    21.7,
+    46.7,
+    null,
+    {
+     "s": 0.49
+    }
+   ],
+   [
+    "tc.cay-hu-khong-sc",
+    30.6,
+    46.7,
+    null,
+    {
+     "s": 0.73,
+     "f": 1
+    }
+   ],
+   [
+    "tc.tru-dat-sc",
+    19.6,
+    47.1,
+    null,
+    {
+     "s": 0.66,
+     "f": 1
+    }
+   ],
+   [
+    "tc.tru-dat-cao-sc",
+    19.7,
+    47.3,
+    null,
+    {
+     "s": 0.7
+    }
+   ],
+   [
+    "tc.da-dat-set-sc",
+    6.6,
+    47.4,
+    null,
+    {
+     "s": 0.66
+    }
+   ],
+   [
+    "tc.cay-thu-sc",
+    22.2,
+    47.4,
+    null,
+    {
+     "s": 0.89
+    }
+   ],
+   [
+    "tc.tru-da-den-sc",
+    77.4,
+    47.4,
+    null,
+    {
+     "s": 0.87,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-thu-sc",
+    20.2,
+    47.6,
+    null,
+    {
+     "s": 0.92,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bo-lua-chin-sc",
+    10.5,
+    47.7,
+    null,
+    {
+     "s": 0.53,
+     "f": 1
+    }
+   ],
+   [
+    "tk.den-da-sc",
+    40.2,
+    47.7
+   ],
+   [
+    "tc.nho-ht-4-sc",
+    12.7,
+    47.8,
+    null,
+    {
+     "s": 0.91
+    }
+   ],
+   [
+    "tc.nho-hp-1-sc",
+    73.5,
+    47.8,
+    null,
+    {
+     "s": 1.03,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-kho-gio-sc",
+    89.0,
+    48.0,
+    null,
+    {
+     "s": 0.7
+    }
+   ],
+   [
+    "tc.da-dat-set-sc",
+    12.8,
+    48.1,
+    null,
+    {
+     "s": 0.56
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    75.9,
+    48.1,
+    null,
+    {
+     "s": 0.79
+    }
+   ],
+   [
+    "tc.tru-da-den-sc",
+    72.3,
+    48.6,
+    null,
+    {
+     "s": 0.86
+    }
+   ],
+   [
+    "tc.cay-thu-sc",
+    6.7,
+    48.7,
+    null,
+    {
+     "s": 0.87,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bo-lua-chin-sc",
+    23.7,
+    48.7,
+    null,
+    {
+     "s": 0.54,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-ht-3-sc",
+    26.7,
+    48.7,
+    null,
+    {
+     "s": 0.94
+    }
+   ],
+   [
+    "tc.bui-co-kho-sc",
+    73.5,
+    48.7,
+    null,
+    {
+     "s": 0.59,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-den-sc",
+    76.4,
+    48.7,
+    null,
+    {
+     "s": 0.46,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-hp-2-sc",
+    83.3,
+    48.7,
+    null,
+    {
+     "s": 1.07,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-dat-set-sc",
+    10.2,
+    48.8,
+    null,
+    {
+     "s": 0.64
+    }
+   ],
+   [
+    "tc.bui-thu-sc",
+    15.7,
+    48.8,
+    null,
+    {
+     "s": 0.51,
+     "f": 1
+    }
+   ],
+   [
+    "chung.bien-go",
+    39.1,
+    48.8,
+    "→ Hậu Thổ"
+   ],
+   [
+    "tc.cay-thu-sc",
+    4.0,
+    48.9
+   ],
+   [
+    "tc.tru-dat-sc",
+    17.2,
+    49.1,
+    null,
+    {
+     "s": 0.67
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    77.0,
+    49.2,
+    null,
+    {
+     "s": 0.81
+    }
+   ],
+   [
+    "tc.tru-dat-sc",
+    17.8,
+    49.5,
+    null,
+    {
+     "s": 0.63
+    }
+   ],
+   [
+    "tc.cay-kho-gio-sc",
+    93.8,
+    49.5,
+    null,
+    {
+     "s": 0.79
+    }
+   ],
+   [
+    "tc.bui-co-kho-sc",
+    84.4,
+    49.7,
+    null,
+    {
+     "s": 0.58
+    }
+   ],
+   [
+    "tc.nho-ht-3-sc",
+    5.2,
+    49.9,
+    null,
+    {
+     "s": 0.92
+    }
+   ],
+   [
+    "tc.nho-ht-2-sc",
+    20.7,
+    49.9,
+    null,
+    {
+     "s": 0.9,
+     "f": 1
+    }
+   ],
+   [
+    "tk.cay-ngan-hanh-sc",
+    20.6,
+    51.5,
+    null,
+    {
+     "s": 0.93,
+     "f": 1
+    }
+   ],
+   [
+    "chung.bien-go",
+    56.3,
+    51.5,
+    "→ Hắc Phong"
+   ],
+   [
+    "tk.cay-phong-sc",
+    6.1,
+    51.7,
+    null,
+    {
+     "s": 0.95
+    }
+   ],
+   [
+    "tc.bui-gai-sc",
+    73.6,
+    51.7,
+    null,
+    {
+     "s": 0.48
+    }
+   ],
+   [
+    "tc.nho-hp-1-sc",
+    91.4,
+    51.7,
+    null,
+    {
+     "s": 1.08
+    }
+   ],
+   [
+    "tc.nho-ht-1-sc",
+    21.2,
+    51.8,
+    null,
+    {
+     "s": 0.98,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-hp-4-sc",
+    75.3,
+    52.8,
+    null,
+    {
+     "s": 0.97
+    }
+   ],
+   [
+    "tc.bui-co-kho-sc",
+    68.3,
+    52.9,
+    null,
+    {
+     "s": 0.5,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-thu-sc",
+    14.8,
+    53.8,
+    null,
+    {
+     "s": 0.52
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    92.1,
+    53.9,
+    null,
+    {
+     "s": 0.81,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-kho-gio-sc",
+    89.5,
+    54.2,
+    null,
+    {
+     "s": 0.71
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    93.1,
+    54.3,
+    null,
+    {
+     "s": 0.83,
+     "f": 1
+    }
+   ],
+   [
+    "chung.bien-go",
+    42.7,
+    55.3,
+    "→ Thiên Kim"
+   ],
+   [
+    "tc.bui-gai-sc",
+    80.4,
+    55.6,
+    null,
+    {
+     "s": 0.54
+    }
+   ],
+   [
+    "tc.nho-hp-3-sc",
+    77.6,
+    55.9,
+    null,
+    {
+     "s": 0.93,
+     "f": 1
+    }
+   ],
+   [
+    "chung.bien-go",
+    50.7,
+    56.5,
+    "→ Thanh Mộc"
+   ],
+   [
+    "tc.nho-ht-0-sc",
+    8.4,
+    56.8,
+    null,
+    {
+     "s": 1.02,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-hp-3-sc",
+    79.2,
+    56.9,
+    null,
+    {
+     "s": 0.99,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-tkim-2-sc",
+    39.5,
+    58.6,
+    null,
+    {
+     "s": 0.91
+    }
+   ],
+   [
+    "tc.bui-thu-sc",
+    10.2,
+    58.7,
+    null,
+    {
+     "s": 0.48,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-tkim-0-sc",
+    40.4,
+    59.6,
+    null,
+    {
+     "s": 0.94
+    }
+   ],
+   [
+    "tc.tru-dat-cao-sc",
+    9.5,
+    59.7,
+    null,
+    {
+     "s": 0.69
+    }
+   ],
+   [
+    "tc.nho-hp-4-sc",
+    70.4,
+    59.7,
+    null,
+    {
+     "s": 1.01
+    }
+   ],
+   [
+    "tc.nho-tm-3-sc",
+    60.3,
+    60.6,
+    null,
+    {
+     "s": 1.09
+    }
+   ],
+   [
+    "tc.tru-dat-sc",
+    20.9,
+    61.0,
+    null,
+    {
+     "s": 0.74
+    }
+   ],
+   [
+    "tc.tru-dat-cao-sc",
+    10.3,
+    61.5,
+    null,
+    {
+     "s": 0.7,
+     "f": 1
+    }
+   ],
+   [
+    "tk.cay-co-thu-sc",
+    47.0,
+    61.6,
+    null,
+    {
+     "s": 0.94,
+     "f": 1
+    }
+   ],
+   [
+    "tk.cay-ngan-hanh-sc",
+    17.7,
+    61.8,
+    null,
+    {
+     "s": 0.83
+    }
+   ],
+   [
+    "tc.cay-thu-sc",
+    11.3,
+    62.2,
+    null,
+    {
+     "s": 0.83,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-hp-4-sc",
+    82.5,
+    62.8,
+    null,
+    {
+     "s": 1.03,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-tkim-2-sc",
+    36.3,
+    62.9,
+    null,
+    {
+     "s": 0.93,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-dat-set-sc",
+    11.6,
+    63.4,
+    null,
+    {
+     "s": 0.64
+    }
+   ],
+   [
+    "tk.co-thu-lon-sc",
+    47.7,
+    63.6,
+    null,
+    {
+     "s": 0.68,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-thu-sc",
+    11.5,
+    63.7,
+    null,
+    {
+     "s": 0.52,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-sa-mac-sc",
+    41.4,
+    63.8,
+    null,
+    {
+     "s": 0.42,
+     "f": 1
+    }
+   ],
+   [
+    "tc.tru-da-gay-sc",
+    78.9,
+    64.1,
+    null,
+    {
+     "s": 0.89,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nam-tim-to-sc",
+    61.2,
+    64.8,
+    null,
+    {
+     "s": 0.93,
+     "f": 1
+    }
+   ],
+   [
+    "tk.cay-co-thu-sc",
+    51.7,
+    65.2,
+    null,
+    {
+     "s": 1.01
+    }
+   ],
+   [
+    "tc.da-dat-set-sc",
+    20.1,
+    65.4,
+    null,
+    {
+     "s": 0.6,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-reu-xanh-sc",
+    52.6,
+    65.4,
+    null,
+    {
+     "s": 0.7
+    }
+   ],
+   [
+    "tk.cay-co-thu-sc",
+    48.9,
+    65.5,
+    null,
+    {
+     "s": 1.09
+    }
+   ],
+   [
+    "tc.tru-dat-cao-sc",
+    19.3,
+    65.7,
+    null,
+    {
+     "s": 0.68,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    86.1,
+    66.4,
+    null,
+    {
+     "s": 0.9
+    }
+   ],
+   [
+    "tc.tru-da-den-sc",
+    84.6,
+    66.6,
+    null,
+    {
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-tm-4-sc",
+    58.4,
+    66.7,
+    null,
+    {
+     "s": 0.93
+    }
+   ],
+   [
+    "tc.nho-hp-0-sc",
+    87.3,
+    66.9,
+    null,
+    {
+     "s": 0.99,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-ho-duong-nho-sc",
+    30.8,
+    67.1,
+    null,
+    {
+     "s": 1.01,
+     "f": 1
+    }
+   ],
+   [
+    "tc.tru-da-den-sc",
+    87.8,
+    67.1,
+    null,
+    {
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-tkim-4-sc",
+    31.5,
+    67.7,
+    null,
+    {
+     "s": 0.99,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-sa-mac-sc",
+    27.2,
+    67.8,
+    null,
+    {
+     "s": 0.5
+    }
+   ],
+   [
+    "tc.kiem-co-cat-sc",
+    29.7,
+    67.9,
+    null,
+    {
+     "s": 0.64,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nam-tim-to-sc",
+    65.1,
+    68.0,
+    null,
+    {
+     "s": 0.93,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-ho-duong-nho-sc",
+    34.3,
+    68.2,
+    null,
+    {
+     "s": 0.97
+    }
+   ],
+   [
+    "tk.bui-co-cao-sc",
+    36.1,
+    68.5
+   ],
+   [
+    "tc.nam-tim-to-sc",
+    61.3,
+    68.6,
+    null,
+    {
+     "s": 0.88,
+     "f": 1
+    }
+   ],
+   [
+    "tk.bui-duong-xi-sc",
+    62.5,
+    68.6,
+    null,
+    {
+     "s": 0.72,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nam-tim-to-sc",
+    49.3,
+    69.0,
+    null,
+    {
+     "s": 0.84
+    }
+   ],
+   [
+    "tc.cay-rung-sc",
+    72.8,
+    69.5,
+    null,
+    {
+     "s": 1.02
+    }
+   ],
+   [
+    "tc.cay-chay-mai-sc",
+    85.6,
+    69.7,
+    null,
+    {
+     "s": 0.9,
+     "f": 1
+    }
+   ],
+   [
+    "tc.bui-sa-mac-sc",
+    43.7,
+    69.8,
+    null,
+    {
+     "s": 0.44
+    }
+   ],
+   [
+    "tc.nho-hp-1-sc",
+    85.5,
+    69.8,
+    null,
+    {
+     "s": 0.95
+    }
+   ],
+   [
+    "tc.nho-tm-4-sc",
+    54.3,
+    69.9,
+    null,
+    {
+     "s": 1.01,
+     "f": 1
+    }
+   ],
+   [
+    "tk.cay-co-thu-sc",
+    74.4,
+    69.9,
+    null,
+    {
+     "s": 0.99
+    }
+   ],
+   [
+    "tk.kiem-da-1-sc",
+    41.1,
+    70.2,
+    null,
+    {
+     "s": 0.72,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-reu-xanh-sc",
+    51.6,
+    70.6,
+    null,
+    {
+     "s": 0.72
+    }
+   ],
+   [
+    "tk.bui-duong-xi-sc",
+    68.3,
+    70.7,
+    null,
+    {
+     "s": 0.71,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-tm-1-sc",
+    66.5,
+    70.8,
+    null,
+    {
+     "s": 1.01
+    }
+   ],
+   [
+    "tc.nam-lam-to-sc",
+    57.8,
+    71.3,
+    null,
+    {
+     "s": 0.91
+    }
+   ],
+   [
+    "tk.bui-co-cao-sc",
+    32.2,
+    71.4
+   ],
+   [
+    "tc.nho-tkim-1-sc",
+    43.7,
+    71.9,
+    null,
+    {
+     "s": 0.96
+    }
+   ],
+   [
+    "tk.bui-duong-xi-sc",
+    73.5,
+    71.9,
+    null,
+    {
+     "s": 0.77
+    }
+   ],
+   [
+    "tk.kiem-da-2-sc",
+    46.3,
+    72.0,
+    null,
+    {
+     "s": 0.79
+    }
+   ],
+   [
+    "tc.da-quang-vang-sc",
+    41.9,
+    72.4,
+    null,
+    {
+     "s": 0.58,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-tkim-1-sc",
+    31.4,
+    72.7,
+    null,
+    {
+     "s": 1.01
+    }
+   ],
+   [
+    "tc.nam-tim-to-sc",
+    77.2,
+    72.8,
+    null,
+    {
+     "s": 0.82,
+     "f": 1
+    }
+   ],
+   [
+    "tk.kiem-da-2-sc",
+    41.1,
+    73.7,
+    null,
+    {
+     "s": 0.8,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nam-tim-to-sc",
+    74.0,
+    73.7,
+    null,
+    {
+     "s": 0.96
+    }
+   ],
+   [
+    "tc.da-quang-vang-sc",
+    42.7,
+    73.8,
+    null,
+    {
+     "s": 0.56,
+     "f": 1
+    }
+   ],
+   [
+    "tk.kiem-da-2-sc",
+    44.6,
+    74.7,
+    null,
+    {
+     "s": 0.77,
+     "f": 1
+    }
+   ],
+   [
+    "tk.kiem-da-2-sc",
+    40.9,
+    75.0,
+    null,
+    {
+     "s": 0.77,
+     "f": 1
+    }
+   ],
+   [
+    "tc.kiem-co-cat-sc",
+    26.5,
+    75.1,
+    null,
+    {
+     "s": 0.67
+    }
+   ],
+   [
+    "tc.nam-lam-to-sc",
+    77.1,
+    75.2,
+    null,
+    {
+     "s": 0.89
+    }
+   ],
+   [
+    "tc.nho-tkim-0-sc",
+    23.6,
+    75.7,
+    null,
+    {
+     "s": 0.94,
+     "f": 1
+    }
+   ],
+   [
+    "tk.kiem-da-2-sc",
+    26.6,
+    75.8,
+    null,
+    {
+     "s": 0.78
+    }
+   ],
+   [
+    "tc.bui-sa-mac-sc",
+    32.7,
+    75.8,
+    null,
+    {
+     "s": 0.49,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-tkim-3-sc",
+    25.3,
+    76.8,
+    null,
+    {
+     "s": 0.91,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-ht-2-sc",
+    16.4,
+    76.9,
+    null,
+    {
+     "s": 0.94,
+     "f": 1
+    }
+   ],
+   [
+    "tk.kiem-da-2-sc",
+    24.6,
+    77.2,
+    null,
+    {
+     "s": 0.78,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nam-tim-to-sc",
+    56.0,
+    77.4,
+    null,
+    {
+     "s": 0.84,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-tm-2-sc",
+    51.2,
+    77.7,
+    null,
+    {
+     "s": 0.98,
+     "f": 1
+    }
+   ],
+   [
+    "tk.co-thu-lon-sc",
+    70.6,
+    77.7,
+    null,
+    {
+     "s": 0.64,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-ho-duong-nho-sc",
+    21.4,
+    77.8,
+    null,
+    {
+     "s": 1.1
+    }
+   ],
+   [
+    "tc.kiem-co-cat-sc",
+    36.9,
+    77.8,
+    null,
+    {
+     "s": 0.57,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-reu-xanh-sc",
+    68.1,
+    77.8,
+    null,
+    {
+     "s": 0.75
+    }
+   ],
+   [
+    "tc.bui-sa-mac-sc",
+    27.7,
+    77.9,
+    null,
+    {
+     "s": 0.48,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-tkim-4-sc",
+    45.6,
+    77.9,
+    null,
+    {
+     "s": 1.03
+    }
+   ],
+   [
+    "tc.cay-rung-sc",
+    50.1,
+    78.3,
+    null,
+    {
+     "s": 1.09,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-rung-sc",
+    53.4,
+    78.3,
+    null,
+    {
+     "s": 1.02,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-ho-duong-nho-sc",
+    35.7,
+    78.4,
+    null,
+    {
+     "s": 1.01,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-tkim-4-sc",
+    26.3,
+    78.7
+   ],
+   [
+    "tc.nho-tm-3-sc",
+    52.7,
+    78.7,
+    null,
+    {
+     "s": 1.09
+    }
+   ],
+   [
+    "tc.nho-tkim-4-sc",
+    38.5,
+    78.8,
+    null,
+    {
+     "s": 0.94
+    }
+   ],
+   [
+    "tk.kiem-da-2-sc",
+    40.6,
+    78.8,
+    null,
+    {
+     "s": 0.79
+    }
+   ],
+   [
+    "tc.bui-sa-mac-sc",
+    22.6,
+    78.9,
+    null,
+    {
+     "s": 0.47
+    }
+   ],
+   [
+    "tc.nho-tm-3-sc",
+    68.3,
+    78.9,
+    null,
+    {
+     "s": 1.04
+    }
+   ],
+   [
+    "tc.nam-lam-to-sc",
+    51.9,
+    79.8,
+    null,
+    {
+     "s": 0.9
+    }
+   ],
+   [
+    "tc.nho-tm-3-sc",
+    72.5,
+    79.9,
+    null,
+    {
+     "s": 1.08,
+     "f": 1
+    }
+   ],
+   [
+    "tc.kiem-co-cat-sc",
+    25.6,
+    80.0,
+    null,
+    {
+     "s": 0.63,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-ho-duong-nho-sc",
+    38.2,
+    80.4,
+    null,
+    {
+     "s": 1.1,
+     "f": 1
+    }
+   ],
+   [
+    "tk.bui-duong-xi-sc",
+    65.7,
+    80.7,
+    null,
+    {
+     "s": 0.73,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-tm-1-sc",
+    66.6,
+    80.7,
+    null,
+    {
+     "s": 0.93
+    }
+   ],
+   [
+    "tc.nam-tim-to-sc",
+    64.7,
+    80.9,
+    null,
+    {
+     "s": 0.99,
+     "f": 1
+    }
+   ],
+   [
+    "tk.kiem-da-2-sc",
+    24.4,
+    81.2,
+    null,
+    {
+     "s": 0.8
+    }
+   ],
+   [
+    "tk.kiem-da-2-sc",
+    30.4,
+    81.2,
+    null,
+    {
+     "s": 0.74,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nam-lam-to-sc",
+    64.6,
+    81.3,
+    null,
+    {
+     "s": 0.87,
+     "f": 1
+    }
+   ],
+   [
+    "tk.cay-co-thu-sc",
+    65.6,
+    81.6,
+    null,
+    {
+     "s": 1.01,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-ho-duong-nho-sc",
+    22.1,
+    81.8,
+    null,
+    {
+     "s": 1.1
+    }
+   ],
+   [
+    "tk.kiem-da-1-sc",
+    37.3,
+    82.0,
+    null,
+    {
+     "s": 0.78
+    }
+   ],
+   [
+    "tc.cay-rung-sc",
+    69.3,
+    83.1,
+    null,
+    {
+     "s": 1.08
+    }
+   ],
+   [
+    "tk.kiem-da-2-sc",
+    20.6,
+    84.3,
+    null,
+    {
+     "s": 0.8,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nho-tm-0-sc",
+    54.4,
+    84.6,
+    null,
+    {
+     "s": 0.96,
+     "f": 1
+    }
+   ],
+   [
+    "tk.co-thu-lon-sc",
+    57.0,
+    84.6,
+    null,
+    {
+     "s": 0.65,
+     "f": 1
+    }
+   ],
+   [
+    "tk.bui-duong-xi-sc",
+    58.7,
+    84.7,
+    null,
+    {
+     "s": 0.76
+    }
+   ],
+   [
+    "tc.nam-lam-to-sc",
+    55.6,
+    85.9,
+    null,
+    {
+     "s": 0.94,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nam-lam-to-sc",
+    58.2,
+    86.2,
+    null,
+    {
+     "s": 0.8
+    }
+   ],
+   [
+    "tc.nam-tim-to-sc",
+    56.3,
+    86.3,
+    null,
+    {
+     "s": 0.86
+    }
+   ],
+   [
+    "tc.nho-tm-2-sc",
+    59.3,
+    86.7,
+    null,
+    {
+     "s": 0.94,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nam-tim-to-sc",
+    57.1,
+    87.0,
+    null,
+    {
+     "s": 0.83,
+     "f": 1
+    }
+   ],
+   [
+    "tc.nam-tim-to-sc",
+    68.9,
+    87.3,
+    null,
+    {
+     "s": 0.87,
+     "f": 1
+    }
+   ],
+   [
+    "tc.kiem-co-cat-sc",
+    29.7,
+    87.4,
+    null,
+    {
+     "s": 0.62
+    }
+   ],
+   [
+    "tk.co-thu-lon-sc",
+    66.4,
+    87.4,
+    null,
+    {
+     "s": 0.62,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-ho-duong-nho-sc",
+    34.3,
+    87.5,
+    null,
+    {
+     "s": 1.03
+    }
+   ],
+   [
+    "tc.nho-tkim-4-sc",
+    29.7,
+    87.6,
+    null,
+    {
+     "s": 0.99
+    }
+   ],
+   [
+    "tk.kiem-da-1-sc",
+    30.3,
+    87.8,
+    null,
+    {
+     "s": 0.79,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-ho-duong-nho-sc",
+    36.5,
+    88.2,
+    null,
+    {
+     "s": 0.92,
+     "f": 1
+    }
+   ],
+   [
+    "tk.co-thu-lon-sc",
+    57.3,
+    88.8,
+    null,
+    {
+     "s": 0.8,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-quang-vang-sc",
+    31.7,
+    89.0,
+    null,
+    {
+     "s": 0.62,
+     "f": 1
+    }
+   ],
+   [
+    "tc.da-quang-vang-sc",
+    36.2,
+    89.1,
+    null,
+    {
+     "s": 0.57
+    }
+   ],
+   [
+    "tc.cay-rung-sc",
+    58.6,
+    89.5,
+    null,
+    {
+     "s": 1.13,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-ho-duong-sc",
+    29.9,
+    90.2,
+    null,
+    {
+     "s": 0.79,
+     "f": 1
+    }
+   ],
+   [
+    "tc.kiem-co-cat-sc",
+    34.4,
+    91.1,
+    null,
+    {
+     "s": 0.69
+    }
+   ],
+   [
+    "tk.kiem-da-2-sc",
+    34.5,
+    91.8,
+    null,
+    {
+     "s": 0.77,
+     "f": 1
+    }
+   ],
+   [
+    "tc.cay-rung-sc",
+    58.4,
+    92.4,
+    null,
+    {
+     "s": 1.15
+    }
+   ]
+  ]
+ },
+ "moc": {
+  "phap-tran": [
+   48,
+   48
+  ],
+  "ben-cau": [
+   69,
+   31
+  ]
+ }
+}

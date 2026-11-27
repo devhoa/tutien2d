@@ -1,0 +1,184 @@
+{
+ "_note": "PvP (chủ dự án 06/11/2026 09:06, 09:37): chỉ ở Ngoại Vực Vết Nứt (server.map), chỉ khi cả hai đều tắt bảo vệ, chỉ tính khi đứng trong tầm (server.range đơn vị bản đồ = 10 ô). Ai cũng đánh được ai miễn tắt bảo vệ. Máy chủ phòng Cloudflare làm trọng tài (cloud/src/pvp.js, bản sao số ở cloud/src/mang-cfg.js PVP): máu PvP = max(lực chiến, pw_min) × hp_k, mỗi đòn = max(lực chiến người đánh, pw_min) × dps_k × giây từ đòn trước (tối đa dt_max, nhịp tối thiểu gap_s) → hai người ngang lực chiến hạ nhau trong khoảng hp_k/dps_k = 20 giây. regen_s giây không trúng đòn PvP thì máu PvP đầy lại. Khiên (bảo vệ) chỉ bật lại khi chết hồi sinh (chủ dự án 06/11/2026 10:49); trạng thái khiên giữ ở lõi Mang theo tài khoản nên đổi tuyến, ra vào bản đồ không bật lại được. Khiên hiện và tắt được ở mọi nơi (chủ dự án 06/11/2026 10:56), nhưng chỉ Ngoại Vực đánh nhau được. Nút tắt khiên là biểu tượng ngay sau tên trên đầu nhân vật (src/ui/pvp-btn.js), có bảng xác nhận; người khác thấy 🛡/⚔ sau tên mình. Gục: về điểm hồi sinh, bảo vệ bật lại, immune_s giây không tắt được. Rơi đồ (Supabase p2d_pvp_tra, migration 20261106020000): 10% Linh Thạch + 1 món ngẫu nhiên trong túi không đang mặc, hoặc 10% (ít nhất 1) của một loại nguyên liệu, gửi Hòm thư người hạ. Cùng một cặp chỉ tính một lần mỗi giờ; bên nào cờ đỏ thì đồ rơi bị huỷ. Chủ dự án 19/11/2026 16:18–16:25: PK được ở MỌI tinh cầu khi cả hai tắt khiên, trừ trong vòng pháp trận Thiên Kiếm Tinh (server.safe: tâm và bán kính đơn vị bản đồ, tools/the-gioi/tk_moi.py TRAN; cả người đánh lẫn người bị đánh đứng trong vòng thì không tính). Ngoài Ngoại Vực (server.map) khiên tự bật lại sau reshield_s giây không giao chiến; ở Ngoại Vực khiên vẫn chỉ bật lại khi chết. Rơi đồ (drop, máy chủ p2d_pvp_tra đọc theo nơi gục): Ngoại Vực 10% Linh Thạch + 1 món như cũ; nơi khác 5% Linh Thạch, không mất món. Không bảo vệ người mới, không giới hạn chênh cảnh giới (23/11/2026: hạ người kém một đại cảnh giới thì không ai mất, được gì, xem _yeu). Cờ đỏ: đồ rơi bị huỷ, người gục vẫn mất. 20/11/2026 (bài thử đánh thật hai tài khoản trên game chỉ được 9/16 đòn = 56%): trọng tài xét theo thứ NGƯỜI ĐÁNH THẤY trên màn hình. (1) Tin đòn đánh kèm vị trí người đánh lúc ra đòn, máy chủ phòng xét tầm theo đó. (2) lag_s: bù trễ mạng cho mục tiêu, tính bằng giây; hình người khác trên máy mình cũ khoảng 0,5–0,8 giây (trễ mạng + gom lô 200 ms + đi mượt), nên trong lag_s giây vừa qua mục tiêu TỪNG ở trong tầm là tính (đuổi đánh người bỏ chạy: trước đó 0% đòn được tính); riêng vòng pháp trận xét vị trí mới nhất, bước vào là an toàn ngay. (3) gap_tol_s: mạng chập chờn làm hai đòn tới phòng sát nhau hơn lúc gửi, đòn tới sớm hơn gap_s tối đa gap_tol_s vẫn tính; sát thương mỗi đòn theo số giây từ đòn trước nên gửi dày không lợi gì. (4) range_tol: phần dư của tầm ở máy chủ (đơn vị bản đồ) cho hình đi mượt cắt góc; máy khách vẫn chọn mục tiêu trong 95% range. (5) Người tắt khiên: chỗ đứng ghi kèm kết nối (tắt khiên cũng gửi kèm chỗ đứng), vì máy chủ phòng ngủ sau khoảng 10 giây vắng tin là quên vị trí, đứng yên sẽ không ai đánh trúng được. Đo và bài thử: tools/cloud/tai-chien.mjs (--kieu bam | ravao | duoi), tools/cloud/pvp.test.mjs.",
+ "server": {
+  "map": "vet-nut-ngoai",
+  "range": 160,
+  "gap_s": 0.5,
+  "gap_tol_s": 0.2,
+  "lag_s": 1,
+  "range_tol": 16,
+  "dt_max": 1.5,
+  "pb": {"_": "Đòn pháp bảo trúng người (CSKH #359 #395, 27/11/2026; cloud/src/pvp.js pvpPb): tầm range (Đại Ấn rơi xa 210), đòn vùng trúng tối đa max người (đòn bắn thẳng một người), mỗi người nhận như dt giây đánh thường, nhịp riêng gap_s giây, không ăn vào nhịp đánh thường.", "range": 230, "max": 3, "dt": 1.5, "gap_s": 6},
+  "dps_k": 0.1,
+  "hp_k": 2,
+  "pw_min": 100,
+  "regen_s": 10,
+  "immune_s": 10,
+  "safe": {
+   "map": "thien-kiem-phong",
+   "x": 1032,
+   "y": 1224,
+   "r": 100
+  },
+  "reshield_s": 600,
+  "ma": {
+   "tp": {
+    "chu_ky": 10,
+    "dao": 3
+   },
+   "min_tl": 4,
+   "co": {
+    "map": "thien-kiem-phong",
+    "x": 1900,
+    "y": 1228,
+    "r": 72,
+    "phut_s": 60
+   }
+  },
+  "na": {
+   "_": "Nguyên Anh (chủ dự án 27/11/2026 01:09–01:16; docs/21-NGUYEN-ANH.md): người có tổng tầng tu ≥ tl (Supabase báo, 27 = Nguyên Anh tầng 1) bị hạ lần đầu thì hoá Nguyên Anh, không tính là bị giết (không ai mất gì, người hạ không được tính), miễn mọi đòn giu_s giây; bấm Tái tạo (tin 'ta') thì chỉ còn miễn an_s giây; lá chắn hồi hoi_s giây. Hạ tiếp trong lúc lá chắn đang hồi mới tính là chết như cũ. Thiên phạt (thien-phat.js) không qua lá chắn.",
+   "tl": 27,
+   "hoi_s": 300,
+   "giu_s": 30,
+   "an_s": 1
+  }
+ },
+ "mail": {
+  "pvp_ha": "Chiến lợi phẩm PvP",
+  "ma_ha": "Linh Thạch ma hoá (Hóa ma)",
+  "ma_diet": "Chiến lợi phẩm tịnh hoá",
+  "lt_nhat": "Túi Linh Thạch nhặt được"
+ },
+ "text": {
+  "on": "Còn khiên: không ai đánh được bạn",
+  "off": "Đã tắt khiên: đánh và bị đánh được",
+  "turned_off": "Đã tắt khiên: ai tắt khiên đều đánh được bạn (trừ trong vòng pháp trận Thiên Kiếm Tinh).",
+  "turned_on": "Khiên đã bật lại.",
+  "immune": "Vừa hồi sinh, {s} giây nữa mới tắt khiên được.",
+  "map": "Chỉ tắt khiên được ở Ngoại Vực Vết Nứt.",
+  "offline": "Cần đăng nhập và có mạng để PvP.",
+  "killed": "Bạn bị {name} đánh bại!",
+  "lost": "Mất {lt} Linh Thạch{item}.",
+  "lost_item": " và {name}",
+  "kill": "Bạn đánh bại {name}!",
+  "saw_kill": "{a} đánh bại {b}",
+  "ask": "Bạn có muốn tắt khiên không?",
+  "ask_note": "Tắt khiên thì người khác cũng tắt khiên đánh được bạn ở mọi tinh cầu, chỉ vòng pháp trận Thiên Kiếm Tinh là an toàn. Gục ở Ngoại Vực Vết Nứt rơi 1 món trong túi (đồ đang mặc không mất) và 10% Linh Thạch; nơi khác mất 5% Linh Thạch. Ngoài Ngoại Vực, 10 phút không giao chiến thì khiên tự bật lại.",
+  "yes": "Tắt khiên",
+  "no": "Thôi",
+  "only_death": "Ở Ngoại Vực Vết Nứt khiên chỉ bật lại khi bạn gục rồi hồi sinh.",
+  "wait_on": "Còn {s} giây không giao chiến thì khiên tự bật lại.",
+  "safe": "Vòng pháp trận: an toàn, không ai đánh được.",
+  "zone_pk": "Ra khỏi vòng pháp trận: đã tắt khiên, có thể bị đánh.",
+  "ma_btn": "Hóa ma",
+  "ma_ask": "Hóa ma?",
+  "ma_note": "Ma khí nhập thể: bạn đánh được mọi người không phải ma, kể cả người còn khiên (trừ người Luyện Khí tầng 1–4 và trong vòng pháp trận Thiên Kiếm Tinh). Ai cũng đánh được bạn. Hóa ma được 1 điểm ma, mỗi người bạn ma hoá +3, mỗi lần bị tịnh hoá −1, về 0 mới thành người thường. Bị tịnh hoá: mất 1% Linh Thạch về tay người tịnh hoá và 1% tu vi, tu vi không đủ thì tụt một tầng. Ma hoá người: họ mất 2% Linh Thạch về tay bạn, tối đa 10 người mỗi ngày.",
+  "ma_yes": "Hóa ma!",
+  "ma_moi": "Luyện Khí tầng 5 trở lên mới hóa ma được.",
+  "ma_khong_bat": "Đang là ma: bị tịnh hoá đủ {n} lần nữa mới trở lại làm người.",
+  "ma_loi": "Ma khí chưa nhập được (mạng chập chờn). Thử lại sau.",
+  "turned_ma": "Đã hóa ma! Điểm ma: {n}.",
+  "ma_tag": "Ma · {n}",
+  "ma_kill": "Ma hoá {name}! Điểm ma {n}.",
+  "thu_cho": "Chiến lợi phẩm đang về Hòm thư…",
+  "thien_phat_bao": "Thiên Kiếm Tinh không dung ma khí: cứ {s} giây một đạo thiên phạt, đạo sau nặng hơn đạo trước. Rời khỏi đây, hoặc tới ngồi dưới Cổ Thụ Ngàn Năm mà sám hối.",
+  "thien_phat_guc": "Thiên phạt đánh tan thân ma. Điểm ma còn {n}.",
+  "lt_roi_dat": "Linh Thạch của ma rơi xuống đất, ai nhặt được là của người đó.",
+  "lt_nhat": "Nhặt được túi {so} Linh Thạch.",
+  "ma_lost_dat": "Mất {lt} Linh Thạch (rơi xuống đất)",
+  "ma_bi_day": "Ma khí bị Thiên Kiếm Tinh đẩy đi: hồn bạn trôi tới {name}.",
+  "ma_bi_day_bay": "Hồn ma trôi tới {name}",
+  "thu_het": "Hôm nay đã thu đủ {n} lượt Linh Thạch ma hoá, lần này chỉ cộng điểm ma.",
+  "thu_lt": "{head}: {got} từ {name}.",
+  "thu_chua": "Chưa có chiến lợi phẩm từ {name}: họ có thể đã thoát game (vào lại là tự về Hòm thư của bạn) hoặc không còn Linh Thạch để rơi.",
+  "ma_killed": "Bạn bị ma nhân {name} ma hoá!",
+  "yeu_ke": "Đạo hữu này kém bạn một đại cảnh giới: hạ được nhưng không có chiến lợi phẩm.",
+  "yeu_ma": "Người này kém bạn một đại cảnh giới: không cộng điểm ma, không có Linh Thạch.",
+  "yeu_nan": "Kẻ hơn bạn một đại cảnh giới nên không lấy được gì của bạn.",
+  "ma_diet": "Tịnh hoá ma nhân {name}! Công đức +1.",
+  "ma_bi_diet": "Bạn bị {name} tịnh hoá. Điểm ma còn {n}.",
+  "ma_het": "Ma khí tan hết. Bạn đã trở lại làm người.",
+  "ma_lost": "Mất {lt} Linh Thạch",
+  "ma_lost_tv": " và 1% tu vi",
+  "ma_tut": ", tụt xuống {canh}",
+  "moi_bao_ve": "Người mới (Luyện Khí 1–4): ma không đánh được bạn.",
+  "ma_chu": [
+   "Ma khí nhập thể,",
+   "đạo tâm hóa đen."
+  ],
+  "ma_chu_lenh": "Ma",
+  "diet_chu": "Tịnh hoá: {name}.",
+  "diet_chu2": "Công đức +1.",
+  "ve_nguoi_chu": "Ma khí tan. Trở lại làm người.",
+  "ma_hoi_sinh": "Ma khí kéo hồn bạn tới một nơi hoang vắng xa làng.",
+  "anh_ke": "{name} hoá Nguyên Anh thoát thân. Hạ thêm lần nữa mới tính.",
+  "anh_thay": "{name} hoá Nguyên Anh thoát thân."
+ },
+ "drop": {
+  "ngoai": {
+   "lt": 0.1,
+   "item": true
+  },
+  "thuong": {
+   "lt": 0.05,
+   "item": false
+  }
+ },
+ "_yeu": "Đánh người yếu hơn: đánh được, không có lợi (chủ dự án 23/11/2026 20:4x, bảng chọn \"Đánh được, không có lợi\"; người chơi kêu người Kết Đan, chơi lâu PK người mới không cày được; số máy chủ 24 giờ: ma đồ sát 825 lần, 328 lần người cảnh giới cao hạ người thấp hơn; PvP thường Kim Đan hạ Trúc Cơ 211 lần). Kẻ hạ có đại cảnh giới (realm) cao hơn người gục từ yeu.cach trở lên thì vẫn đánh, vẫn hạ được, nhưng KHÔNG ai mất, được gì: PvP thường không ghi nợ (người gục không mất Linh Thạch, món); ma đồ sát không cộng điểm ma, không tính lượt thu ngày, không ghi nợ Linh Thạch. Diệt ma, thiên phạt, sám hối giữ như cũ (ma tự chọn làm ma). Máy chủ dữ liệu quyết theo cột canh_gioi lúc hạ (Supabase p2d_canh_hon trong p2d_pvp_ghi, p2d_ma_ghi; migration 20261123110000_p2d_ha_yeu_khong_loi.sql; dòng cấu hình 'ma' của p2d_ky_cfg có yeu do tools/ky-cfg.mjs ma dựng). Máy chủ phòng không đổi. Máy người chơi chỉ báo chữ theo cảnh giới người khác báo qua hồ sơ phòng (ri), src/game/pvp-yeu.js. cach 0: tắt luật. Đổi cach thì sửa cả chữ text.yeu_* (đang ghi \"một đại cảnh giới\").",
+ "yeu": {
+  "cach": 1
+ },
+ "_ma": "Hóa ma (chủ dự án 22/11/2026 01:54: \"Tắt khiên thêm 1 nút bên cạnh nữa, hoá ma! Lúc này có thể đồ sát mọi người, 2 người hoá ma thì sẽ k đồ sát nhau vì cùng loại. Mỗi lần hoá ma sẽ tích 1 điểm, khi bị giết sẽ trở thành người thường. Khi hoá ma giết 1 người thì sẽ tích 3 điểm ma hoá... Có thể giết cả người đang bật hoặc tắt khiên trừ người bật ma hoá. Và sẽ có thêm bảng xếp hạng ma hoá và công đức. Mỗi người giết 1 người bị ma hoá sẽ tích 1 điểm công đức... nếu họ có 189 điểm, họ chết 1 lần, bxh sẽ trừ 1 còn 188\"; bảng câu hỏi 02:0x). Luật: điểm ma = số lần phải chết (ma.diem: hóa ma hoa, mỗi người giết giet, mỗi lần chết chet; về 0 là người thường). Ma đánh được mọi người không phải ma, kể cả người còn khiên; người thường (còn khiên hay không) đánh được ma; hai ma không đánh nhau; người tổng tầng tu dưới server.ma.min_tl (4 = Luyện Khí tầng 5) không bị ma đánh, không đánh ma, chưa hóa ma được; vòng pháp trận Thiên Kiếm Tinh an toàn với tất cả; vừa hồi sinh immune_s giây không ai đánh được (kể cả ma). Ma không bật lại khiên được. Ma gục (bị người diệt, quái hạ hay tự ngã) trên tinh cầu ngoài trời thì hồi sinh ở chỗ ngẫu nhiên xa làng, mỗi lần một chỗ khác, không hỏi Về động phủ (chủ dự án 22/11/2026 03:17 \"quên mất chưa làm điểm hồi sinh cho người hoá ma\", bảng câu hỏi 03:2x: \"Chỗ ngẫu nhiên xa làng\", \"ma phải hồi sinh ở chỗ của ma\"; ma.hoi_sinh); bí cảnh, tháp, trong nhà, động phủ, đài so tài, độ kiếp hồi sinh như cũ. Mất (Supabase p2d_pvp_tra): ma bị diệt mất ma.mat.ma_lt Linh Thạch (gửi Hòm thư người diệt) và ma.mat.ma_tu_vi tu vi = phần trăm thanh linh khí của tầng đang ở (qiNeed), không đủ thì tụt một tầng; người bị ma đồ sát mất ma.mat.nguoi_lt Linh Thạch về tay ma, không mất tu vi; mỗi ngày (giờ Việt Nam) ma chỉ nhận Linh Thạch từ lt_ngay người đầu, từ người kế tiếp không ai mất gì (chủ dự án 02:04: \"người số 11 thì sẽ không còn nhận được linh thạch nữa\"). Công đức: mỗi lần diệt ma +1. Cùng một cặp ma hạ một người quá nghi_cap lần trong ngày thì ghi nghi vấn ma_cap để soát (không chặn). Máy chủ phòng: cloud/src/ma.js; Supabase: migration 20261122040000_p2d_hoa_ma.sql (bảng p2d_ma_hoa, hàm ký p2d_ma_ghi, dòng cấu hình 'ma' của p2d_ky_cfg do tools/ky-cfg.mjs ma dựng); máy người chơi: src/game/pvp.js, src/game/pvp-ma.js, src/ui/pvp-btn.js.",
+ "ma": {
+  "diem": {
+   "hoa": 1,
+   "giet": 3,
+   "chet": 1
+  },
+  "mat": {
+   "ma_lt": 0.01,
+   "ma_tu_vi": 0.01,
+   "nguoi_lt": 0.02
+  },
+  "lt_ngay": 10,
+  "tui": {
+   "r": 64
+  },
+  "_tui": "Túi Linh Thạch trên đất (chủ dự án 22/11/2026 11:4x, 16:14): ma gục vì bị diệt hoặc vì thiên phạt thì 1% Linh Thạch (mat.ma_lt) rơi thành túi ở chỗ gục, ai nhặt được là của người đó, không ai nhặt thì nằm mãi. r: người nhặt đứng cách túi không quá r đơn vị bản đồ (máy chủ phòng gửi chỗ đứng, Supabase p2d_lt_nhat xét; máy khách tự nhặt khi tới gần hơn nhiều). Màu cột sáng theo năm bậc Linh Thạch của triệu hồi (he-thong.json pool, bac), src/game/tui-lt.js.",
+  "thien_phat": {
+   "pct": 0.25,
+   "tang": 0.5,
+   "_": "Từ 22/11/2026 16:14 máy chủ phòng làm trọng tài (server.ma.tp: cứ chu_ky giây một đạo, đạo thứ dao là gục, cloud/src/thien-phat.js); máy khách nghe tin 'tp' vẽ sét, đạo chưa gục trừ pct × (1 + tang × (n − 1)) máu tối đa nhưng không làm gục. Bản trước: Chủ dự án 22/11/2026 11:4x: ma đứng trên Thiên Kiếm Tinh (server.safe.map) cứ chu_ky giây một đạo thiên phạt; đạo thứ n mất pct × (1 + tang × (n − 1)) máu tối đa (không trừ phòng ngự, trong vòng pháp trận cũng bị; AI chọn tăng dần để ma đứng lì uống đan không trụ lâu được: khoảng 30 giây là gục); ma gục ở đó hồi sinh ở tinh cầu khác (src/game/thien-phat.js, ghost.js afterGhost)."
+  },
+  "nghi_cap": 5,
+  "mau": "#ff4040",
+  "mau_dam": "#5a0a14",
+  "hoi_sinh": {
+   "_note": "Ma gục trên tinh cầu ngoài trời thì hồi sinh ở chỗ ngẫu nhiên xa làng (src/game/ma-hoi-sinh.js, gọi từ src/game/ghost.js maHoiSinh). Chọn trong các ô đi tới được từ điểm vào, cách mốc làng gần nhất (điểm vào, mọi điểm tới từ nơi khác, mốc có tên, cổng, NPC, vòng pháp trận server.safe) ít nhất min(xa, ti_le × khoảng cách xa nhất có được) ô; ưu tiên ô cách bãi quái quá bán kính bãi + quai ô nếu còn ít nhất it ô như vậy.",
+   "xa": 24,
+   "ti_le": 0.6,
+   "quai": 4,
+   "it": 40
+  },
+  "co_thu": {
+   "_note": "Cổ Thụ Ngàn Năm (chủ dự án 23/11/2026 15:33 + bảng câu hỏi): ma ngồi đả tọa trong vòng sáng quanh gốc (server.ma.co: tâm x, y, bán kính r đơn vị bản đồ, Thiên Kiếm Tinh) là sám hối: mỗi phut_s giây ngồi liền −1 điểm ma và gửi tu_vi (0,5%) thanh linh khí tầng đang ở lên cây (thiếu thì tụt tầng như khi bị diệt); bỏ dở giữ phần đã đủ phút. Trong vòng: thiên phạt dừng, không ai đánh ai. Người thường đả tọa trong vòng thì mỗi phút chia đều linh khí cây đang tích, mỗi người tối đa share × tốc độ chém quái mỗi phút của cảnh giới mình (farm_h ở config.meditate, như đả tọa thường: cộng hai thứ vẫn không nhanh hơn chém quái). Máy chủ phòng đếm phút (cloud/src/co-thu.js), Supabase giữ điểm ma, trừ tu vi (p2d_ma_ghi 'sh', p2d_pvp_tra nợ 'ma_sh'), giữ kho linh khí cây (p2d_co_thu) và chia (p2d_co_thu_hap, linh khí qua Hòm thư lý do co_thu). Đang sám hối thì đả tọa không tự sinh linh khí.",
+   "tu_vi": 0.005,
+   "share": 0.5,
+   "ten": "Cổ Thụ Ngàn Năm",
+   "text": {
+    "vao": "Vòng sáng Cổ Thụ Ngàn Năm: ở đây không ai đánh được ai. Ngồi đả tọa để hấp thu linh khí cây đang giữ ({lk}).",
+    "vao_ma": "Cổ Thụ Ngàn Năm che chở cả kẻ lạc đường: thiên phạt dừng, không ai đánh được ai. Ngồi đả tọa để sám hối, mỗi phút tan một điểm ma khí.",
+    "ra": "Rời vòng sáng Cổ Thụ.",
+    "ngoi": "Đả tọa dưới Cổ Thụ: mỗi phút chia nhau linh khí cây đang giữ ({lk}).",
+    "ngoi_ma": "Sám hối dưới Cổ Thụ: còn {n} điểm ma, khoảng {p} phút. Mỗi phút gửi một phần tu vi lên cây. Đứng dậy vẫn giữ phần đã ngồi.",
+    "so_sh": "Ma khí còn {n}",
+    "het_chu": [
+     "Ma khí tan dưới gốc cây.",
+     "Trấn Ma Kỷ chép: một người đã quay về."
+    ],
+    "qi": "linh khí Cổ Thụ",
+    "tut": "Tu vi gửi lên Cổ Thụ, tụt xuống {canh}"
+   }
+  }
+ }
+}

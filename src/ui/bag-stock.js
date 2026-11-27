@@ -1,0 +1,140 @@
+// Túi đồ → Ngọc và Nguyên liệu dạng lưới (chủ dự án 02/11/2026 13:38: "nhiều chữ quá, xếp thành lưới, ấn vào mới ra thông tin").
+// Mỗi ô: hình, tên, số lượng. Chạm ô thì tấm chi tiết trượt lên từ đáy túi (#bag-sheet, như trang bị): mô tả, nơi kiếm;
+// ngọc có thêm nút Ghép 3→1 và Ghép hết; đan dược (góp ý #53: dùng đan ngay trong túi, không phải về Lò đan) có nút Dùng.
+// st.stock = { kind: 'gem' | 'mat' | 'pill', id } là ô đang chọn.
+// Mỗi ô ghi data-pham = mã khung phẩm (line_tiers: luc lam tim cam vang do den) để bảng Nhân vật → Kho vẽ khung như ô trang bị
+// (chủ dự án 23/11/2026 12:43): nguyên liệu, cá theo cave.materials.*.pham, đan theo cave.pills.*.pham, ngọc theo cấp (items.gems.khung).
+import { gemMergeFee, gemInfo, statText } from '../game/items.js';
+import { kyMerge } from '../game/ky-ngoc.js';   // đã đăng nhập: máy chủ ghép ngọc
+import { el } from './bag-detail.js';
+import { gemText } from './hc-text.js';
+import { gemIcon } from './gem-icon.js';
+import { mungGemMerge } from './mung-them.js';   // màn mừng ghép ngọc (docs/10-CAI-HON.md việc 4b)
+import { usePill, qiPillLeft, qiPillRate } from '../game/cave.js';
+import { caUrl } from '../render/ca-hinh.js';
+
+const vn = n => Math.floor(n || 0).toLocaleString('vi-VN');
+
+function cell(sel, ico, name, sub, color, onPick, pham) {
+  const b = el('button', 'item stock' + (sel ? ' sel' : ''));
+  b.style.setProperty('--rar', color);
+  if (pham) b.dataset.pham = pham;
+  b.append(ico, el('b', null, name), el('small', null, sub));
+  b.onclick = onPick;
+  return b;
+}
+// nguyên liệu có hình (ui-vk-<id>, ảnh GPT chủ dự án 04/11/2026 11:43) thì hiện hình, chưa có thì ô màu như cũ
+let ART = {}, DATA = null;
+function matIco(m, id) {
+  const spr = id && ART['ui.vk-' + id], cu = !spr && id && DATA && caUrl(DATA, id), i = el('i', 'ico' + (spr || cu ? ' that' : ' mat-sq'));
+  if (spr) i.style.setProperty('--ic', `url("${spr.file}?v=${spr.v}")`);
+  else if (cu) { i.style.setProperty('--ic', `url("${cu}")`); i.style.imageRendering = 'pixelated'; }   // đồ câu chưa có ảnh GPT (render/ca-hinh.js)
+  else i.style.background = m.color || '#ccc';
+  return i;
+}
+
+// Mã khung phẩm thứ i (0 Phàm … 6 Thượng Cổ); ngọc: cấp từ mốc items.gems.khung[i] trở lên
+const phamId = (data, i) => { const L = data.items.line_tiers.list; return L[Math.max(0, Math.min(L.length - 1, i | 0))].id; };
+export const gemPham = (data, lv) => phamId(data, (data.items.gems.khung || [1]).filter(m => lv >= m).length - 1);
+
+// Ngọc: theo loại, cấp cao lên trước. pickSocket: đang chọn ngọc để khảm thì chạm là khảm luôn (onSocket)
+export function renderGemGrid(game, box, st, onPick, onSocket) {
+  const { data } = game, gems = game.save.gems;
+  const keys = Object.keys(gems).sort((a, b) => a.split(':')[0].localeCompare(b.split(':')[0]) || b.split(':')[1] - a.split(':')[1]);
+  for (const k of keys) {
+    const gi = gemInfo(data, k), color = data.items.gems.types[gi.type]?.color || '#ccc', lv = +k.split(':')[1];
+    const c = cell(st.stock?.id === k, gemIcon(game, k, 24, 'ico gem-ico'), `${gi.name}`, `×${vn(gems[k])} · ${gemText(data, k)}`, color,
+      () => (st.pickSocket ? onSocket(k) : onPick({ kind: 'gem', id: k })), gemPham(data, lv));
+    c.dataset.cap = lv;
+    box.append(c);
+  }
+  return keys.length;
+}
+
+// Nguyên liệu: chỉ món đang có, phẩm cao lên trước (chủ dự án 23/11/2026 12:43: "chỉ hiển thị cá đã câu được thôi"; luật 19/11 12:47
+// "cái gì chưa có thì không hiện"). fish: chỉ cá câu được (data/fishing.json → fish), không thì nguyên liệu trừ cá (04/11/2026 11:50). Trả số ô.
+export function renderMatGrid(game, box, st, onPick, fish = false) {
+  const { data } = game, M = data.cave.materials, have = game.save.mats || {}, F = data.fishing?.fish || {}; ART = data.art.sprites; DATA = data;
+  const cau = id => !!F[id] || ['chau', 'moi', 'can'].includes(M[id]?.loai);   // đồ câu: ở mục Cá riêng (src/ui/cau-view.js)
+  const ids = Object.keys(M).filter(id => cau(id) === fish && have[id] > 0)
+    .sort((a, b) => (M[b].pham || 0) - (M[a].pham || 0) || M[a].name.localeCompare(M[b].name, 'vi'));
+  for (const id of ids) box.append(cell(st.stock?.id === id, matIco(M[id], id), M[id].name, `×${vn(have[id])}`, M[id].color || '#ccc', () => onPick({ kind: 'mat', id }), phamId(data, M[id].pham)));
+  return ids.length;
+}
+
+// Mục Nguyên liệu / Cá chưa có món nào
+export const matEmpty = fish => (fish ? 'Chưa câu được cá nào. Câu ở sông, hồ, bến câu.' : 'Chưa có nguyên liệu. Quái rơi, dược viên trồng, Dược Thảo Thương bán.');
+
+// Đan dược đang có (save.pills)
+export function renderPillGrid(game, box, st, onPick) {
+  const P = game.data.cave.pills, have = game.save.pills || {}; ART = game.data.art.sprites; DATA = game.data;
+  const ids = Object.keys(have).filter(id => P[id] && !P[id].mon && have[id] > 0);   // món cá ở mục Cá → Món
+  if (!ids.length) { box.append(el('p', 'muted', 'Chưa có đan dược. Luyện ở mục Luyện đan hoặc mua ở Đan Dược Sư.')); return; }
+  for (const id of ids) box.append(cell(st.stock?.id === id, matIco(P[id], id), P[id].name, `×${vn(have[id])}`, P[id].color || '#ccc', () => onPick({ kind: 'pill', id }), phamId(game.data, P[id].pham)));
+}
+
+function pillSheet(game, k, box, head, txt, changed) {
+  const D = game.data, p = D.cave.pills[k], s = game.save, L = D.cave.qi_pill_day;
+  if (!p || !(s.pills?.[k] > 0)) return false;
+  txt.append(el('div', 'd-title', p.name), el('div', 'd-sub', `Đang có ${vn(s.pills[k])}`));
+  head.prepend(matIco(p, k));
+  box.append(head, el('div', 'd-line', p.desc || ''));
+  if (p.use?.qi && L) box.append(el('div', 'd-line', qiPillLeft(game) > 0 ? L.left.replace('{n}', qiPillLeft(game)) : `Đan độc: viên kế tiếp còn ${Math.round(qiPillRate(game) * 100)}% hiệu quả.`));
+  const row = el('div', 'd-primary'), b = el('button', 'act-btn primary', 'Dùng');
+  b.onclick = () => { const m = usePill(game, k); game.toast(m ? `${p.name}: ${m}` : 'Lúc này dùng không có tác dụng.', 2.2); if (m) { game.sfx('levelup'); changed(); } };
+  row.append(b); box.append(row);
+  const auto = k === D.cave.pill_button ? ['autoPillPct', 'máu'] : k === D.cave.mana_pill ? ['autoManaPct', 'linh lực'] : null;
+  if (auto) {   // góp ý #106: tự uống đan hồi máu khi máu dưới mức đã chọn; Hồi Linh Đan như vậy theo linh lực (04/11/2026)
+    const [key, what] = auto, ar = el('div', 'd-primary'), cur = s[key] || 0;
+    ar.append(el('small', 'muted', `Tự uống khi ${what} dưới:`));
+    for (const v of [0, 0.3, 0.5, 0.7]) {
+      const o = el('button', 'act-btn' + (cur === v ? ' primary' : ''), v ? `${v * 100}%` : 'Tắt');
+      o.onclick = () => { s[key] = v; game.persist(); changed(); };
+      ar.append(o);
+    }
+    box.append(ar);
+  }
+  return true;
+}
+
+// Tấm chi tiết của ô đang chọn; trả false khi không có ô nào
+export function renderStockSheet(game, st, box, changed, close) {
+  const { data } = game, s = game.save, k = st.stock?.id;
+  box.innerHTML = '';
+  if (!k) return false;
+  const head = el('div', 'd-head'), txt = el('div', 'd-name'), x = el('button', 'd-close', '✕');
+  x.setAttribute('aria-label', 'Đóng chi tiết'); x.onclick = close;
+  if (st.stock.kind === 'pill') { head.append(txt, x); return pillSheet(game, k, box, head, txt, changed); }
+  if (st.stock.kind === 'mat') {
+    const m = data.cave.materials[k];
+    if (!m) return false;
+    txt.append(el('div', 'd-title', m.name), el('div', 'd-sub', `Đang có ${vn(s.mats[k])}`));
+    head.append(matIco(m, k), txt, x);
+    box.append(head, el('div', 'd-line', m.desc || ''));
+    return true;
+  }
+  if (!(s.gems[k] > 0)) return false;
+  const gi = gemInfo(data, k), G = data.items.gems;
+  txt.append(el('div', 'd-title', gi.name), el('div', 'd-sub', `Đang có ${vn(s.gems[k])} · ${gemText(data, k)}`));
+  head.append(gemIcon(game, k, 40, 'ico gem-ico'), txt, x);
+  box.append(head, el('div', 'd-line', 'Khảm vào lỗ trên trang bị: chạm món đồ ở phần Trang bị, chọn lỗ trống rồi chọn ngọc.'));
+  if (gi.lv >= G.max_level) { box.append(el('div', 'd-line', 'Đã là cấp cao nhất.')); return true; }
+  const fee = gemMergeFee(data, gi.lv), row = el('div', 'd-primary');
+  const one = el('button', 'act-btn', `Ghép ${G.merge}→1 (${vn(fee)} ${data.shop.name})`);
+  one.disabled = s.gems[k] < G.merge || (s.lingshi || 0) < fee;
+  one.onclick = async () => { one.disabled = true; if (await kyMerge(game, k)) { game.sfx('levelup'); game.mung?.(mungGemMerge(game, k, 1)); } changed(); };
+  row.append(one);
+  const can = Math.min(Math.floor(s.gems[k] / G.merge), Math.floor((s.lingshi || 0) / fee));
+  if (can >= 2) {   // báo lỗi #35: ghép số lượng lớn một lần bấm, phí như ghép từng lần
+    const all = el('button', 'act-btn primary', `Ghép hết ×${can}`);
+    all.onclick = async () => {
+      all.disabled = true;
+      const n = await kyMerge(game, k, 0, can);
+      if (n) { game.sfx('levelup'); if (game.mung) game.mung(mungGemMerge(game, k, n)); else game.toast(`Đã ghép ${n} lần: +${n} ${gemInfo(data, `${gi.type}:${gi.lv + 1}`).name}`, 2); }
+      changed();
+    };
+    row.append(all);
+  }
+  box.append(row, el('div', 'd-line', `Cần ${G.merge} viên cùng loại cùng cấp. Ghép xong thành 1 viên cấp ${gi.lv + 1}.`));
+  return true;
+}

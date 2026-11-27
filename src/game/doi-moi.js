@@ -1,0 +1,32 @@
+// Đợt đổi mới 16/11/2026 (chủ dự án 21:57): Ngọc bội thành Pháp tượng, 4 thú cưỡi cũ bỏ thay 16 thú mới (đổi bằng Thú Lệnh), thời trang và
+// nhân vật cũ bỏ thay 16 trang phục mới. Bản lưu trên máy chủ do migration 20261116230000_p2d_doi_moi_trang_bi.sql đổi (ký lại món, đền bù
+// 4 thú mới ngẫu nhiên cho ai từng có thú cưỡi hoặc thời trang cũ, ghi danh sách vào denBu16). Ở đây đổi bản lưu trong máy (chơi thử, chưa
+// lưu máy chủ) cho khỏi lỗi, và báo một lần các thú đền bù.
+import { baseOf } from './inst.js';
+import { totalLayer } from './stats.js';
+export function doiMoi(game) {
+  const s = game.save, D = game.data, map = D.items.doi_ten || {};
+  // Huyền Vực Tỏa Hồn (Thân pháp) mở ở Trúc Cơ tầng 5 từ 22/11/2026 09:53; từ đợt Hắc Phong (22/11/2026) Mặc Ảnh dạy ở nhiệm vụ chính 50 (cờ
+  // tp-huyen-vuc). Bản lưu đã tới Trúc Cơ tầng 5 lúc chạy bản này lần đầu giữ thức đã có; xét một lần (cờ tp-hv-xet), lên tầng 5 sau đó thì theo truyện.
+  if (s.flags && !s.flags['tp-hv-xet']) { if (totalLayer(s, D.realms) >= 13) s.flags['tp-huyen-vuc'] = true; s.flags['tp-hv-xet'] = true; }
+  for (const it of s.bag || []) if (it && map[it.base] && typeof map[it.base] === 'string') it.base = map[it.base];
+  for (const k of Object.keys(s.mounts || {})) if (!D.pets.mounts[baseOf(k)]) delete s.mounts[k];   // bản thêm 'thú#xxxx' (src/game/inst.js)
+  for (const k of Object.keys(s.mountLine || {})) if (!D.pets.mounts[baseOf(k)]) delete s.mountLine[k];
+  if (s.mount && !D.pets.mounts[s.mount]) { const k = Object.keys(s.mounts || {})[0]; s.mount = k ? baseOf(k) : null; s.mountKey = k || null; s.ride = false; }
+  // Đồ hệ cũ hết chỗ dùng (chủ dự án 21/11/2026 01:3x: đổi ra Linh Thạch nửa giá): máy chủ đổi một lần và gửi Hòm thư (migration
+  // 20261121013000_p2d_doi_do_cu.sql). Ở đây chỉ bỏ khỏi bản lưu trong máy, kẻo máy đang mở bản cũ lưu đè số cũ lên.
+  for (const k of ['bi-kip-chieu', 'manh-phap-bao']) if (s.mats && k in s.mats) delete s.mats[k];
+  // Pháp bảo kiểu cũ rèn nhầm ở Lò rèn (CSKH #219, chủ dự án 25/11/2026: gỡ món, hoàn nguyên liệu Rèn tinh qua Hòm thư, máy chủ làm một lần).
+  // Ở đây chỉ bỏ khỏi túi trong máy, kẻo máy đang mở bản cũ lưu đè lại.
+  if (Array.isArray(s.bag)) s.bag = s.bag.filter(it => !(it && D.items.bases[it.base]?.slot === 'phap-bao' && !D.items.bases[it.base]?.dv));
+  if (Array.isArray(s.denBu16) && s.denBu16.length) {
+    const names = s.denBu16.map(id => D.pets.mounts[id]?.name).filter(Boolean).join(', ');
+    setTimeout(() => game.toast(`Đền bù đồ cũ: nhận ${s.denBu16.length} thú cưỡi mới (${names}). Bấm nút Cưỡi để lên thú.`, 6), 2500);
+    delete s.denBu16; game.persist?.();
+  }
+  if (Array.isArray(s.quaKL17) && s.quaKL17.length) {   // đồ cũ thành khôi lỗi (data/do-cu.json, migration 20261117010000_p2d_do_cu_khoi_loi.sql)
+    const names = s.quaKL17.map(id => D.npcs[id]?.name).filter(Boolean).join(', ');
+    setTimeout(() => game.toast(`Thời trang cũ của bạn thành khôi lỗi: ${names}. Mang theo ở Ngự Thú Sư.`, 6), 9000);
+    delete s.quaKL17; game.persist?.();
+  }
+}

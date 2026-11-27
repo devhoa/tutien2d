@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Đưa game lên Vercel (dự án pixel-2d-tu-tien, tên miền chính https://www.pixel2dtutien.com; *.vercel.app chuyển hướng về đó từ 12/11/2026)
+# (GitHub khoá tài khoản 07/11/2026). Cần Vercel CLI đã đăng nhập (vercel login). Chạy: bash tools/deploy-vercel.sh [thư mục tạm]
+set -euo pipefail
+cd "$(dirname "$0")/.."
+OUT="${1:-/tmp/p2d-site}"
+bash tools/build-site.sh "$OUT"
+cd "$OUT"
+vercel link --yes --project pixel-2d-tu-tien >/dev/null
+vercel deploy --prod --yes --archive=tgz   # gói một tệp: gói Free giới hạn 5000 tệp tải lên mỗi ngày (10/11/2026 hết lượt)

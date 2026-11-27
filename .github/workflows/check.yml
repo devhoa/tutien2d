@@ -1,0 +1,118 @@
+name: Kiểm tra
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node tools/check.mjs
+  choi-thu:
+    # Người mới chơi thử với Tự hành, giả ngày Lễ Bí Ngô: bắt lỗi JavaScript và truyện bị kẹt (tools/playtest.mjs); rồi bài thử hai máy
+    # bắt lỗi đồng bộ giữa người chơi (tools/hai-may.mjs), rồi ô gõ trong thẻ lưới (tools/kiem/o-go-luoi.thu.mjs)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25   # 26/11/2026: việc này đã chạy sát 15 phút (PR #823 bị huỷ ở phút 15 khi mọi bước trước đều xanh); nới giới hạn, bài thử nặng thì rút ngắn
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Cài hai gói trong MỘT lệnh: lệnh npm i --no-save thứ hai sẽ gỡ gói của lệnh trước (20/11/2026: cài esbuild sau làm mất playwright)
+      - run: npm i --no-save playwright@1.63.0 esbuild@0.28.2
+      - run: npx playwright install --with-deps chromium
+      # Hàm máy chủ luc-chien phải chạy đúng code tính Lực chiến đang có (gói lại khác bản trong kho là báo đỏ: gói lại, đưa hàm lên lại)
+      - run: node tools/goi-luc-chien.mjs
+        env:
+          KIEM: '1'
+      # Chơi thử trên đúng bản sẽ đưa lên (đã gói bằng tools/goi.mjs như .github/workflows/pages.yml), không phải mã nguồn rời
+      - run: node tools/goi.mjs _site
+      - run: node ../tools/playtest.mjs
+        working-directory: _site
+      # Hai máy khách cùng tinh cầu qua phòng giả chạy đúng mã cloud/src/phong.js: mỗi trường hồ sơ, mỗi nhóm hiệu ứng phải tới máy bên kia
+      - run: node ../tools/hai-may.mjs
+        working-directory: _site
+      # Ô gõ trong thẻ lưới (tông môn…): chữ gõ trong tấm chi tiết phải tới máy chủ (21/11/2026: lập tông môn gửi tên rỗng)
+      - run: node ../tools/kiem/o-go-luoi.thu.mjs
+        working-directory: _site
+      # Bàn phím ảo (23/11/2026: ô gõ chat chui dưới bàn phím iPhone): đang gõ không kéo trang về góc, bảng nằm trên mép bàn phím
+      - run: node ../tools/kiem/ban-phim.thu.mjs
+        working-directory: _site
+      # Bay hút nguyên liệu đã đủ phần giờ (23/11/2026: toạ độ NaN, cột sáng vỡ khung vẽ, cả màn trắng xoá)
+      - run: node ../tools/kiem/bay-nl.thu.mjs
+        working-directory: _site
+      # Quay clip (25–26/11/2026): dải giữa màn có cả bảng, chữ; dựng sau khi dừng (src/core/dung-clip.js) và cách dán ngay đều chạy
+      - run: node ../tools/kiem/quay-ui.thu.mjs
+        working-directory: _site
+      # Khung dọc trên máy tính (23/11/2026 22:02): luôn 390 × 844 như điện thoại, phóng vừa màn, vẽ đúng số điểm màn hình, chuột / phím đi qua
+      - run: node ../tools/kiem/khung-doc.thu.mjs
+        working-directory: _site
+      # CSKH 25/11/2026: khung Sắp xếp giao diện đè lên không che nút Lưu / Huỷ; thiếu công pháp khởi đầu thì vào game tự nhận
+      - run: node ../tools/kiem/sap-cong-phap.thu.mjs
+        working-directory: _site
+      # CSKH 26/11/2026: nút CSKH nhỏ kéo được (#286), đả tọa mở bảng vẫn chạy (#291), nút Rời trận Khai Tinh (#267)
+      - run: node ../tools/kiem/cskh-26-11.thu.mjs
+        working-directory: _site
+      # CSKH #237 (25/11/2026): món phẩm Thiên trở lên bấm Phân giải / Bán / Tẩy luyện phải hỏi lại, Thôi thì món còn nguyên
+      - run: node ../tools/kiem/hoi-thien.thu.mjs
+        working-directory: _site
+      # Bộ trang bị 1–4 (27/11/2026): lưu, chạm là mặc cả bộ, ô 3 / 4 chỉ máy chủ mở bằng Tiên Ngọc
+      - run: node ../tools/kiem/bo-do.thu.mjs
+        working-directory: _site
+      # Chợ Phiên dạng lưới (26/11/2026): ô khung theo phẩm, giá dưới ô, chạm ô mới hiện chi tiết và nút Mua / Thu về / ô nhập giá
+      - run: node ../tools/kiem/cho-luoi.thu.mjs
+        working-directory: _site
+      # Pháp trận truyền tống (23/11/2026): nút Dịch chuyển giữa trận, Tinh đồ chế độ truyền tống, trận 2–5 giây, tới nơi không màn che Đang tải
+      - run: node ../tools/kiem/truyen-tong.thu.mjs
+        working-directory: _site
+      # Phong hào trên bảng xếp hạng, tên tông môn trên đầu mình (23/11/2026 23:45–23:51): cùng luật như trên đầu, máy chủ cũ không đoán tộc
+      - run: node ../tools/kiem/phong-hao-bxh.thu.mjs
+        working-directory: _site
+      # Gục, hồi sinh, vào game (24/11/2026 00:28): chờ 5 giây thân hoá đen, về pháp trận tông môn / Thiên Kiếm Tinh, tải lại cùng thẻ giữ chỗ cũ
+      - run: node ../tools/kiem/hoi-sinh.thu.mjs
+        working-directory: _site
+      # Câu cá (24/11/2026, docs/18-CAU-CA.md): nước thật, cá bay về tay, thẻ nhận ở lại, giằng co, đứt dây, mục Câu cá, Lão Ngư Ông bán / khai trai, Tự câu
+      - run: node ../tools/kiem/cau-ca.thu.mjs
+        working-directory: _site
+      # Thể chất, huyết mạch ở Trúc Cơ (25/11/2026, docs/20-THE-CHAT.md): Kim Đan tự mở lễ thể phách, ghi bản lưu, chỉ số tăng đúng data, hai ô Huyết mạch | Thể chất
+      - run: node ../tools/kiem/the-chat.thu.mjs
+        working-directory: _site
+      # Hình tải hỏng (26/11/2026): máy chủ giả trả 404 hai lần đầu cho hình nền và hình khung; nền, khung phải tự tải lại, không gọi dồn dập
+      - run: node ../tools/kiem/hinh-hong.thu.mjs
+        working-directory: _site
+      # Hình sai cỡ (26/11/2026): tấm nhân vật tải về khác cỡ hai lần đầu; game phải tự tải lại, nhân vật hiện lại, sổ hình ghi đúng
+      - run: node ../tools/kiem/hinh-sai-co.thu.mjs
+        working-directory: _site
+      # Sáu tinh cầu farm mới (26/11/2026, tools/the-gioi/tinh_cau_moi.py): vào được, nền vẽ được, 22 bãi một loại, Tự đánh hạ được quái, Tinh đồ cho tới
+      - run: node ../tools/kiem/tinh-cau-moi.thu.mjs
+        working-directory: _site
+      # Tinh đồ hai hệ mặt trời (26/11/2026): canh chỗ đứng, vuốt kéo ngang, chạm chọn sau khi vuốt, mũi tên mép
+      - run: node ../tools/kiem/tinh-do-hai-he.thu.mjs
+        working-directory: _site
+      # Hộ Tông gia trì (26/11/2026): ba máy qua phòng giả chạy đúng mã cloud/src (ho-tong.js): tông chủ +60%, đệ tử +20% ở tinh cầu tông môn, người ngoài không
+      - run: node ../tools/kiem/ho-tong.thu.mjs
+        working-directory: _site
+      # Mở game không tải thừa (26/11/2026): không bấm nút Quay thì không hình nào bị đọc lại để chuẩn bị clip; bấm Quay mới chuẩn bị, quay được
+      - run: node ../tools/kiem/mo-game-nhe.thu.mjs
+        working-directory: _site
+      # Săn rải (26/11/2026): thẻ nhiệm vụ ghi nơi đang nhắm, quái gục trong vòng mới tính, Tự hành đánh trong vòng, số từng nơi còn sau khi tải lại, đủ mọi nơi thì sang bước kế
+      - run: node ../tools/kiem/san-rai.thu.mjs
+        working-directory: _site
+      # Ba kỹ năng đầu game (26/11/2026): bấm ba nút kỹ năng cho cả bảy kỹ năng, mỗi cái có màn diễn riêng vẽ thật, kêu tiếng riêng, quái mất máu, không khựng hình
+      - run: node ../tools/kiem/ky-nang-ve.thu.mjs
+        working-directory: _site
+      # Quái chung (đã bật 21/11/2026): hai máy cùng tinh cầu qua phòng giả chạy đúng mã cloud/src/quai.js: máu chung, chia công, hồi sinh
+      - run: node ../tools/quai-chung.thu.mjs
+        working-directory: _site
+        env:
+          GIAY: 20
+      # Quái chung trên tinh cầu tông môn (22/11/2026): tinh cầu giả, phòng giả đọc dòng tinh cầu qua p2d_kh_ds giả (cloud/src/quai-kh.js)
+      - run: node ../tools/quai-chung.thu.mjs
+        working-directory: _site
+        env:
+          MAP: kh
+          GIAY: 15

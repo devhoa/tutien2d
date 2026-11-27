@@ -1,0 +1,114 @@
+// Đăng nhập bằng TÊN TÀI KHOẢN ; email chỉ là thứ ẩn bên dưới (hàm máy chủ dang-ky).
+import { supabase } from './client.js';
+
+const HIDDEN_DOMAIN = 'nguoichoi.invalid'; // đồng bộ với supabase/functions/dang-ky
+const USERNAME_RE = /^[a-z0-9_]{3,20}$/;
+
+const normalize = a => String(a || '').trim().toLowerCase();
+
+function toEmail(account) {
+  const a = normalize(account);
+  if (a.includes('@')) return a;
+  if (!USERNAME_RE.test(a)) throw new Error('Tài khoản gồm 3–20 ký tự: chữ không dấu, số hoặc _.');
+  return `${a}@${HIDDEN_DOMAIN}`;
+}
+
+// Tên đăng nhập (chỉ hiện ở màn đầu cho chính mình; người khác thấy tên hiển thị đặt ở bảng Đạo hữu)
+export function displayName(session) {
+  const email = session?.user?.email || '';
+  return email.split('@')[0] || 'Đạo hữu';
+}
+
+export async function getSession() {
+  const { data } = await supabase.auth.getSession();
+  return data.session;
+}
+
+export async function signIn(account, password) {
+  const { data, error } = await supabase.auth.signInWithPassword({ email: toEmail(account), password });
+  if (error) throw translate(error);
+  return data.session;
+}
+
+// Đăng nhập bằng Google (chủ dự án 10/11/2026 16:47). Trang chuyển sang Google rồi quay về đúng địa chỉ này; supabase-js tự đọc phiên
+// trên đường dẫn quay về. Cần bật Google trong Supabase → Authentication → Providers và thêm địa chỉ game vào Redirect URLs.
+export async function signInGoogle() {
+  const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + location.pathname } });
+  if (error) throw translate(error);
+}
+
+export async function signUp(account, password) {
+  const username = normalize(account);
+  if (username.includes('@')) throw new Error('Đăng ký bằng tên tài khoản, không cần email.');
+  toEmail(username);
+  if (password.length < 8) throw new Error('Mật khẩu cần ít nhất 8 ký tự.');   // tài khoản cũ 6–7 ký tự vẫn đăng nhập được
+  const { data, error } = await supabase.functions.invoke('dang-ky', { body: { username, password } });
+  if (error) {
+    let code = '';
+    try { code = (await error.context.json()).error; } catch { /* không đọc được thân lỗi */ }
+    if (code === 'USERNAME_TAKEN') throw new Error('Tên tài khoản đã có người dùng.');
+    if (code === 'USERNAME_INVALID') throw new Error('Tài khoản gồm 3–20 ký tự: chữ không dấu, số hoặc _.');
+    if (code === 'PASSWORD_INVALID') throw new Error('Mật khẩu cần 8–72 ký tự.');
+    if (code === 'TOO_MANY') throw new Error('Mạng này vừa tạo nhiều tài khoản, đợi một lát rồi thử lại.');
+    throw new Error('Không tạo được tài khoản, thử lại sau.');
+  }
+  if (!data?.ok) throw new Error('Không tạo được tài khoản, thử lại sau.');
+  return signIn(username, password);
+}
+
+// Chỉ đăng xuất máy này (scope 'local'). Mặc định của supabase-js là 'global': thu hồi phiên của tài khoản trên MỌI máy. Trước 23/11/2026
+// máy bị đá vì "tài khoản vào ở máy khác" (src/game/net-watch.js kick) đăng xuất kiểu global, giết luôn phiên của máy vừa vào: chơi tiếp
+// tới khi mã đăng nhập hết hạn (≤ 1 giờ) thì mọi lời gọi máy chủ trả 401 (tổ đội bị cho rời đội, chat, thư, chợ hỏng). Nhật ký 22/11/2026:
+// 212 lần đăng xuất đều global, 34 lần "Refresh Token Not Found", 16 địa chỉ IP bị 401 hàng loạt.
+export async function signOut() {
+  await supabase.auth.signOut({ scope: 'local' });
+}
+
+function translate(error) {
+  const m = (error.message || '').toLowerCase();
+  if (m.includes('invalid login')) return new Error('Sai tài khoản hoặc mật khẩu.');
+  if (m.includes('rate limit')) return new Error('Thử quá nhiều lần, đợi một lát rồi thử lại.');
+  if (m.includes('password')) return new Error('Mật khẩu không hợp lệ.');
+  return new Error(error.message);
+}
+
+// Xoá tài khoản (supabase/migrations/20261028060000_p2d_xoa_tai_khoan.sql): chờ 7 ngày, đăng nhập lại là huỷ
+export async function requestDelete() {
+  const { data, error } = await supabase.rpc('p2d_xin_xoa_tk');
+  if (error) throw error;
+  return data?.het_han ? new Date(data.het_han) : null;
+}
+// Trả về true nếu vừa huỷ một yêu cầu xoá đang chờ
+export async function cancelDelete() {
+  const { data, error } = await supabase.rpc('p2d_huy_xoa_tk');
+  if (error) throw error;
+  return !!data;
+}
+
+// Mã khôi phục (supabase/migrations/20261028090000_p2d_ma_khoi_phuc.sql, supabase/functions/khoi-phuc)
+export async function makeRecoveryCode() {
+  const { data, error } = await supabase.rpc('p2d_tao_ma_khoi_phuc');
+  if (error) throw translate(error);
+  return data;
+}
+export async function hasRecoveryCode() {
+  const { data, error } = await supabase.rpc('p2d_co_ma_khoi_phuc');
+  if (error) throw translate(error);
+  return !!data;
+}
+// Quên mật khẩu: tên tài khoản + mã khôi phục + mật khẩu mới
+export async function recover(account, code, password) {
+  const username = normalize(account);
+  if (password.length < 8 || password.length > 72) throw new Error('Mật khẩu mới cần 8–72 ký tự.');
+  const { data, error } = await supabase.functions.invoke('khoi-phuc', { body: { username, code, password } });
+  if (error) {
+    let c = '';
+    try { c = (await error.context.json()).error; } catch { /* không đọc được thân lỗi */ }
+    if (c === 'CODE_WRONG' || c === 'CODE_INVALID') throw new Error('Sai tên tài khoản hoặc mã khôi phục (mỗi mã chỉ dùng được một lần).');
+    if (c === 'USERNAME_INVALID') throw new Error('Tài khoản gồm 3–20 ký tự: chữ không dấu, số hoặc _.');
+    if (c === 'TOO_MANY') throw new Error('Thử sai nhiều lần, đợi một giờ rồi thử lại.');
+    throw new Error('Chưa đổi được mật khẩu, thử lại sau.');
+  }
+  if (!data?.ok) throw new Error('Chưa đổi được mật khẩu, thử lại sau.');
+  return true;
+}

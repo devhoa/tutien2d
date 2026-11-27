@@ -1,0 +1,59 @@
+{
+ "_note": "Cơ duyên (chủ dự án 25/11/2026 10:08: \"trên cây sẽ xuất hiện trái cây lạ, cái này là cơ duyên, và một vài linh thảo lạ, nhặt được có thể luyện thành 1 loại đan mới\"). Mỗi người một cơ duyên riêng: hạt giống = bản đồ + khung giờ + hạt riêng lưu trong bản lưu (save.coDuyen.hat), người khác không thấy, không tranh. Mỗi khung slot_s giây, mỗi món có tỉ lệ p xuất hiện ở bản đồ đang đứng, nằm life_s giây. qua: trái kết trên một cây của bản đồ (không có cây thì rụng dưới đất); thao: linh thảo mọc ở ô trống. Lại gần pick điểm là hái. Mỗi ngày hái tối đa ngay món mỗi loại (máy chủ cũng chặn: server.tran_ngay → p2d_tran_ngay). Không có ở phó bản, bí cảnh, đài, trong nhà, vùng không gian, động phủ. Tọa Vong Đan (data/cave.json pills toa-vong-dan): toa_vong. src/game/co-duyen.js, src/render/draw-co-duyen.js, src/game/toa-vong.js.",
+ "on": true,
+ "slot_s": 900,
+ "life_s": 600,
+ "pick": 30,
+ "mon": {
+  "qua": {
+   "id": "chu-qua",
+   "p": 0.4,
+   "n": [
+    1,
+    1
+   ],
+   "ngay": 6,
+   "cay_cao": 26
+  },
+  "thao": {
+   "id": "that-diep-linh-chi",
+   "p": 0.22,
+   "n": [
+    1,
+    1
+   ],
+   "ngay": 3
+  }
+ },
+ "server": {
+  "_note": "trần nhận mỗi ngày trên máy chủ (tools/su-do-sql.py)",
+  "tran_ngay": {
+   "chu-qua": 6,
+   "that-diep-linh-chi": 3
+  }
+ },
+ "toa_vong": {
+  "_note": "Tọa Vong Đan: mỗi viên cộng ngẫu nhiên use.toa_vong [ít nhất, nhiều nhất] giây vào save.toaVong; giây chỉ trôi lúc đang đả tọa; lúc đó linh khí mỗi giây = k lần tốc chém quái của cảnh giới mình (config.meditate.farm_h), không tính vòng quỹ đạo, không cộng thêm trà / đêm / mưa. tran_s: quỹ tối đa (uống thêm khi quỹ đã quá mức này thì không cho).",
+  "k": 1.5,
+  "tran_s": 43200,
+  "fx": {
+   "hat": 36,
+   "mau": [
+    "#7ad0ff",
+    "#bff4ff",
+    "#ffffff"
+   ],
+   "vong": 3
+  }
+ },
+ "text": {
+  "bao_qua": "Một làn hương lạ thoảng qua… hình như có trái lạ vừa chín trên cành cây nào quanh đây.",
+  "bao_thao": "Linh khí khẽ động… có linh thảo lạ vừa mọc đâu đó quanh đây.",
+  "hai": "Cơ duyên! Hái được {n} {name}",
+  "du": "Hôm nay cơ duyên đã cạn, {name} này để dành người hữu duyên khác.",
+  "uong": "Tọa Vong Đan tan trong kinh mạch: thêm {gio} tọa vong (đang có {tong}). Đả tọa để hấp thu.",
+  "day": "Dược lực tọa vong trong người còn quá nhiều, đả tọa bớt rồi hãy uống thêm.",
+  "ngoi": "Tọa vong · linh khí ×{k} tốc chém quái · còn {con}",
+  "het": "Dược lực tọa vong đã tan hết."
+ }
+}

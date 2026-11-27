@@ -1,0 +1,105 @@
+// Quay clip trong game: nút 🎥 cạnh nút tiếng. Bấm để quay, bấm lần nữa để dừng, rồi mở bảng xem lại / chia sẻ / lưu.
+// Số liệu và chữ ở data/record.json (nạp riêng ở đây để khỏi sửa danh sách chung trong core/data.js).
+// Khi đã chia sẻ một clip đủ dài mà chưa nhận quà, bấm nút mở bảng nhận quà (có nút Bắt đầu quay) thay vì quay ngay.
+import { goc } from '../core/build.js';
+import { pickType } from '../core/recorder.js';
+import { startBest } from '../core/recorder-cfr.js';   // nhịp đều (WebCodecs) khi máy làm được, không thì cách cũ
+import { createRecordPanel } from '../ui/record-panel.js';
+import { giftReady, loggedIn } from './record-gift.js';
+import { every } from '../core/ticker.js';   // trang ẩn thì bỏ lượt
+import { soanSan } from '../core/lop-ui.js';   // chuẩn bị sẵn CSS cho lớp giao diện trong clip
+
+
+async function loadCfg() {
+  const r = await fetch(goc('data/record.json'), { cache: 'no-cache' });
+  if (!r.ok) throw new Error('record.json');
+  return r.json();
+}
+
+function addStyle() {
+  const l = document.createElement('link');
+  l.rel = 'stylesheet'; l.href = goc('src/ui/record.css');
+  document.head.append(l);
+}
+
+export async function createRecord(game, audio) {
+  const mute = document.getElementById('btn-mute');
+  if (!mute) return null;
+  let cfg;
+  try { cfg = await loadCfg(); } catch { return null; }   // thiếu file thì game vẫn chạy, chỉ không có nút quay
+  const T = cfg.text;
+  game.recordCfg = cfg;
+  addStyle();
+
+  const btn = document.createElement('button');
+  btn.id = 'btn-rec'; btn.setAttribute('aria-label', T.btn_label); btn.title = T.btn_label;
+  mute.after(btn);
+
+  let rec = null, tick = 0, warned = false;
+  const panel = createRecordPanel(game, cfg, () => start());
+
+  function paint() {
+    game.recording = !!rec;   // đang quay: khỏi vẽ cần điều khiển, mũi tên chỉ đường lên khung (src/render/draw.js) cho clip sạch
+    // Đang quay: nút đổi hẳn sang hình dừng đỏ, chữ "Dừng 0:12" đỏ, vòng đỏ nhấp nháy (style-hud-tren.css); chủ dự án 11/11/2026 20:45:
+    // trước khó nhận ra đang quay hay đang tắt
+    if (rec) { const t = Math.floor(rec.elapsed()); btn.classList.add('on'); btn.textContent = `● ${t}`; btn.dataset.s = `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`; btn.dataset.stop = T.btn_stop || 'Dừng'; btn.title = T.btn_stop_label || btn.title; }
+    else { btn.classList.remove('on'); btn.textContent = T.btn; delete btn.dataset.s; btn.title = T.btn_label; }
+    btn.classList.toggle('gift', !rec && loggedIn(game) && giftReady(game));
+  }
+
+  let starting = false, dung = false;
+  async function start() {
+    if (rec || starting) return;
+    if (dung) { game.toast(T.dung_cho || T.fail, 2); return; }
+    if (!pickType() && typeof VideoEncoder === 'undefined') { game.toast(T.unsupported, 3); return; }
+    const canvas = document.getElementById('game');
+    starting = true;
+    try { rec = await startBest(canvas, audio?.master || null, { ...cfg, frame: game.data.config.frame }); }   // cfg.ui.on: cả màn + giao diện (src/core/lop-ui.js); tắt thì chỉ khung giữa (src/ui/frame-dim.js)
+    catch { rec = null; game.toast(T.fail, 2.5); return; }
+    finally { starting = false; }
+    warned = false;
+    game.toast(audio?.muted ? `${T.start} ${T.muted}` : T.start, 2.5);
+    tick = setInterval(() => {
+      if (!rec) return;
+      const t = rec.elapsed();
+      if (!warned && t >= cfg.max_sec - cfg.warn_sec) { warned = true; game.toast(T.near_end.replace('{n}', cfg.warn_sec), 2); }
+      if (t >= cfg.max_sec) { stop(T.auto_stop.replace('{n}', cfg.max_sec)); return; }
+      paint();
+    }, 250);
+    paint();
+  }
+
+  async function stop(msg) {
+    if (!rec) return;
+    const r = rec; rec = null; clearInterval(tick); paint();
+    let clip, lan = 0;
+    // dựng sau (src/core/dung-clip.js): báo phần trăm, mỗi giây tối đa một lần
+    const tien = p => { const t = performance.now(); if (t - lan < 900 && p < 1) return; lan = t; game.toast((T.dung || '{p}%').replace('{p}', Math.round(p * 100)), 1.4); };
+    dung = true; game.dungClip = !!r.sau;   // game vẽ ít khung lại trong lúc dựng (src/core/perf.js)
+    try { clip = await r.stop(r.sau ? tien : null); } catch { game.toast(T.fail, 2.5); return; } finally { dung = false; game.dungClip = false; }
+    if (msg) game.toast(msg, 2.5);
+    if (clip.sec < cfg.min_sec || !clip.blob.size) { game.toast(T.too_short, 2); return; }
+    panel.openClip(clip);
+  }
+
+  btn.addEventListener('pointerdown', e => {
+    e.stopPropagation();
+    if (rec) { stop(); return; }
+    if (panel.open) return;
+    if (cfg.ui?.on) soanSan();   // chuẩn bị CSS cho lớp giao diện ngay lúc bấm nút Quay (xem ghi chú cuối hàm)
+    if (loggedIn(game) && giftReady(game)) { panel.openGift(); return; }
+    start();
+  });
+
+  // Ra khỏi game (về màn hình chính, khoá máy) thì dừng để không mất clip
+  document.addEventListener('visibilitychange', () => { if (document.hidden && rec) stop(T.hidden_stop); });
+
+  paint();
+  // 26/11/2026 (chủ dự án 10:49: "cứ update là game của tui bị lỗi lag chậm"): trước đây 8 giây sau khi game nạp xong, MỌI máy tự chạy soanSan():
+  // đọc lại cả 209 hình trong CSS (5,3 MB), đổi sang chữ base64, nén lại WebP, dù người chơi không hề quay clip. Đo với mạng 1,5 Mbps trên trình
+  // duyệt không có requestIdleCallback (iPhone): 209 yêu cầu đó chen đúng 30 giây đầu vừa vào game, hình thứ 100 của game tải xong ở giây 83 thay
+  // vì giây 53 (nhân vật, quái, khung bảng hiện chậm, game như đứng hình). Mỗi lần có bản mới là mọi máy tải lại trang nên ai cũng dính lại.
+  // Giờ chỉ chuẩn bị khi bấm nút Quay (ở trên); lần chụp giao diện đầu của clip tự chờ boCss() như cũ (src/core/lop-ui.js).
+  every(() => { if (!rec) paint(); }, 5000);   // đăng nhập xong, nhận quà xong thì đổi dấu trên nút
+  return { start, stop, get recording() { return !!rec; } };
+}

@@ -1,0 +1,45 @@
+// Hệ Pháp Bảo trên màn chơi (src/game/phap-bao.js pbOn): 3 nút chiêu và nút pháp bảo cũ (#btn-art) hiện 4 pháp bảo đang mặc
+// (hình, tên, vòng phẩm, hồi chiêu); ô 4 chưa mở (dưới Nguyên Anh) thì ẩn nút (chủ dự án 12/11/2026 04:07: bỏ chữ "Luyện chế" ở ô 4,
+// luyện chế nằm trong Trang bị → Pháp bảo). src/ui/hud.js gọi pbHud mỗi lần cập nhật.
+import { pbWorn, pbType, pbGrade, slotOpen } from '../game/phap-bao.js';
+import { spriteImage } from '../render/sprites.js';
+
+const cache = new Map();
+// Ảnh vuông (data URL) của một khung hình, căn giữa, giữ tỉ lệ; hình chưa tải xong thì trả '' (lần sau thử lại)
+export function pbIcon(game, id, f = 0, size = 48, fit = 0.92) {
+  const key = `${id}:${f}:${size}:${fit}`;
+  if (cache.has(key)) return cache.get(key);
+  const S = game.data.art.sprites[id], im = S && spriteImage(S);
+  if (!im) return '';
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const x = c.getContext('2d'), k = Math.min(size / S.w, size / S.h) * fit, w = S.w * k, h = S.h * k;
+  x.imageSmoothingEnabled = k < 1;
+  x.drawImage(im, (f % S.frames) * S.w, 0, S.w, S.h, (size - w) / 2, (size - h) / 2, w, h);
+  const url = `url("${c.toDataURL()}")`;
+  cache.set(key, url);
+  return url;
+}
+// Hình trên nút và trong bảng giữ hình cũ (chủ dự án 13/11/2026 07:39: không thích ảnh GPT làm HIỆU ỨNG chiêu chứ hình pháp bảo thì giữ)
+// icon_k (data/phap-bao.json): phần ô hình chiếm; icon ảnh GPT 25/11/2026 cắt sát mép nên thu nhỏ cho bằng cỡ các icon khác (chủ dự án 25/11/2026 12:16)
+export const typeIcon = (game, T, size) => pbIcon(game, T.icon, T.icon_f || 0, size || 48, game.data['phap-bao']?.icon_k || 0.92);
+
+const css = (el, k, v) => { const m = el._css ||= {}; if (m[k] !== v) { m[k] = v; el.style.setProperty(k, v); } };
+
+export function pbHud(game) {
+  const p = game.player, worn = pbWorn(game);
+  for (let i = 0; i < 4; i++) {
+    const b = document.getElementById(i < 3 ? 'btn-s' + i : 'btn-art'), it = worn[i], T = pbType(game, it);
+    if (i === 3) { b.hidden = !slotOpen(game, 3) || !it; if (b.hidden) continue; b.style.backgroundSize = b.style.backgroundRepeat = b.style.backgroundPosition = ''; }
+    b.classList.toggle('off', !it);
+    const lbl = b.querySelector('b'), name = T ? T.name : '—';
+    if (lbl.textContent !== name || b._pbIcon !== (T?.icon || '')) {
+      const url = T ? typeIcon(game, T) : '';
+      if (url || !T) { lbl.textContent = name; b.style.backgroundImage = url; b._pbIcon = T?.icon || ''; }
+      if (T) b.style.setProperty('--gc', pbGrade(game, it).color); else b.style.removeProperty('--gc');
+    }
+    const max = p.pbCdMax?.[i] || T?.cd || 1, left = it ? Math.max(0, p.skillCd[i]) : 0, cd = b.querySelector('.cd');
+    css(b, '--cd', (left / max).toFixed(3));
+    const t = left >= 1 ? (left >= 60 ? `${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2, '0')}` : `${Math.ceil(left)}`) : '';
+    if (cd && cd.dataset.t !== t) cd.dataset.t = t;   // hồi 2–5 phút (chủ dự án 16/11/2026): hiện thời gian còn lại trên nút
+  }
+}

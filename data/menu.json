@@ -1,0 +1,352 @@
+{
+ "_note": "Menu và các nút trên màn hình (chủ dự án 02/11/2026 10:50: \"Menu đừng phân nữa, sắp xếp thành 1 bảng dọc, ấn vào hiển thị nội dung bên cạnh; Túi đồ cũng vậy; mỗi mục 1 tính năng\"). nav: cột mục bên trái của nút Túi đồ (bag), Menu (menu), Động phủ (home), code ở src/ui/side-nav.js. Mỗi mục mở đúng một phần, bảng cũ đã ẩn thanh tab: bag = phần của túi (do, ngoc, nl); btn + tabs + tab = bấm hộ nút bảng cũ rồi chọn phần (click: nút nghe sự kiện click); cave = bảng lò (dan, ren, vuon, phu); open = game.open<Tên>; home = việc trong động phủ (src/game/home-acts.js); talk = nói chuyện thẳng với NPC; pilot / sound / reload / lang / text = hiện trong khung bên phải (Tự động, Âm thanh, Đăng xuất, Ngôn ngữ: src/ui/lang-pick.js). need + lock: cờ phải có mới mở. badge: id chấm đỏ của nút cũ. first: mở sẵn mục đầu; không có thì khung bên phải hiện hint. dungeon: danh sách bí cảnh (nút Bí cảnh, src/ui/menu-panel.js).",
+ "title": "Menu",
+ "sub": "",
+ "dungeon": {
+  "title": "Bí cảnh",
+  "back": "‹ Menu",
+  "go": "Vào",
+  "locked": "Chưa mở",
+  "closed": "Tạm đóng cửa",
+  "done": "Đã phá",
+  "from": "Trên {name}",
+  "busy": "Lúc này chưa vào được: {why}",
+  "task_here": "Nhiệm vụ: {mob} ở đây",
+  "task_toast": "{mob} chỉ có trong bí cảnh {dun}. Vào bí cảnh có viền vàng."
+ },
+ "busy": {
+  "trib": "đang độ kiếp",
+  "story": "đang có chuyện",
+  "trip": "đang bay",
+  "run": "đang trong tháp, luận võ hoặc bí cảnh tài nguyên"
+ },
+ "hud": {"ngang": "a", "ngang_co": 0.65, "_ngang": "Bố cục điện thoại cầm ngang (chủ dự án 19/11/2026 01:02, ưu tiên Galaxy S22 780 × 360; src/ui/hud-ngang.css): a = hai cụm hai bên, giữa trống (thẻ nhân vật và bản đồ góc trái trên; Túi đồ, Đan, Cưỡi, Bay, chat góc trái dưới; pháp bảo, Đánh góc phải dưới); b = giữ hai bảng (bảng trên thu nhỏ giữa mép trên, bảng dưới cả bề ngang). Chủ dự án xem ảnh hai kiểu rồi chọn.", "_bang": "Bố cục hai bảng (chủ dự án 17/11/2026 00:11, ảnh mẫu GPT): bảng trên ôm thẻ nhân vật và ô chức năng, bản đồ nhỏ; bảng dưới ôm Túi đồ, Đan, Cưỡi, Tự đánh, Lướt, Chat, bốn ô pháp bảo, nút Đánh lớn; giữa màn hình để trống. Từ 21/11/2026 là bố cục duy nhất (bỏ công tắc bang, chủ dự án: \"lấy bản này làm cố định\"). Code src/ui/hud-bang.js, kiểu src/ui/hud-bang.css, hud-khung.css, hud-ngang.css (nạp cùng trang ở index.html).", 
+  "sap": {"_note": "Sắp xếp giao diện (chủ dự án 19/11/2026 10:47–10:50): Menu → Sắp xếp giao diện; kéo từng khung tới chỗ khác, chụm / mở hai ngón (hoặc thanh trượt) để thu nhỏ / phóng to; Lưu thì khung đứng yên ở đó. Màn dọc và màn ngang lưu riêng, lưu theo từng máy (src/ui/sap-ap.js áp, src/ui/sap-xep.js bảng chỉnh). Mỗi nhóm: name, list = các món thuộc khung (chọn bằng CSS, món đầu là mốc của khung; 'x::after' là khung vẽ bằng ::after của x). Màn dọc giữ bảng trên nguyên tấm (khung ảnh của chủ dự án).", "k": [0.6, 1.5], "doc": [{"id": "tren", "name": "Bảng trên", "list": ["#bang-tren", "#hud .bars > .bar", "#power", "#uk-ava", "#hud .hud-btns > button.tron[data-cot]", "#hud .hud-btns > button.tron[data-tron2]", "#uk-gon", "#mini-map", "#uk-an"]}, {"id": "duoi", "name": "Bảng dưới", "list": ["#bang-duoi", "#btn-bag", "#btn-pill", "#btn-ride", "#btn-fly", "#btn-s0", "#btn-s1", "#btn-s2", "#btn-art", "#btn-atk", "#chat-dock"]}, {"id": "tron", "name": "Lướt, Tự đánh", "list": ["#btn-dash", "#btn-auto"]}, {"id": "kn", "name": "Kỹ năng", "list": ["#btn-k0", "#btn-k1", "#btn-k2"]}], "ngang": [{"id": "tl", "name": "Nhân vật", "list": ["#bang-tren", "#hud .bars > .bar", "#power", "#uk-ava"]}, {"id": "tr", "name": "Chức năng, bản đồ", "list": ["#bang-tren::after", "#hud .hud-btns > button.tron[data-cot]", "#hud .hud-btns > button.tron[data-tron2]", "#uk-gon", "#mini-map", "#uk-an"]}, {"id": "bl", "name": "Túi đồ, chat", "list": ["#bang-duoi", "#btn-bag", "#btn-pill", "#btn-ride", "#btn-fly", "#chat-dock"]}, {"id": "br", "name": "Pháp bảo, Đánh", "list": ["#bang-duoi::after", "#btn-s0", "#btn-s1", "#btn-s2", "#btn-art", "#btn-atk"]}, {"id": "tron", "name": "Lướt, Tự đánh", "list": ["#btn-dash", "#btn-auto"]}, {"id": "kn", "name": "Kỹ năng", "list": ["#btn-k0", "#btn-k1", "#btn-k2"]}], "text": {"title": "Sắp xếp giao diện", "hint": "Kéo khung tới chỗ muốn đặt. Chụm hoặc mở hai ngón trên khung để thu nhỏ, phóng to.", "save": "Lưu", "reset": "Mặc định", "cancel": "Huỷ", "size": "Cỡ", "saved": "Đã lưu cách xếp giao diện.", "pick": "Chạm một khung để chỉnh cỡ"}},
+  "_note": "Nút trên màn hình theo thứ tự (chủ dự án gom A–L 02/11/2026 03:43, dọn lại 10:50: mỗi nút đúng một việc): Túi đồ, Menu, Công pháp, Bí cảnh, Sự kiện (thẳng bảng giới thiệu nhận quà), Nhiệm vụ (điểm danh + nhiệm vụ hằng ngày), Tự đánh, Động phủ (chỉ hiện trong động phủ), Bản đồ, Xếp hạng (thẳng bảng xếp hạng). Nút Đạo Vận đã bỏ. Luôn hiện thêm (13:38): Hòm thư, Báo lỗi, Đề xuất. Nút quay clip và nút TikTok (link: mở kênh ở data/community.json) luôn hiện ở hàng dưới, bên phải nút Thư (chủ dự án 11/11/2026 11:25, 11:36); đã gỡ mục Quay clip trong Menu và dòng TikTok trong hộp Thư. Trò chuyện là khung nhỏ dưới màn hình (src/ui/chat-dock.js). Cách mở: nav (cột mục, side-nav.js), dun, open, social, btn (bấm hộ nút cũ); code ở src/ui/hud-order.js. where 'home': chỉ hiện ở động phủ; show 'badge' / 'on'; badge: chấm đỏ theo nút cũ. Tự đánh (btn-auto) dời xuống cạnh nút chiêu linh thú (Hỏa Hồn Linh) ở cụm nút đánh (chủ dự án 02/11/2026 14:39). Nhóm Zalo ra màn hình cạnh Báo lỗi, Đề xuất (chủ dự án 02/11/2026 15:37). Chủ dự án 04/11/2026 09:05: Công pháp thành mục trong Túi đồ; bỏ nút Nhiệm vụ (cột nhiệm vụ có mũi tên đóng / mở riêng); Bản đồ thành khung tròn góc phải trên (src/ui/mini-map.js). 09:31: Hòm thư, Zalo, Đề xuất, Báo lỗi gộp vào một nút Thư (src/ui/hop-thu.js), các nút cũ cất vào #hud-menu.",
+  "list": [
+   {
+    "id": "btn-bag",
+    "label": "Túi đồ"
+   },
+   {
+    "id": "btn-menu"
+   },
+   {
+    "id": "hud-dun",
+    "label": "Bí cảnh",
+    "dun": true
+   },
+   {
+    "id": "hud-event",
+    "label": "Sự kiện",
+    "open": "referral"
+   },
+   {
+    "id": "hud-home",
+    "label": "Động phủ",
+    "nav": "home",
+    "where": "home"
+   },
+   {
+    "id": "hud-rank",
+    "label": "Xếp hạng",
+    "social": "rank"
+   },
+   {
+    "id": "hud-thu",
+    "label": "Thư",
+    "open": "hopThu"
+   },
+   {
+    "id": "hud-tiktok",
+    "label": "TikTok",
+    "link": "tiktok"
+   },
+   {
+    "id": "btn-rec"
+   }
+  ],
+  "tron": {
+   "_note": "Nút tròn theo ảnh mẫu chủ dự án 04/11/2026 09:05, sửa 09:19, 09:25 (style-ui-kit3.css, src/ui/hud-gon.js): bên phải dưới việc truyện hai hàng ngang canh mép phải: cot = hàng trên có vòng (Menu, Bí cảnh, Sự kiện, Xếp hạng), tron2 = hàng dưới không viền (Thư gộp Hòm thư, Zalo, Đề xuất, Báo lỗi; Động phủ khi ở nhà); goc = Túi đồ góc dưới trái; lb = chữ dưới biểu tượng.",
+   "cot": [
+    "btn-menu",
+    "hud-dun",
+    "hud-event",
+    "hud-rank"
+   ],
+   "goc": "btn-bag",
+   "lb": {
+    "hud-event": "Sự kiện",
+    "hud-rank": "Xếp hạng",
+    "btn-zalo": "Zalo",
+    "btn-inbox": "Thư",
+    "btn-fb-loi": "Báo lỗi",
+    "btn-fb-de_xuat": "Đề xuất",
+    "btn-rec": "Quay",
+    "hud-dun": "Bí cảnh",
+    "btn-menu": "Menu",
+    "hud-home": "Động phủ",
+    "btn-bag": "Túi đồ",
+    "hud-thu": "Thư",
+    "hud-tiktok": "TikTok"
+   },
+   "tron2": [
+    "hud-home",
+    "hud-thu",
+    "hud-tiktok",
+    "btn-rec"
+   ]
+  }
+ },
+ "nav": {
+  "bag": {
+   "title": "Túi đồ",
+   "first": true,
+   "items": [
+    {
+     "id": "do",
+     "label": "Trang bị",
+     "bag": "do"
+    },
+    {
+     "id": "ngoc",
+     "label": "Ngọc",
+     "bag": "ngoc"
+    },
+    {
+     "id": "nl",
+     "label": "Nguyên liệu",
+     "bag": "nl"
+    },
+    {
+     "id": "ca",
+     "label": "Cá",
+     "bag": "ca"
+    },
+    {
+     "id": "dan",
+     "label": "Đan dược",
+     "bag": "dan"
+    },
+    {
+     "id": "cong-phap",
+     "label": "Công pháp",
+     "btn": "btn-skills",
+     "badge": "skills-badge"
+    },
+    {
+     "id": "pets",
+     "label": "Linh thú",
+     "btn": "btn-pets",
+     "tabs": "pets-tabs",
+     "tab": "linh-thu",
+     "badge": "pets-badge"
+    },
+    {
+     "id": "mounts",
+     "label": "Thú cưỡi",
+     "btn": "btn-pets",
+     "tabs": "pets-tabs",
+     "tab": "thu-cuoi"
+    },
+    {
+     "id": "comps",
+     "label": "Khôi lỗi",
+     "btn": "btn-pets",
+     "tabs": "pets-tabs",
+     "tab": "dong-hanh"
+    },
+    {
+     "id": "fashion",
+     "label": "Thời trang",
+     "btn": "btn-achv",
+     "tabs": "achv-tabs",
+     "tab": "thoi-trang"
+    }
+   ]
+  },
+  "menu": {
+   "title": "Menu",
+   "hint": "Chạm một mục bên trái.",
+   "items": [
+    {
+     "id": "friends",
+     "label": "Bạn bè",
+     "open": "friends"
+    },
+    {
+     "id": "su-do",
+     "label": "Sư đồ",
+     "open": "suDo"
+    },
+    {
+     "id": "guild",
+     "label": "Tông môn",
+     "btn": "btn-guild"
+    },
+    {
+     "id": "market",
+     "label": "Chợ",
+     "open": "market"
+    },
+    {
+     "id": "topup",
+     "label": "Nạp Tiên Ngọc",
+     "open": "topup"
+    },
+    {
+     "id": "achv",
+     "label": "Thành tựu",
+     "btn": "btn-achv",
+     "tabs": "achv-tabs",
+     "tab": "thanh-tuu",
+     "badge": "achv-badge"
+    },
+    {
+     "id": "title",
+     "label": "Danh hiệu",
+     "btn": "btn-achv",
+     "tabs": "achv-tabs",
+     "tab": "danh-hieu"
+    },
+    {
+     "id": "journal",
+     "label": "Nhật ký",
+     "btn": "btn-achv",
+     "tabs": "achv-tabs",
+     "tab": "nhat-ky"
+    },
+    {
+     "id": "pilot",
+     "label": "Tự động",
+     "pilot": true
+    },
+    {
+     "id": "tiet-kiem",
+     "label": "Tiết kiệm pin",
+     "pin": true,
+     "on": "Đang tiết kiệm pin: 30 khung mỗi giây, vẽ ít điểm ảnh hơn (bằng một nửa), ít quầng sáng. Máy mát hơn, đỡ tụt pin.",
+     "off": "Đang vẽ đủ nét (×3) và mượt (tới 45 khung khi chạy). Máy yếu hay nóng thì bật Tiết kiệm pin.",
+     "btn_on": "Bật tiết kiệm",
+     "btn_off": "Tắt tiết kiệm"
+    },
+    {
+     "id": "sound",
+     "label": "Âm thanh",
+     "sound": true,
+     "on": "Tiếng đang bật.",
+     "off": "Tiếng đang tắt.",
+     "btn_on": "Bật tiếng",
+     "btn_off": "Tắt tiếng"
+    },
+    {
+     "id": "sap-xep",
+     "label": "Sắp xếp giao diện",
+     "open": "sapXep"
+    },
+    {
+     "id": "ma-qua",
+     "label": "Nhập mã quà",
+     "code": true
+    },
+    {
+     "id": "lang",
+     "label": "Ngôn ngữ",
+     "lang": true,
+     "text": "Chọn ngôn ngữ hiển thị. Đổi xong game tự tải lại."
+    },
+    {
+     "id": "doi-tk",
+     "label": "Đổi tài khoản",
+     "relog": true,
+     "text": "Lưu game, đăng xuất tài khoản này rồi về màn đăng nhập để vào tài khoản khác.",
+     "btn": "Đổi tài khoản",
+     "sure": "Bấm lần nữa để chắc chắn"
+    },
+    {
+     "id": "account",
+     "label": "Đăng xuất",
+     "reload": true,
+     "text": "Lưu game rồi về màn đầu. Đăng xuất, xoá tài khoản nằm ở màn đầu.",
+     "btn": "Về màn đầu",
+     "sure": "Bấm lần nữa để chắc chắn"
+    }
+   ]
+  },
+  "home": {
+   "title": "Động phủ",
+   "hint": "Chạm một mục bên trái.",
+   "items": [
+    {
+     "id": "phu",
+     "label": "Nâng cấp động phủ",
+     "cave": "phu"
+    },
+    {
+     "id": "be-quan",
+     "label": "Bế quan",
+     "home": "be-quan"
+    },
+    {
+     "id": "vuon",
+     "label": "Dược viên",
+     "cave": "vuon"
+    },
+    {
+     "id": "ho-ca",
+     "label": "Hồ cá",
+     "home": "ho-ca"
+    },
+    {
+     "id": "ren",
+     "label": "Lò rèn",
+     "cave": "ren"
+    },
+    {
+     "id": "khach",
+     "label": "Khách đến chơi",
+     "home": "khach"
+    },
+    {
+     "id": "decor",
+     "label": "Trang trí",
+     "home": "decor"
+    },
+    {
+     "id": "friends",
+     "label": "Nhà bạn bè",
+     "open": "friends"
+    },
+    {
+     "id": "ve-nha",
+     "label": "Về nhà mình",
+     "home": "ve-nha"
+    },
+    {
+     "id": "ra-ngoai",
+     "label": "Ra khỏi động phủ",
+     "home": "ra-ngoai"
+    }
+   ]
+  }
+ },
+ "ma_qua": {
+  "_note": "Mục Nhập mã quà (src/ui/ma-qua.js, máy chủ p2d_nhap_ma). Mã tạo trên máy chủ, không ghi trong repo.",
+  "title": "Nhập mã quà",
+  "placeholder": "Nhập mã",
+  "btn": "Nhận",
+  "hint": "Mỗi tài khoản nhập mỗi mã một lần. Mã tân thủ phát trên TikTok cũng nhập ở đây.",
+  "login": "Đăng nhập tài khoản để nhập mã.",
+  "wait": "Đang kiểm tra…",
+  "ok": "Nhận thành công +{n} điểm QTV!",
+  "ok_ht": "Nhận thành công +{n} điểm hệ thống! Mở Hệ Thống → Triệu hồi để dùng.",
+  "ok_chung": "Nhận thành công! Quà đã gửi vào Hòm thư ({n} thư).", "ok_tl": " Thêm {n} Thú Lệnh.", "ok_qtv": " Thêm {n} điểm Quản trị viên.",
+  "het_han": "Mã đã hết hạn.",
+  "chua_luu": "Vào game chơi một lúc cho tài khoản được lưu rồi nhập lại.",
+  "sai_ma": "Mã không đúng.",
+  "het_luot": "Mã này đã hết lượt.",
+  "da_nhap": "Bạn đã nhập mã này rồi.",
+  "da_nhap_dot": "Tài khoản đã nhập một mã của đợt này rồi.",
+  "net": "Mạng lỗi, thử lại sau."
+ }
+}

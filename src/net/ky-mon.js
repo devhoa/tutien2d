@@ -1,0 +1,38 @@
+// Tẩy luyện, cường hoá, đổi hệ (supabase/migrations/20261105010000_p2d_ky_mon.sql), khảm / gỡ / ghép ngọc, luyện pháp bảo
+// (20261105020000_p2d_ky_ngoc.sql) do máy chủ quyết: máy chủ tung, trừ tiền trên bản lưu máy chủ, ký lại món, trả
+// { mon, tru, doi (ngọc thêm / bớt), phien_ban, ... }. Máy chủ chưa có hàm (chưa chạy migration) thì báo 'chua_co_ham'
+// để game tính ở máy như cũ.
+import { supabase } from './client.js';
+
+async function call(fn, args) {
+  const { data, error } = await supabase.rpc(fn, args);
+  if (error) {
+    if (error.code === 'PGRST202' || /Could not find the function/i.test(error.message || '')) throw new Error('chua_co_ham');
+    throw error;
+  }
+  return data;
+}
+
+export const kyCalls = {
+  reroll: uid => call('p2d_tay_luyen', { p_uid: uid }),
+  enhance: uid => call('p2d_cuong_hoa', { p_uid: uid }),
+  rerollEl: uid => call('p2d_doi_he', { p_uid: uid }),
+  socket: (uid, o, key) => call('p2d_kham_ngoc', { p_uid: uid, p_o: o, p_ngoc: key }),
+  unsocket: (uid, o) => call('p2d_go_ngoc', { p_uid: uid, p_o: o }),
+  merge: (key, keep, n) => call('p2d_ghep_ngoc', { p_ngoc: key, p_giu: keep, p_lan: n }),
+  refine: uid => call('p2d_luyen_phap_bao', { p_uid: uid }),
+  rerollThu: (loai, id) => call('p2d_tay_thu', { p_loai: loai, p_id: id }),   // linh thú / khôi lỗi / thú cưỡi (20261105120000_p2d_ky_thu.sql)
+  buyMats: (mua, nhanh) => call('p2d_nl_mua', { p_mua: mua, p_nhanh: nhanh }),
+  cauDoi: (ban, mo) => call('p2d_cau_doi', { p_ban: ban || {}, p_mo: mo || {} }),   // Lão Ngư Ông thu mua đồ câu, khai trai (tools/cau-ca-sql.py)   // mua nguyên liệu bằng Linh Thạch (20261111170000_p2d_nl_mua.sql)
+  luyenDan: o => call('p2d_luyen_dan', { p_o: o }),   // lò luyện đan (20261120140000_p2d_lo_dan.sql)
+  luyenDan2: (o, dan) => call('p2d_luyen_dan2', { p_o: o, p_dan: dan || null }),   // chọn đan, đan phương (20261123040000_p2d_dan_phuong.sql)
+  muaPhuong: dan => call('p2d_mua_dan_phuong', { p_dan: dan }),
+  nangLo: id => call('p2d_nang_lo', { p_id: id }),   // lò là món đồ: nâng phẩm, mua, đặt (chủ dự án 20/11/2026 14:5x)
+  muaLo: k => call('p2d_mua_lo', { p_k: k }),
+  datLo: id => call('p2d_dat_lo', { p_id: id }),
+  loCuaToi: () => call('p2d_lo_cua_toi', {}),
+};
+export const pbCalls = {   // pháp bảo: nâng cấp ghi sổ, hạ cấp hoàn Linh Thạch (20261115100000_p2d_pb_ha_cap.sql)
+  up: uid => call('p2d_pb_nang_cap', { p_uid: uid }),
+  down: uid => call('p2d_pb_ha_cap', { p_uid: uid }),
+};

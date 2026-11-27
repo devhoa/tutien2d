@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0d0b16">
+  <title>Pixel 2D Tu Tiên</title>
+  <!-- Giới thiệu cho Google, Zalo, Facebook (chủ dự án 10/11/2026): mô tả hiện dưới tên trang khi tìm kiếm, ảnh khi chia sẻ link -->
+  <meta name="description" content="Pixel 2D Tu Tiên: game tu tiên pixel chơi miễn phí ngay trên trình duyệt, điện thoại và máy tính, không cần cài đặt. Tu luyện từ Luyện Khí, độ kiếp đột phá cảnh giới, đánh boss, luyện đan, nuôi linh thú, kết đạo hữu.">
+  <link rel="canonical" href="https://devhoa.github.io/tutien2d/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Pixel 2D Tu Tiên">
+  <meta property="og:title" content="Pixel 2D Tu Tiên – game tu tiên pixel chơi miễn phí trên web">
+  <meta property="og:description" content="Tu luyện, độ kiếp, đánh boss, luyện đan, nuôi linh thú cùng đạo hữu. Chơi ngay trên trình duyệt, điện thoại và máy tính, không cần cài.">
+  <meta property="og:url" content="https://devhoa.github.io/tutien2d/">
+  <meta property="og:image" content="https://devhoa.github.io/tutien2d/assets/icon/splash-pixel.png">
+  <meta property="og:image:width" content="800">
+  <meta property="og:image:height" content="800">
+  <meta property="og:locale" content="vi_VN">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://devhoa.github.io/tutien2d/assets/icon/splash-pixel.png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style-man-dau.css">
+  <link rel="stylesheet" href="src/ui/hud-bang.css">
+  <link rel="stylesheet" href="src/ui/hud-khung.css">
+  <link rel="stylesheet" href="src/ui/hud-ngang.css">
+  <link rel="icon" type="image/png" href="assets/icon/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icon/icon-192.png">
+  <link rel="apple-touch-icon" href="assets/icon/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+</head>
+<body>
+  <noscript><h1>Pixel 2D Tu Tiên</h1><p>Game tu tiên pixel chơi miễn phí trên trình duyệt, điện thoại và máy tính: tu luyện, độ kiếp, đánh boss, luyện đan, nuôi linh thú, kết đạo hữu. Bật JavaScript để chơi.</p></noscript>
+  <canvas id="game"></canvas>
+
+  <div id="hud" hidden>
+    <div class="bars">
+      <div class="realm" id="realm"></div>
+      <div class="power" id="power"></div>
+      <div class="sky" id="sky"></div>
+      <div class="bar hp"><i id="hp-fill"></i><span id="hp-text"></span></div>
+      <div class="bar qi"><i id="qi-fill"></i><span id="qi-text"></span></div>
+      <div class="hud-btns"><button id="btn-mute" aria-label="Bật/tắt tiếng"></button><button id="btn-menu">Menu<i id="menu-badge" hidden></i></button><button id="btn-auto">Tự đánh</button><button id="btn-pilot">Tự hành</button><button id="btn-world">Bản đồ</button></div>
+      <div id="hud-menu" hidden><button id="btn-bag">Túi<i id="bag-badge" hidden></i></button><button id="btn-skills">Chiêu<i id="skills-badge" hidden></i></button><button id="btn-pets">Thú<i id="pets-badge" hidden></i></button><button id="btn-daily">Việc<i id="daily-badge" hidden></i></button><button id="btn-achv">Thành tựu<i id="achv-badge" hidden></i></button><button id="btn-social">Đạo hữu<i id="social-badge" hidden></i></button><button id="btn-rank"></button><button id="btn-guild"></button></div>
+    </div>
+    <div class="goal" id="goal"></div>
+    <div class="boss" id="boss" hidden><span id="boss-name"></span><div class="bar"><i id="boss-fill"></i></div></div>
+  </div>
+
+  <div id="buttons" hidden>
+    <button class="btn act" id="btn-act" data-act="act" hidden></button>
+    <button class="btn skill" id="btn-s0" data-act="s0"><span class="cd"></span><b></b></button>
+    <button class="btn skill" id="btn-s1" data-act="s1"><span class="cd"></span><b></b></button>
+    <button class="btn skill" id="btn-s2" data-act="s2"><span class="cd"></span><b></b></button>
+    <button class="btn skill" id="btn-art" data-act="art" hidden><span class="cd"></span><b></b></button>
+    <button class="btn kn" id="btn-k0" data-act="sk0" hidden><span class="cd"></span><b></b></button>
+    <button class="btn kn" id="btn-k1" data-act="sk1" hidden><span class="cd"></span><b></b></button>
+    <button class="btn kn" id="btn-k2" data-act="sk2" hidden><span class="cd"></span><b></b></button>
+    <button class="btn dash" id="btn-dash" data-act="dash"><span class="cd"></span><b>Lướt</b></button>
+    <button class="btn ride" id="btn-ride" data-act="ride" hidden><b>Cưỡi</b></button>
+    <button class="btn ride" id="btn-fly" data-act="fly" hidden><b>Bay</b></button>
+    <button class="btn pill" id="btn-pill" data-act="pill" hidden><span class="cd"></span><b>Đan</b></button>
+    <button class="btn atk" id="btn-atk" data-act="atk"><b>Đánh</b></button>
+  </div>
+
+  <div id="dialog" hidden>
+    <div class="who" id="dlg-who"></div>
+    <div class="text" id="dlg-text"></div>
+    <div class="choices" id="dlg-choices"></div>
+    <div class="hint" id="dlg-hint">Chạm để tiếp ▸</div>
+  </div>
+
+  <div id="bag" hidden>
+    <div class="bag-head"><b>Túi đồ</b><span id="bag-mats"></span><button id="bag-close" aria-label="Đóng">✕</button></div>
+    <div id="bag-equip"></div>
+    <div id="bag-stats"></div>
+    <div class="bag-tabs"><button data-tab="do">Trang bị</button><button data-tab="ngoc">Ngọc</button><button data-tab="nl">Nguyên liệu</button><span id="bag-pick" hidden>Chọn ngọc để khảm</span></div>
+    <div id="bag-filter"></div>
+    <div id="bag-list"></div>
+    <div id="bag-sheet" hidden><div id="bag-detail"></div></div>
+  </div>
+
+  <div id="skills" class="panel" hidden>
+    <div class="bag-head"><b>Chiêu thức</b><span class="panel-sub" id="skills-sub"></span><button id="skills-close" aria-label="Đóng">✕</button></div>
+    <div class="bag-tabs" id="skills-tabs"><button data-tab="chieu">Chiêu</button><button data-tab="cong-phap">Công pháp</button></div>
+    <div id="skills-slots"></div>
+    <div id="skills-list"></div>
+  </div>
+
+  <div id="cave" class="panel" hidden>
+    <div class="bag-head"><b>Động phủ</b><span class="panel-sub" id="cave-mats"></span><button id="cave-close" class="close-x" aria-label="Đóng">✕</button></div>
+    <div class="bag-tabs" id="cave-tabs"><button data-tab="ren">Lò rèn</button><button data-tab="vuon">Dược viên</button><button data-tab="phu">Động phủ</button></div>
+    <div id="cave-slots"></div>
+    <div id="cave-msg"></div>
+    <div id="cave-list"></div>
+  </div>
+
+  <div id="pets" class="panel" hidden>
+    <div class="bag-head"><b>Linh thú</b><span class="panel-sub" id="pets-sub"></span><button id="pets-close" aria-label="Đóng">✕</button></div>
+    <div class="bag-tabs" id="pets-tabs"><button data-tab="linh-thu">Linh thú</button><button data-tab="thu-cuoi">Thú cưỡi</button><button data-tab="dong-hanh">Khôi lỗi</button></div>
+    <div id="pets-list"></div>
+  </div>
+
+  <div id="daily" class="panel" hidden>
+    <div class="bag-head"><b>Nhiệm vụ</b><span class="panel-sub" id="daily-sub"></span><button id="daily-close" aria-label="Đóng">✕</button></div>
+    <div id="daily-msg"></div>
+    <div id="daily-list"></div>
+  </div>
+
+  <div id="achv" class="panel" hidden>
+    <div class="bag-head"><b>Thành tựu</b><span class="panel-sub" id="achv-sub"></span><button id="achv-close" aria-label="Đóng">✕</button></div>
+    <div class="bag-tabs" id="achv-tabs"><button data-tab="thanh-tuu">Thành tựu</button><button data-tab="danh-hieu">Danh hiệu</button><button data-tab="thoi-trang">Thời trang</button><button data-tab="nhat-ky">Nhật ký</button></div>
+    <div id="achv-msg"></div>
+    <div id="achv-list"></div>
+  </div>
+
+  <div id="social" class="panel" hidden>
+    <div class="bag-head"><b>Đạo hữu</b><span class="panel-sub" id="social-sub"></span><button id="social-close" aria-label="Đóng">✕</button></div>
+    <div class="bag-tabs" id="social-tabs"><button data-tab="chat"></button><button data-tab="world"></button><button data-tab="whisper"></button><button data-tab="rank"></button></div>
+    <div id="social-rank" hidden><div class="bag-tabs" id="rank-tabs"></div><div id="rank-list"></div><small id="rank-note"></small></div>
+    <div id="social-emotes" class="card-acts wrap"></div>
+    <div id="social-log"></div>
+    <form id="social-form"><input id="social-input" autocomplete="off" enterkeyhint="send"><button class="mini" id="social-send"></button></form>
+  </div>
+
+  <div id="guild" class="panel" hidden>
+    <div class="bag-head"><b id="guild-title"></b><span class="panel-sub" id="guild-sub"></span><button id="guild-close" aria-label="Đóng">✕</button></div>
+    <div class="bag-tabs" id="guild-tabs"><button data-tab="home"></button><button data-tab="members"></button><button data-tab="chat"></button><button data-tab="kh"></button><button data-tab="find"></button></div>
+    <div id="guild-msg"></div>
+    <div id="guild-list"></div>
+    <form id="guild-form" hidden><input id="guild-input" class="guild-input" autocomplete="off" enterkeyhint="send"><button class="mini" id="guild-send"></button></form>
+  </div>
+
+  <div id="market" class="panel" hidden>
+    <div class="bag-head"><b id="market-title"></b><span class="panel-sub" id="market-sub"></span><button id="market-close" aria-label="Đóng">✕</button></div>
+    <div class="bag-tabs" id="market-tabs"><button data-tab="buy"></button><button data-tab="sell"></button><button data-tab="mine"></button></div>
+    <div id="market-list"></div>
+    <form id="market-form" hidden><input id="market-n" type="number" min="1" inputmode="numeric"><input id="market-price" type="number" min="1" inputmode="numeric"><button class="mini" id="market-send"></button><small id="market-get"></small></form>
+  </div>
+
+  <div id="topup" class="panel" hidden>
+    <div class="bag-head"><b id="topup-title"></b><span class="panel-sub" id="topup-sub"></span><button id="topup-close" aria-label="Đóng">✕</button></div>
+    <div id="topup-list"></div>
+  </div>
+
+  <div id="world" class="panel" hidden>
+    <div class="bag-head"><b id="world-title">Bản đồ</b><span class="panel-sub" id="world-sub"></span><button id="world-close" aria-label="Đóng">✕</button></div>
+    <div id="world-sky"><div id="world-card" hidden></div></div>
+  </div>
+
+  <div id="toast" hidden></div>
+
+  <div id="menu" hidden>
+    <h1>Pixel 2D Tu Tiên</h1>
+    <p class="sub">Bản chơi tạm</p>
+    <div id="login-form" hidden>
+      <input id="acc" autocomplete="username" autocapitalize="off" spellcheck="false" placeholder="Tài khoản">
+      <input id="pwd" type="password" autocomplete="current-password" placeholder="Mật khẩu">
+      <div class="row"><button class="menu-btn" id="btn-login">Đăng nhập</button><button class="menu-btn alt" id="btn-signup">Đăng ký</button></div>
+      <button class="link-btn" id="btn-forgot">Quên mật khẩu?</button>
+      <button class="menu-btn alt" id="btn-google" hidden>Đăng nhập bằng Google</button>
+    </div>
+    <div id="logged" hidden>
+      <p class="hello">Đạo hữu <b id="logged-name"></b></p>
+      <div id="play-buttons">
+        <button class="menu-btn" id="menu-continue" hidden>Chơi tiếp</button>
+        <button class="menu-btn" id="menu-new">Bắt đầu</button>
+      </div>
+      <button class="link-btn" id="btn-recovery">Mã khôi phục</button>
+      <button class="link-btn" id="btn-logout">Đăng xuất</button>
+      <button class="link-btn danger" id="btn-delete">Xoá tài khoản</button>
+    </div>
+    <p id="login-msg"></p>
+    <button class="menu-btn alt" id="btn-guest">Chơi thử (không cần tài khoản)</button>
+    <button class="link-btn" id="btn-install" hidden>Cài vào máy</button>
+    <p class="help">Kéo nửa trái màn hình để đi. Chạm nút pháp bảo để tự ngắm, kéo nút pháp bảo để tự chọn hướng.</p>
+    <p class="health">Chơi quá 180 phút một ngày sẽ ảnh hưởng xấu đến sức khỏe.</p>
+    <p class="legal"><a href="privacy.html">Quyền riêng tư</a> · <a href="terms.html">Điều khoản</a> · <a href="xoa-tai-khoan.html">Xoá tài khoản</a></p>
+  </div>
+
+  <div id="loading"><div class="ld-box"><b class="ld-title">Pixel 2D Tu Tiên</b><div class="ld-bar"><i></i></div><span class="ld-text">Đang tải</span></div><small id="ld-tip"></small></div>
+
+  <script type="module" src="src/ui/man-dau.js"></script>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

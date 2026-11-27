@@ -1,0 +1,517 @@
+{
+ "_note": "Thể chất (chủ dự án 25/11/2026 10:08: \"thể chất thì gần giống huyết mạch… mỗi thể chất có đặc điểm riêng và có các loại thể chất từ yếu tới mạnh, nhưng từ phàm tới tiên, chỉ số được buff tổng thể không chênh lệch nhau vượt quá 20%\"; 12:53 \"24 mình chốt hết nha, mình muốn nó cũng ngầu như cách thức tỉnh huyết mạch kia\"; 12:55 \"Kết đan mới thức tỉnh thể phách\"; bảng chọn: một đời một lượt, người đã Kim Đan vào game là làm lễ). Quay MỘT lượt lúc đạt cảnh giới mo (2 = Kim Đan): ra phẩm theo tỉ lệ pham.*.w, rồi một trong các thể chất của phẩm đó (đều nhau). Mỗi thể chất cộng thẳng % vào chỉ số (the.*.chi_so), cộng ngoài trần dòng như Tiềm năng (src/game/he-chien.js playerStatsHC ext.the, trần data/he-chien.json → extra_cap.the). pham.*.luc: lực chiến thêm (%) của phẩm đó trên tu sĩ chuẩn; chi_so KHÔNG sửa tay: sửa huong / luc / tran rồi chạy node tools/the-chat-can.mjs --ghi (chia theo huong, đổi điểm ra % bằng tỷ giá data/tiem-nang.json → quy, kẹp tran từng chỉ số, dò tới khi lực chiến thêm đúng luc). tools/the-chat.test.mjs giữ: Tiên so với Phàm không quá 20%. Máy chủ quay và giữ kết quả (tools/the-chat-sql.py); chơi khách thì quay tại máy. Lễ: src/game/le-the.js, src/ui/le-the.js; bảng: src/ui/tiem-nang-view.js.",
+ "on": true,
+ "mo": 2,
+ "tran": {
+  "_note": "trần % một thể chất được cộng vào từng chỉ số (không thể chất nào dồn quá tay vào một chỉ số nhạy như hồi chiêu, hút máu)",
+  "atk_pct": 30,
+  "hp_pct": 48,
+  "def_pct": 70,
+  "crit": 12,
+  "crit_dmg": 60,
+  "cdr": 8,
+  "lifesteal": 12,
+  "thorns": 14
+ },
+ "do": {
+  "_note": "tu sĩ chuẩn dùng để cân (src/game/he-chien.js stdList): đo mức lực chiến thêm ở từng cảnh giới trong canh_gioi, lấy mức CAO NHẤT làm mức của thể chất (tools/the-chat-can.mjs), nên pham.*.luc là mức thêm tối đa ở bất cứ cảnh giới nào. sai: bài thử cho mức đo lệch pham.*.luc bấy nhiêu điểm % (chỉ số làm tròn nên lực chiến đi từng nấc, không phải lúc nào cũng chạm đúng mức)",
+  "canh_gioi": [
+   2.2,
+   2.5,
+   3.5,
+   4.5,
+   5.5,
+   6.5,
+   7.5,
+   8.5
+  ],
+  "sai": 0.2
+ },
+ "pham": [
+  {
+   "id": "pham",
+   "ten": "Phàm phẩm",
+   "mau": "#5fd07a",
+   "w": 40,
+   "luc": 3
+  },
+  {
+   "id": "linh",
+   "ten": "Linh phẩm",
+   "mau": "#5ab8f0",
+   "w": 28,
+   "luc": 6
+  },
+  {
+   "id": "huyen",
+   "ten": "Huyền phẩm",
+   "mau": "#b070ff",
+   "w": 17,
+   "luc": 9
+  },
+  {
+   "id": "dia",
+   "ten": "Địa phẩm",
+   "mau": "#ff9a3a",
+   "w": 9,
+   "luc": 13
+  },
+  {
+   "id": "thien",
+   "ten": "Thiên phẩm",
+   "mau": "#ffe45a",
+   "w": 4.5,
+   "luc": 16.5
+  },
+  {
+   "id": "tien",
+   "ten": "Tiên phẩm",
+   "mau": "#ff4a4a",
+   "w": 1.5,
+   "luc": 20
+  }
+ ],
+ "the": {
+  "pham-thai": {
+   "ten": "Phàm Thai Tục Cốt",
+   "pham": 0,
+   "han": "凡",
+   "huong": {
+    "atk_pct": 0.34,
+    "hp_pct": 0.33,
+    "def_pct": 0.33
+   },
+   "dac_diem": "Đều mọi mặt",
+   "loi": "Thân xác người thường. Không được trời cho gì, cũng không thiếu gì; đi được bao xa là tự đôi chân mình.",
+   "chi_so": {
+    "atk_pct": 2.2,
+    "hp_pct": 4,
+    "def_pct": 7.5
+   }
+  },
+  "moc-linh": {
+   "ten": "Mộc Linh Chi Thể",
+   "pham": 0,
+   "han": "木",
+   "huong": {
+    "hp_pct": 0.7,
+    "def_pct": 0.15,
+    "atk_pct": 0.15
+   },
+   "dac_diem": "Dai sức, thiên về Sinh lực",
+   "loi": "Gân cốt mang chút sinh khí cỏ cây. Vết thương mau lành hơn người, mệt mấy cũng gượng dậy được.",
+   "chi_so": {
+    "hp_pct": 8.8,
+    "def_pct": 3.6,
+    "atk_pct": 1
+   }
+  },
+  "thach-phu": {
+   "ten": "Thạch Phu Chi Thể",
+   "pham": 0,
+   "han": "石",
+   "huong": {
+    "def_pct": 0.7,
+    "hp_pct": 0.3
+   },
+   "dac_diem": "Da đá, thiên về Thủ",
+   "loi": "Da thô ráp như mặt đá núi. Đao kiếm thường chém vào chỉ để lại vệt trắng.",
+   "chi_so": {
+    "def_pct": 14.8,
+    "hp_pct": 3.4
+   }
+  },
+  "thanh-phong": {
+   "ten": "Thanh Phong Khinh Thể",
+   "pham": 0,
+   "han": "風",
+   "huong": {
+    "cdr": 0.4,
+    "atk_pct": 0.6
+   },
+   "dac_diem": "Thân nhẹ, thiên về Hồi chiêu",
+   "loi": "Thân nhẹ như lá, khí huyết xoay vòng nhanh hơn người thường nửa nhịp.",
+   "chi_so": {
+    "cdr": 3.4,
+    "atk_pct": 4
+   }
+  },
+  "thiet-cot": {
+   "ten": "Thiết Cốt Đồng Bì",
+   "pham": 1,
+   "han": "鐵",
+   "huong": {
+    "def_pct": 0.65,
+    "hp_pct": 0.35
+   },
+   "dac_diem": "Xương sắt da đồng, thiên về Thủ",
+   "loi": "Xương như sắt nguội, da như đồng đỏ. Thợ rèn nhìn thấy cũng phải gõ thử một cái.",
+   "chi_so": {
+    "def_pct": 29.4,
+    "hp_pct": 8.4
+   }
+  },
+  "phong-loi": {
+   "ten": "Phong Lôi Linh Thể",
+   "pham": 1,
+   "han": "雷",
+   "huong": {
+    "cdr": 0.35,
+    "atk_pct": 0.4,
+    "crit": 0.25
+   },
+   "dac_diem": "Nhanh như gió sấm, thiên về Hồi chiêu",
+   "loi": "Trong kinh mạch có tiếng sấm rất khẽ. Ra chiêu nhanh như gió, thu chiêu gọn như chớp.",
+   "chi_so": {
+    "cdr": 5.7,
+    "atk_pct": 5.3,
+    "crit": 2
+   }
+  },
+  "bich-thuy": {
+   "ten": "Bích Thủy Nhu Thể",
+   "pham": 1,
+   "han": "水",
+   "huong": {
+    "hp_pct": 0.75,
+    "atk_pct": 0.25
+   },
+   "dac_diem": "Mềm như nước, thiên về Sinh lực",
+   "loi": "Thân mềm như nước, đòn nặng mấy đánh vào cũng tan đi quá nửa.",
+   "chi_so": {
+    "hp_pct": 19.4,
+    "atk_pct": 3.4
+   }
+  },
+  "xich-hoa": {
+   "ten": "Xích Hỏa Linh Thể",
+   "pham": 1,
+   "han": "火",
+   "huong": {
+    "atk_pct": 0.8,
+    "crit": 0.2
+   },
+   "dac_diem": "Máu nóng, thiên về Công",
+   "loi": "Máu nóng hơn người một phần. Lúc vận công, hơi thở cũng mang mùi than hồng.",
+   "chi_so": {
+    "atk_pct": 11.6,
+    "crit": 1.7
+   }
+  },
+  "huyen-am": {
+   "ten": "Huyền Âm Hàn Thể",
+   "pham": 2,
+   "han": "陰",
+   "huong": {
+    "lifesteal": 0.45,
+    "atk_pct": 0.3,
+    "hp_pct": 0.25
+   },
+   "dac_diem": "Thân lạnh, thiên về Hút máu",
+   "loi": "Thân lạnh quanh năm. Sinh khí của kẻ địch chạm vào là bị hút về như nước chảy chỗ trũng.",
+   "chi_so": {
+    "lifesteal": 11.6,
+    "atk_pct": 6.2,
+    "hp_pct": 9.8
+   }
+  },
+  "liet-duong": {
+   "ten": "Liệt Dương Chiến Thể",
+   "pham": 2,
+   "han": "陽",
+   "huong": {
+    "atk_pct": 0.75,
+    "crit_dmg": 0.25
+   },
+   "dac_diem": "Thân lửa, thiên về Công",
+   "loi": "Dương khí cuồn cuộn trong xương. Càng đánh càng hăng, không biết lùi là gì.",
+   "chi_so": {
+    "atk_pct": 16,
+    "crit_dmg": 29.2
+   }
+  },
+  "luu-ly-ngoc-cot": {
+   "ten": "Lưu Ly Ngọc Cốt",
+   "pham": 2,
+   "han": "玉",
+   "huong": {
+    "def_pct": 0.5,
+    "hp_pct": 0.5
+   },
+   "dac_diem": "Xương ngọc, Thủ và Sinh lực",
+   "loi": "Xương trong như ngọc lưu ly, soi dưới trăng thấy ánh xanh. Gãy rồi liền lại còn cứng hơn trước.",
+   "chi_so": {
+    "def_pct": 35.5,
+    "hp_pct": 18.8
+   }
+  },
+  "bach-doc": {
+   "ten": "Bách Độc Bất Xâm Thể",
+   "pham": 2,
+   "han": "毒",
+   "huong": {
+    "thorns": 0.45,
+    "hp_pct": 0.3,
+    "def_pct": 0.25
+   },
+   "dac_diem": "Trăm độc không xâm, thiên về Phản đòn",
+   "loi": "Trăm thứ độc vào người đều hoá thành của mình. Kẻ nào đánh trúng, kẻ đó tự chuốc lấy.",
+   "chi_so": {
+    "thorns": 11.4,
+    "hp_pct": 11.2,
+    "def_pct": 17.6
+   }
+  },
+  "bat-diet-kim-than": {
+   "ten": "Bất Diệt Kim Thân",
+   "pham": 3,
+   "han": "金",
+   "huong": {
+    "hp_pct": 0.5,
+    "def_pct": 0.4,
+    "thorns": 0.1
+   },
+   "dac_diem": "Thân vàng, Sinh lực và Thủ",
+   "loi": "Da ánh kim nhạt lúc vận công. Người xưa nói thân này chôn dưới núi trăm năm vẫn chưa mục.",
+   "chi_so": {
+    "hp_pct": 27.9,
+    "def_pct": 42.2,
+    "thorns": 3.8
+   }
+  },
+  "kiem-cot": {
+   "ten": "Thiên Sinh Kiếm Cốt",
+   "pham": 3,
+   "han": "劍",
+   "huong": {
+    "crit": 0.45,
+    "crit_dmg": 0.25,
+    "atk_pct": 0.3
+   },
+   "dac_diem": "Xương kiếm trời sinh, thiên về Bạo kích",
+   "loi": "Sinh ra đã có một đoạn xương hình lưỡi kiếm. Cầm binh khí nào cũng như cầm lại vật cũ.",
+   "chi_so": {
+    "crit": 7.7,
+    "crit_dmg": 39.2,
+    "atk_pct": 8.5
+   }
+  },
+  "hau-duc": {
+   "ten": "Hậu Đức Tải Vật Thể",
+   "pham": 3,
+   "han": "土",
+   "huong": {
+    "hp_pct": 0.8,
+    "def_pct": 0.2
+   },
+   "dac_diem": "Vững như đất, thiên về Sinh lực",
+   "loi": "Thân vững như đất dày chở vạn vật. Đứng yên một chỗ, gió nào cũng không lay nổi.",
+   "chi_so": {
+    "hp_pct": 46.9,
+    "def_pct": 22.2
+   }
+  },
+  "tu-loi": {
+   "ten": "Tử Lôi Bá Thể",
+   "pham": 3,
+   "han": "霆",
+   "huong": {
+    "atk_pct": 0.7,
+    "cdr": 0.3
+   },
+   "dac_diem": "Sấm tím, Công và Hồi chiêu",
+   "loi": "Sấm tím chạy dọc sống lưng. Mỗi đòn đánh ra đều kéo theo tiếng nổ rền.",
+   "chi_so": {
+    "atk_pct": 24.2,
+    "cdr": 8
+   }
+  },
+  "thai-am": {
+   "ten": "Thái Âm Linh Thể",
+   "pham": 4,
+   "han": "月",
+   "huong": {
+    "lifesteal": 0.4,
+    "cdr": 0.2,
+    "atk_pct": 0.4
+   },
+   "dac_diem": "Thân trăng, Hút máu và Hồi chiêu",
+   "loi": "Thân hợp với ánh trăng. Đêm càng sâu khí càng đầy, kẻ địch càng đánh càng thấy mình cạn.",
+   "chi_so": {
+    "lifesteal": 12,
+    "cdr": 8,
+    "atk_pct": 22
+   }
+  },
+  "cuu-duong": {
+   "ten": "Cửu Dương Thánh Thể",
+   "pham": 4,
+   "han": "日",
+   "huong": {
+    "atk_pct": 0.6,
+    "crit_dmg": 0.4
+   },
+   "dac_diem": "Chín mặt trời, Công và ST bạo",
+   "loi": "Chín vầng dương ngủ trong đan điền. Một khi thức dậy, đòn đánh ra như mặt trời rơi.",
+   "chi_so": {
+    "atk_pct": 28.3,
+    "crit_dmg": 60
+   }
+  },
+  "tinh-than": {
+   "ten": "Tinh Thần Chiến Thể",
+   "pham": 4,
+   "han": "星",
+   "huong": {
+    "crit": 0.4,
+    "atk_pct": 0.45,
+    "crit_dmg": 0.15
+   },
+   "dac_diem": "Thân sao trời, Bạo kích và Công",
+   "loi": "Huyệt đạo xếp theo sao trời. Mỗi lần bạo kích là một vì sao trong người loé sáng.",
+   "chi_so": {
+    "crit": 8.9,
+    "atk_pct": 16.7,
+    "crit_dmg": 30.6
+   }
+  },
+  "vo-cau": {
+   "ten": "Vô Cấu Lưu Ly Thể",
+   "pham": 4,
+   "han": "璃",
+   "huong": {
+    "def_pct": 0.45,
+    "thorns": 0.35,
+    "hp_pct": 0.2
+   },
+   "dac_diem": "Không vết bụi, Thủ và Phản đòn",
+   "loi": "Thân không vương một hạt bụi trần. Đòn đánh tới như đánh vào gương, dội ngược lại người ra tay.",
+   "chi_so": {
+    "def_pct": 60.3,
+    "thorns": 14,
+    "hp_pct": 14.2
+   }
+  },
+  "hon-don": {
+   "ten": "Hỗn Độn Đạo Thể",
+   "pham": 5,
+   "han": "混",
+   "huong": {
+    "atk_pct": 0.2,
+    "hp_pct": 0.16,
+    "def_pct": 0.14,
+    "crit": 0.12,
+    "crit_dmg": 0.12,
+    "cdr": 0.08,
+    "lifesteal": 0.09,
+    "thorns": 0.09
+   },
+   "dac_diem": "Đủ mọi mặt",
+   "loi": "Thân từ thuở trời đất chưa chia. Không thiên về đâu, vì mọi thứ đều từ nó mà ra.",
+   "chi_so": {
+    "atk_pct": 8.6,
+    "hp_pct": 13.1,
+    "def_pct": 21.7,
+    "crit": 3.1,
+    "crit_dmg": 28.5,
+    "cdr": 4.3,
+    "lifesteal": 4.8,
+    "thorns": 5
+   }
+  },
+  "van-kiep": {
+   "ten": "Vạn Kiếp Bất Diệt Thể",
+   "pham": 5,
+   "han": "劫",
+   "huong": {
+    "hp_pct": 0.45,
+    "thorns": 0.3,
+    "def_pct": 0.25
+   },
+   "dac_diem": "Vạn kiếp không mòn, Sinh lực và Phản đòn",
+   "loi": "Qua vạn kiếp nạn mà không mòn. Kẻ đánh vào thân này phải gánh lấy một phần kiếp số của nó.",
+   "chi_so": {
+    "hp_pct": 41.8,
+    "thorns": 14,
+    "def_pct": 44
+   }
+  },
+  "dao-thai": {
+   "ten": "Tiên Thiên Đạo Thai",
+   "pham": 5,
+   "han": "道",
+   "huong": {
+    "atk_pct": 0.5,
+    "cdr": 0.22,
+    "crit": 0.28
+   },
+   "dac_diem": "Thai đạo trời sinh, Công và Hồi chiêu",
+   "loi": "Chưa ra đời đã nghe đạo. Linh lực trong người tự xoay vòng, không cần ai dạy.",
+   "chi_so": {
+    "atk_pct": 25.1,
+    "cdr": 8,
+    "crit": 8.5
+   }
+  },
+  "thai-so": {
+   "ten": "Thái Sơ Thần Thể",
+   "pham": 5,
+   "han": "初",
+   "huong": {
+    "atk_pct": 0.5,
+    "hp_pct": 0.5
+   },
+   "dac_diem": "Thân thuở ban sơ, Công và Sinh lực",
+   "loi": "Thân của những vị đứng dưới gốc Cây Thế Giới thuở ban sơ. Trấn Ma Kỷ chỉ chép lại được vài cái tên.",
+   "chi_so": {
+    "atk_pct": 23.3,
+    "hp_pct": 44.4
+   }
+  }
+ },
+ "le": {
+  "_note": "Màn lễ thức tỉnh thể phách (src/ui/le-the.js), làm lại 26/11/2026 (chủ dự án: \"hiệu ứng nhận thể phách cũng hoành tráng hơn, tắt các ô hiện phẩm cấp khi đang thức tỉnh thể phách để người chơi đỡ so sánh\"): không còn tháp sáu bậc phẩm, không ô ghi phẩm trên màn lễ; ai cũng một màn như nhau, chỉ khác màu. Kim Đan soi lên, linh khí xoáy về, huyet khiếu trên thân lần lượt sáng (huyet_s giây một khiếu, khiếu sau lâu hơn một chút), đủ thì xung lần nhịp xung (xung_s giây một nhịp) rồi bùng; ấn thể chất nở ra giữa vầng tia, hiện tên, đặc điểm, lai lịch, từng dòng chỉ số (dong_s giây một dòng). mau_soi: màu lúc đang soi (chưa lộ màu của thể chất). Chạm lúc đang soi: chạy nhanh tới kết quả. tu_dong_s: đang Tự hành / Tự đánh thì tự nhận. yen_s: màn yên bấy nhiêu giây mới mở lễ. thu_lai_s: có tài khoản mà máy chủ chưa quay được thì hoãn lễ bấy nhiêu giây rồi thử lại (không quay tạm tại máy). co_mat_s: lễ chỉ tự mở khi người chơi vừa chạm màn / bấm phím thật trong bấy nhiêu giây (src/game/co-mat.js): đang treo máy không ai ngồi đó thì chờ.",
+  "yen_s": 4,
+  "thu_lai_s": 60,
+  "co_mat_s": 15,
+  "huyet": 9,
+  "huyet_s": 0.3,
+  "xung": 3,
+  "xung_s": 0.32,
+  "mau_soi": "#ffd98a",
+  "dong_s": 0.42,
+  "tu_dong_s": 2.4,
+  "sfx": {
+   "mo": "chuong",
+   "bac": "pluck",
+   "xung": "kd-tu",
+   "dung": "breakthrough",
+   "dong": "chime",
+   "nhan": "sparkle"
+  },
+  "goi": "Kim Đan soi thân · Thể phách thức tỉnh",
+  "ten": "Thể chất",
+  "cho": "Trời cho",
+  "nhan": "Nhận thể chất",
+  "mot_luot": "Thân này trời sinh, một đời chỉ thức tỉnh một lần.",
+  "truoc": "Đinh! Kim Đan của ký chủ vừa soi tới tận xương. Thể phách đang thức tỉnh, đứng yên nào, bổn hệ thống chép lại.",
+  "sau": [
+   "{the}. Chép rồi. Thân nào cũng là thân đứng chắn được, ký chủ ạ.",
+   "{the}. Không tệ. Bổn hệ thống ghi vào sổ, kèm một dấu chấm.",
+   "{the}? Hiếm đấy. Bổn hệ thống chép thêm một dấu sao bên lề.",
+   "{the}... Ký chủ giấu thân này ở đâu bấy lâu vậy?",
+   "...{the}. Bổn hệ thống xin phép chép dòng này bằng mực vàng.",
+   "...{the}. Trấn Ma Kỷ mấy trăm năm chưa chép lại cái tên này. Bổn hệ thống run tay rồi."
+  ],
+  "chu_lon": "Thể phách thức tỉnh"
+ },
+ "text": {
+  "title": "Thể chất",
+  "chua": "Thể phách chưa thức tỉnh. Kết Đan (đạt Kim Đan) sẽ thức tỉnh thể chất.",
+  "chua_ngan": "Kết Đan sẽ thức tỉnh",
+  "toc_chua_ngan": "Trúc Cơ sẽ thức tỉnh",
+  "cho": "Trời cho",
+  "khoa": "Thể chất trời sinh, một đời chỉ thức tỉnh một lần.",
+  "huyet_mach": "Huyết mạch"
+ }
+}

@@ -1,0 +1,146 @@
+{
+ "_note": "Nguyên Anh xuất khiếu (chủ dự án 27/11/2026 00:1x: \"nếu nguyên anh cũng giống y như bản thân, bản thân như nào nguyên anh như vậy, chỉ khác là màu vàng\"; docs/21-NGUYEN-ANH.md). Mở ở cảnh giới mo (3 = Nguyên Anh, tính theo cảnh giới cao nhất từng đạt). Lần đầu: lễ Kết Anh lúc màn yên (le). Phẩm Nguyên Anh (chủ dự án 01:16: \"có các bậc phàm tới tiên giống thể phách, khác 1 điều đó là thể phách càng sịn thì nguyên anh càng đểu và ngược lại\"): phẩm = 5 − phẩm thể chất (data/the-chat.json → pham), không quay, máy chủ không phải làm gì thêm. Mỗi phẩm (pham[i]): đang đánh quái thì cứ hoi giây Nguyên Anh rời thân một lần, ở ngoài ra_s giây; mỗi nhát đánh thường của mình trúng quái thì Nguyên Anh chém theo sau tre giây, sát thương = k × đòn đánh thường gốc × hệ số tầng (tang: Nguyên Anh tầng 1 → tầng 9; cảnh giới sau giữ mức tầng 9). Số chọn để sát thương thêm trung bình khi đánh liên tục ≈ mức lực chiến thêm của thể chất phẩm NGƯỢC lại (luc), nên thể chất + Nguyên Anh của ai cũng cỡ +22–23%. Chỉ đánh quái, không đánh người. Code: src/game/nguyen-anh.js, src/game/le-anh.js, src/render/draw-nguyen-anh.js.",
+ "on": true,
+ "mo": 3,
+ "pham": [
+  {
+   "k": 0.25,
+   "ra_s": 10,
+   "hoi": 45,
+   "luc": 3
+  },
+  {
+   "k": 0.45,
+   "ra_s": 11,
+   "hoi": 42,
+   "luc": 6
+  },
+  {
+   "k": 0.6,
+   "ra_s": 12,
+   "hoi": 39,
+   "luc": 9
+  },
+  {
+   "k": 0.75,
+   "ra_s": 13,
+   "hoi": 36,
+   "luc": 13
+  },
+  {
+   "k": 0.85,
+   "ra_s": 14,
+   "hoi": 33,
+   "luc": 16.5
+  },
+  {
+   "k": 0.9,
+   "ra_s": 16,
+   "hoi": 30,
+   "luc": 20
+  }
+ ],
+ "tang": [
+  0.8,
+  1.0
+ ],
+ "ty_le_danh_thuong": 0.65,
+ "tre": 0.14,
+ "tam": 22,
+ "canh": 20,
+ "bay": 7,
+ "co": 1,
+ "chien_s": 3,
+ "toc": 240,
+ "hien_toi_da": 4,
+ "mau": {
+  "sang": "#fff6cf",
+  "giua": "#ffcd45",
+  "toi": "#b8740e",
+  "quang": "#ffd27a",
+  "chem": "#ffe08a"
+ },
+ "phu": 0.6,
+ "sang": 0.18,
+ "tieng": {
+  "ra": "na.ra",
+  "ve": "na.ve",
+  "le": "na.le"
+ },
+ "le": {
+  "co_mat_s": 15,
+  "yen_s": 4,
+  "dai_s": 5.4,
+  "truoc": "Ký chủ, kim đan của ngươi đang nứt. Đừng sợ: hạt đã tới ngày nảy mầm.",
+  "chu_lon": "Trấn Ma Kỷ chép",
+  "cau": "Nguyên Anh {pham}",
+  "han": "Kim đan vỡ, hạt đã nảy mầm.",
+  "sau": [
+   "Thể phách của ngươi đã quá mạnh. Cây chia cho mỗi người một phần như nhau, nên cái mầm này nhỏ thôi. Lúc ngươi lâm trận, nó vẫn rời thân ra đánh cùng một lúc rồi về.",
+   "Thể phách và cái mầm của ngươi chia đều phần của Cây. Lúc ngươi lâm trận, nó sẽ rời thân ra đánh cùng một lúc rồi về.",
+   "Thân thể ngươi mỏng, nên cái mầm này mọc khoẻ để gánh thay. Lúc ngươi lâm trận, nó sẽ rời thân ra đánh cùng, lâu hơn, mạnh hơn."
+  ],
+  "man": {
+   "_": "Màn thức tỉnh phẩm Nguyên Anh cả màn (src/ui/le-anh.js, le-anh.css; chủ dự án 27/11/2026 01:28: \"hiệu ứng phải đỉnh hơn cả thể phách và huyết mạch, âm thanh cũng thế\"). nhip (giây): tim các nhịp kim đan đập, nut các vết rạn, hit lúc hít vào (đan co), bung lúc vỡ, tam: tâm kim đan theo chiều cao màn (tam_thap: màn thấp dưới 760 điểm, như 9:16), co: cỡ Nguyên Anh vàng so với nhân vật. phu_van: chữ trên vòng phù văn. dong: các dòng công dụng 'nhãn|lời', thay {ra} {k} {hoi} {giu} {phut} theo phẩm và data anh. sfx: tiếng từng nhịp (tools/sfx_chieu.py, mục Nguyên Anh).",
+   "nhip": {
+    "tim": [
+     0.9,
+     1.6,
+     2.2,
+     2.65,
+     3.0,
+     3.28,
+     3.52
+    ],
+    "nut": [
+     2.3,
+     2.72,
+     3.05,
+     3.32,
+     3.56,
+     3.72
+    ],
+    "hit": 3.8,
+    "bung": 4.15,
+    "tam": 0.32,
+    "tam_thap": 0.24,
+    "co": 3.6
+   },
+   "goi_dau": "Kim đan đang nứt…",
+   "goi": "Nguyên Anh xuất thế",
+   "an": "元嬰",
+   "ten": "Nguyên Anh · {pham}",
+   "phu_van": "元嬰出竅金丹化嬰神魂不滅",
+   "dong": [
+    "Xuất khiếu|Lâm trận thì rời thân ra đánh cùng {ra} giây, mỗi nhát {k}% sát thương đánh thường, nghỉ {hoi} giây rồi lại ra.",
+    "Thân hủy, Anh còn|Bị hạ lần đầu thì hoá Nguyên Anh, không mất gì; chạy ra chỗ an toàn rồi Tái tạo (tự tái tạo sau {giu} giây). {phut} phút sau mới che chở lần nữa."
+   ],
+   "mot_luot": "Mỗi người chỉ thức tỉnh Nguyên Anh một lần.",
+   "nhan": "Nhận",
+   "dong_s": 0.5,
+   "tu_dong_s": 2.5,
+   "sfx": {
+    "u": "na.u",
+    "tim": "na.tim",
+    "nut": "na.nut",
+    "bung": "na.bung",
+    "hien": "na.hien",
+    "dong": "na.chu",
+    "nhan": "na.nhan"
+   }
+  }
+ },
+ "text": {"_": "Ô Nguyên Anh trong mục Tiềm năng (bảng Nhân vật, cạnh Huyết mạch, Thể chất; src/ui/tiem-anh.js).", "title": "Nguyên Anh", "an": "嬰", "chua_ngan": "Độ kiếp Kết Anh", "cho_le": "Chờ lễ Kết Anh", "chua": "Độ kiếp Kết Anh (Kim Đan tầng 9 → Nguyên Anh): kim đan vỡ, Nguyên Anh y hệt ngươi bằng vàng thức tỉnh, lâm trận thì xuất khiếu đánh cùng, bị hạ thì hoá Nguyên Anh giữ mạng.", "nghich": "Phẩm Nguyên Anh ngược với phẩm thể phách: thể phách càng mạnh, Nguyên Anh càng nhỏ, và ngược lại. Không đổi được."},
+ "anh": {
+  "_": "Thân hủy, Nguyên Anh còn (chủ dự án 27/11/2026 01:09: \"khi bị đánh chết thì sẽ hoá thành nguyên anh, sau đó k nhận sát thương và có thể chạy ra chỗ khác để tái tạo lại cơ thể. K tính là bị giết, khi hoá thành nguyên anh sẽ ở dạng trong suốt, tốc chạy ngang vs tốc bay\"; 01:1x bảng chọn \"Bấm nút Tái tạo\", và \"trốn trong 30s hồi phục cơ thể hoặc có hút hồi ngay mà lại bị giết tiếp thì lúc này mới tính là bị chết\"). Lần đầu bị hạ (quái, trùm; người chơi thì máy chủ phòng quyết, data/pvp.json → server.na): hoá Nguyên Anh trong suốt giu_s giây, không trúng đòn, chạy bằng tốc bay, không đánh được; nút Tái tạo bấm được sau cho_s giây; hết giu_s tự tái tạo; đang Tự đánh / Tự hành thì tự tái tạo sau tu_s giây. Tái tạo: đầy máu, miễn đòn mien_s giây. Lá chắn hồi hoi_s giây (cùng số với máy chủ phòng). Không áp khi độ kiếp, so tài, kết đan. Code: src/game/anh-the.js, nút src/ui/anh-btn.js, vẽ src/render/draw-nguyen-anh.js veAnhThe.",
+  "giu_s": 30,
+  "cho_s": 2,
+  "tu_s": 3,
+  "hoi_s": 300,
+  "mien_s": 1,
+  "do_trong": 0.5,
+  "nut": "Tái tạo",
+  "bao": "Thân hủy, Nguyên Anh còn! Chạy ra chỗ an toàn rồi bấm Tái tạo.",
+  "xong": "Thân thể tái tạo xong."
+ }
+}

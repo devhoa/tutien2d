@@ -1,0 +1,72 @@
+// Tinh đồ: vị trí các thiên thể của Thiên Kiếm Tinh Hệ (data/starmap.json) theo giờ thật, độ nguy hiểm, có bay tới được không.
+import { demonWhy } from './demon.js';
+import { mapGate } from './map-gate.js';
+
+const RAD = Math.PI / 180;
+export const REF = 180; // size trong data tính theo điểm ảnh khi nửa bề rộng tinh đồ là 180
+
+// Danh sách phẳng: mặt trời, tinh cầu, mặt trăng (có parent)
+export function bodiesOf(sm, maps) {
+  const out = [{ ...sm.sun, id: 'sun', sun: true }];
+  if (sm.sun2) out.push({ ...sm.sun2, id: 'sun2', sun: true });   // mặt trời của hệ thứ hai (26/11/2026)
+  for (const b of sm.bodies) {
+    const p = { ...b, id: b.id || b.map, name: b.name || maps[b.map]?.name };
+    out.push(p);
+    for (const m of b.moons || []) out.push({ ...m, id: m.map, name: m.name || maps[m.map]?.name, parent: p });
+  }
+  return out;
+}
+
+export function orbitR(sm, orbit) { return sm.orbits.first + sm.orbits.step * (orbit - 1); }
+
+// Khai hoang (chủ dự án 19/11/2026 03:16): cấp càng cao tinh cầu càng ra rìa tinh hà (data/starmap.json → tv.kh_orbit)
+export const khOrbit = (sm, cap) => sm.tv?.kh_orbit ? sm.tv.kh_orbit.first + sm.tv.kh_orbit.step * (Math.max(1, cap) - 1) : null;
+// Rìa tinh hà (vòng của kết giới): vòng xa nhất đang có + tv.pad; tinh cầu khai hoang cấp cao vượt rìa thì kết giới nở theo
+export const rimOrbit = (sm, bodies) => Math.max(...bodies.filter(b => b.orbit && !b.parent).map(b => b.orbit)) + (sm.tv?.pad ?? 0.6);
+
+// Toạ độ trên mặt phẳng tinh hệ, đơn vị = nửa bề rộng tinh đồ (chưa nghiêng); min = phút theo giờ thật
+export function flatPos(sm, b, min) {
+  if (b.sun) return { x: 0, y: 0 };
+  if (b.parent) {
+    const p = flatPos(sm, b.parent, min);
+    const a = (b.angle + b.spin * min) * RAD, d = b.dist * b.parent.size / REF;
+    return { x: p.x + Math.cos(a) * d, y: p.y + Math.sin(a) * d };
+  }
+  const a = (b.angle + sm.spin / Math.pow(b.orbit, sm.spin_pow) * min) * RAD, r = orbitR(sm, b.orbit);
+  return { x: Math.cos(a) * r, y: Math.sin(a) * r };
+}
+
+// Màu so cảnh giới: dễ / vừa / khó (không hiện số)
+export function dangerOf(b, realm) {
+  if (b.realm == null || b.kind === 'lost') return null;
+  return realm > b.realm ? 'easy' : realm === b.realm ? 'fair' : 'hard';
+}
+
+// Đường bay tới tinh cầu này đã mở chưa (cổng cũ nối hai tinh cầu, nay "fly": true, có need thì cần cờ truyện đó)
+export function flyOpen(game, id) {
+  for (const m of Object.values(game.data.maps)) for (const pt of m.portals) if (pt.fly && pt.to === id && (!pt.need || game.save.flags?.[pt.need])) return true;
+  return false;
+}
+
+// Lý do không bay tới được (null = bay được)
+export function whyNot(game, b) {
+  const sm = game.data.starmap, t = sm.texts, def = game.data.maps[b.map];
+  if (b.sun || b.kind === 'lost') return t.lost;
+  if (b.kind === 'soon' || !def) return t.soon;
+  if (def.demon) return demonWhy(game);
+  const gate = mapGate(game, b.map); if (gate) return gate;   // mở theo tu vi (data/realms.json map_open)   // Phương Thiên Địa: mở theo cảnh giới, mỗi tuần một lần
+  if (!b.kh && !b.mo && !game.save.visited?.[b.map] && !flyOpen(game, b.map)) return t.locked;   // tinh cầu khai hoang: công khai, ai cũng bay tới; mo: tinh cầu farm mở cho mọi người (26/11/2026), chỉ còn chặn theo tu vi
+  if (!def.world) return t.moon.replace('{parent}', b.parent?.name || '');
+  return null;
+}
+
+// Thiên thể của một bản đồ (mặt trăng có parent) và vòng quỹ đạo của nó (mặt trăng tính theo tinh cầu mẹ)
+export function bodyOfMap(sm, id) {
+  for (const b of sm.bodies) {
+    if (b.map === id) return b;
+    const m = (b.moons || []).find(x => x.map === id);
+    if (m) return { ...m, parent: b };
+  }
+  return null;
+}
+export function orbitOf(sm, id) { const b = bodyOfMap(sm, id); return b ? b.orbit || b.parent?.orbit : null; }

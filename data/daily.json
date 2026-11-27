@@ -1,0 +1,56 @@
+{
+ "_note": "per_day 20 (chủ dự án 10/11/2026 13:15: mỗi ngày ~20 nhiệm vụ, farm, khảm, trò chuyện…, 25 điểm mỗi việc). Kiểu việc thêm 10/11: socket (khảm ngọc), merge (ghép ngọc), enhance (cường hoá), reroll (tẩy luyện), sell (bán đồ, tự bán khi đầy túi không tính), skillup (nâng cấp chiêu), chat (gửi tin kênh chat), talk (nói chuyện NPC), pat (vuốt linh thú), buy (Vạn Bảo Lâu), summon (triệu hồi Hệ Thống), duel (luận võ), visit + map (tới bản đồ). go: nút Đi làm mở bảng ({fn: hàm game.*, arg} hoặc {btn: nút cũ}). Việc hằng ngày và cống hiến tông môn. Mỗi ngày (giờ máy) bốc per_day việc từ pool (need: cờ cốt truyện; việc hạ boss bí cảnh dùng đúng cờ mở cổng bí cảnh đó, việc ở tinh cầu dùng cờ mở tinh cầu, đổi 05/11/2026 vì cờ truyện cũ đã xoá). Xong việc nhận thưởng + cống hiến; xong hết nhận rương. Treo thưởng chỉ có thưởng bounty_per_day lần mỗi ngày. Cống hiến lên chức vị (ranks) và đổi đồ ở shop.",
+ "off": true, "_off": "Chủ dự án 06/11/2026 16:49: bỏ nhiệm vụ hằng ngày (cột nhiệm vụ trên màn hình, điểm danh, rương); nhiệm vụ hệ thống thay (data/he-thong.json). off = true: không dựng cột nhiệm vụ (src/main.js createQuestDock), không nhắc điểm danh.",
+ "per_day": 20,
+ "guard": {"r": 200, "_": "Việc Trấn giữ vùng an toàn (đề xuất #47 + #48, chủ dự án chốt 01/11): hạ quái thường (không boss) cách NPC dưới r đơn vị trên tinh cầu thì tính tiến độ."},
+ "pool": [
+  {"id": "giet-quai", "type": "kill", "n": 30, "text": "Hạ {n} quái bất kỳ", "reward": {"stones": 1}},
+  {"id": "giet-moc-linh", "type": "kill", "mob": "moc-linh", "n": 10, "text": "Hạ {n} mộc linh", "reward": {"qi": 40}},
+  {"id": "giet-hoa-lang", "type": "kill", "mob": "hoa-lang", "n": 12, "need": "ngu-kiem", "text": "Hạ {n} hỏa lang", "reward": {"stones": 2}},
+  {"id": "giet-ma-binh", "type": "kill", "mob": "ma-binh", "n": 5, "need": "ngu-kiem", "text": "Hạ {n} ma binh", "reward": {"stones": 2}},
+  {"id": "cau-ca", "type": "fish", "n": 5, "text": "Câu {n} con cá", "reward": {"qi": 60}},
+  {"id": "di-chung", "type": "rare", "n": 1, "need": "nguThu", "text": "Hạ {n} quái dị chủng", "reward": {"gem": 1}},
+  {"id": "da-toa", "type": "meditate", "n": 60, "text": "Đả tọa {n} giây", "reward": {"qi": 60}},
+  {"id": "luyen-dan", "type": "brew", "n": 2, "need": "dong-phu", "text": "Luyện đan {n} lần", "reward": {"mats": {"linh-thao": 3}}},
+  {"id": "ren-do", "type": "forge", "n": 1, "need": "dong-phu", "text": "Rèn {n} món ở lò rèn", "reward": {"mats": {"tinh-thiet": 3}}},
+  {"id": "linh-dien", "type": "harvest", "n": 1, "need": "dong-phu", "text": "Thu hoạch linh điền {n} lần", "reward": {"mats": {"yeu-huyet": 1}}},
+  {"id": "tran-giu", "type": "guard", "n": 10, "text": "Trấn giữ vùng an toàn: hạ {n} yêu quái lảng vảng gần dân làng", "reward": {"stones": 2}},
+  {"id": "phan-giai", "type": "salvage", "n": 3, "text": "Phân giải {n} món đồ", "reward": {"stones": 1}},
+  {"id": "bi-canh", "type": "dungeon", "n": 1, "need": "mo-bi-canh", "text": "Vượt bí cảnh {n} lần (bí cảnh nào cũng được, càn quét cũng tính)", "reward": {"gem": 1}, "_": "Chủ dự án 12/11/2026 11:30: việc hạ boss từng bí cảnh (Hàn Hồn, Vạn Kiếm, Thực Mộc Ma Hậu…) hay rơi vào bí cảnh chưa mở, làm không được → gộp thành một việc Vượt bí cảnh, bỏ các việc hạ boss riêng. Giữ mã bi-canh vì máy chủ nhận điểm theo mã."},
+  {"id": "giet-tuyet-lang", "type": "kill", "mob": "tuyet-lang", "n": 12, "need": "han-bang", "text": "Hạ {n} tuyết lang", "reward": {"stones": 2}},
+  {"id": "giet-phong-yeu", "type": "kill", "mob": "phong-yeu", "n": 12, "need": "hac-phong", "text": "Hạ {n} phong yêu", "reward": {"stones": 3}},
+  {"id": "giet-moc-yeu", "type": "kill", "mob": "moc-yeu", "n": 12, "need": "dao-moc", "text": "Hạ {n} mộc yêu", "reward": {"stones": 3}},
+  {"id": "giet-kim-giap", "type": "kill", "mob": "kim-giap-trung", "n": 12, "need": "dao-kim", "text": "Hạ {n} kim giáp trùng", "reward": {"stones": 4}},
+  {"id": "giet-tho-khoi", "type": "kill", "mob": "tho-khoi", "n": 12, "need": "dao-tho", "text": "Hạ {n} thổ khôi", "reward": {"stones": 4}},
+  {"id": "giet-hu-khong", "type": "kill", "mob": "hu-khong-ma", "n": 12, "need": "vet-nut", "text": "Hạ {n} hư không ma", "reward": {"stones": 5}},
+  {"id": "giet-quai-lon", "type": "kill", "n": 100, "text": "Hạ {n} quái bất kỳ (việc lớn)", "reward": {"stones": 2}},
+  {"id": "da-toa-dai", "type": "meditate", "n": 300, "text": "Đả tọa {n} giây", "reward": {"qi": 60}},
+  {"id": "kham-ngoc", "type": "socket", "n": 1, "text": "Khảm {n} viên ngọc vào trang bị", "reward": {"stones": 1}, "go": {"fn": "openBag", "arg": "ngoc"}},
+  {"id": "ghep-ngoc", "type": "merge", "n": 1, "text": "Ghép ngọc {n} lần", "reward": {"stones": 1}, "go": {"fn": "openBag", "arg": "ngoc"}},
+  {"id": "cuong-hoa", "type": "enhance", "n": 3, "text": "Cường hoá trang bị {n} lần", "reward": {"stones": 1}, "go": {"fn": "openBag", "arg": "do"}},
+  {"id": "tay-luyen", "type": "reroll", "n": 2, "text": "Tẩy luyện trang bị {n} lần", "reward": {"stones": 1}, "go": {"fn": "openBag", "arg": "do"}},
+  {"id": "ban-do", "type": "sell", "n": 5, "text": "Bán {n} món đồ (Túi đồ, Bán nhanh)", "reward": {"stones": 1}, "go": {"fn": "openBag", "arg": "do"}},
+  {"id": "nang-chieu", "type": "pbup", "n": 1, "text": "Nâng cấp pháp bảo {n} lần", "reward": {"stones": 1}, "go": {"fn": "openPhapBao"}, "_": "Chủ dự án 12/11/2026 10:47: chiêu cũ đã ẩn, việc này thành nâng cấp pháp bảo (Trang bị → P.bảo, src/ui/self-pb-page.js đếm). Giữ mã nang-chieu vì máy chủ nhận điểm theo mã (p2d_ht_cfg daily)."},
+  {"id": "tro-chuyen", "type": "chat", "n": 3, "text": "Trò chuyện {n} câu ở kênh chat", "reward": {"stones": 1}, "go": {"fn": "openSocial"}},
+  {"id": "noi-chuyen", "type": "talk", "n": 3, "text": "Nói chuyện với {n} người trong làng", "reward": {"stones": 1}},
+  {"id": "vuot-thu", "type": "pat", "n": 3, "text": "Vuốt ve linh thú {n} lần", "reward": {"stones": 1}},
+  {"id": "mua-van-bao", "type": "buy", "n": 1, "text": "Mua {n} món ở Vạn Bảo Lâu", "reward": {"stones": 1}},
+  {"id": "trieu-hoi", "type": "summon", "n": 1, "text": "Triệu hồi Hệ Thống {n} lần", "reward": {"stones": 1}, "go": {"fn": "openHeThong"}},
+  {"id": "luan-vo", "type": "duel", "n": 1, "text": "Luận võ {n} trận", "reward": {"stones": 1}},
+  {"id": "ve-dong-phu", "type": "visit", "n": 1, "map": "dong-phu", "need": "dong-phu", "text": "Về động phủ", "reward": {"stones": 1}}
+ ],
+ "chest": {
+  "stones": 3,
+  "item": "linh",
+  "gem": 1
+ },
+ "retreat": {
+  "_note": "Thưởng bế quan tích luỹ (chủ dự án 02/11/2026: tính theo mốc lớn 100, 1000 giờ, không theo thời gian ngắn). Giờ = phút đả tọa trong game (stats.sit) + thời gian bế quan khi vắng mặt (retreat.off, đã chặn theo offline.max_hours). Mỗi mốc nhận một lần (save.retreat.got). reward như việc ngày (grant ở daily.js): item là độ hiếm thấp nhất, gem số viên ngọc cấp 1, stones Tẩy Luyện Thạch.",
+  "list": [
+   {"h": 100, "reward": {"item": "thien", "gem": 3, "stones": 10}},
+   {"h": 300, "reward": {"item": "thien", "gem": 6, "stones": 20}},
+   {"h": 600, "reward": {"item": "thien", "gem": 10, "stones": 30}},
+   {"h": 1000, "reward": {"item": "thien", "gem": 15, "stones": 50}}
+  ]
+ }
+}

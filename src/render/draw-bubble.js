@@ -1,0 +1,26 @@
+// Bong bóng lời nói nhỏ trên đầu NPC và bạn đi cùng (chatter.js), người chơi và đạo hữu khác (social.js): khung trắng bo góc, đuôi nhọn chỉ xuống, hiện dần rồi mờ đi.
+import { textQ } from './draw-focus.js';
+
+const INK = '#1b1830';
+
+export function drawBubbles(ctx, game) {
+  const sec = game.data.chatter.sec;
+  ctx.font = '6px "Unifont VN", system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  for (const n of [...game.npcs, ...(game.khach || []), game.comp, game.player, ...game.others.visible()]) {
+    const b = n?.bubble;
+    if (!b) continue;
+    const a = Math.min(1, b.t * 5, ((b.sec || sec) - b.t) * 3), w = ctx.measureText(b.text).width + 8, h = 10;
+    const up = (n.riding || n.flying || n.def?.cuoi ? n.lift || 0 : 0) + (n.def ? 8 : 0);   // đang cưỡi / bay / NPC ngồi thú: nâng theo; tên luôn hiện: chừa chỗ cho tên
+    const top = n.y - up - (n.def && (n.khach || game.npcs.includes(n)) ? 37 : 34) + h + 3.5, q = textQ(game, 6);   // máy quay xa: phóng cả bong bóng quanh đuôi
+    ctx.save(); ctx.translate(n.x, top); ctx.scale(q, q); ctx.translate(-n.x, -top);
+    const x = n.x - w / 2, y = top - h - 3.5 - (1 - Math.min(1, b.t * 5)) * 2;   // NPC chibi cao hơn
+    ctx.globalAlpha = a * 0.92;
+    ctx.fillStyle = '#fffaf0'; ctx.strokeStyle = INK; ctx.lineWidth = 1;
+    ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(x, y, w, h, 4); else ctx.rect(x, y, w, h); ctx.fill(); ctx.stroke();   // Safari iOS dưới 16 không có roundRect: lỗi giữa save / restore làm lệch cả khung vẽ
+    ctx.beginPath(); ctx.moveTo(n.x - 2.5, y + h - 0.5); ctx.lineTo(n.x, y + h + 3.5); ctx.lineTo(n.x + 2.5, y + h - 0.5); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(n.x - 2.5, y + h); ctx.lineTo(n.x, y + h + 3.5); ctx.lineTo(n.x + 2.5, y + h); ctx.stroke();
+    ctx.fillStyle = INK; ctx.fillText(b.text, n.x, y + h / 2 + 0.5);
+    ctx.restore();
+  }
+  ctx.globalAlpha = 1; ctx.textBaseline = 'alphabetic';
+}

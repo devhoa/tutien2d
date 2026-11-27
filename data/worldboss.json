@@ -1,0 +1,23 @@
+{
+ "_note": "Boss hiếm khi săn (Yêu Vương): cộng dồn thời gian ở đảo có trong maps (không tính trong nhà, lúc truyện đang chạy). Hết min_min tới max_min phút thì boss của đảo đó hiện gần người chơi. Rời đảo thì boss biến mất, đếm lại từ retry_min phút. Chủ dự án chốt 02/11/2026: Yêu Vương nhập vào vùng ma khí Ngoại Vực Vết Nứt; maps là danh sách thì các Yêu Vương thay nhau mỗi giờ.",
+ "min_min": 15,
+ "max_min": 20,
+ "retry_min": 3,
+ "maps": {
+  "vet-nut-ngoai": [
+   "moc-linh-vuong",
+   "hoa-lang-vuong",
+   "tuyet-lang-vuong",
+   "phong-yeu-vuong",
+   "co-thu-yeu-vuong",
+   "kim-giap-vuong",
+   "nham-giap-thu",
+   "hu-khong-cu-thu"
+  ]
+ },
+ "intro": "Mặt đất rung chuyển... {name} xuất hiện!",
+ "_eta": "Đề xuất #43 (31/10/2026): vừa tới đảo báo eta (còn khoảng {min} phút săn nữa boss hiện); còn warn_sec giây thì nhắc warn một lần.",
+ "eta": "{name} sẽ xuất hiện sau khoảng {min} phút săn trên đảo này.",
+ "warn_sec": 60,
+ "warn": "Mặt đất rung nhẹ... {name} sắp xuất hiện, còn khoảng 1 phút!"
+}

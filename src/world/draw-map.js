@@ -1,0 +1,186 @@
+// Vẽ bản đồ. Nền, nhà các tinh cầu, cây, đá, hoa, dung nham, hồ băng, ruộng bậc thang, mộ kiếm, cột đá, cổ thụ, nấm, đèn lồng, cây khô, trụ đá đen, tinh thể, cổng, bồ đoàn, lò đan, lò rèn, đất linh điền, tùng tuyết, trụ băng, khe hư không, núi, nước, vách hang theo hệ, đá linh căn, cửa phong ấn đã có hình pixel (draw-ground.js); các ô khác còn hình khối (bản tạm).
+import { drawFurnace, drawAnvil, drawPlot } from './draw-cave.js';
+import { plotGrowth, plotIndex, cropOf } from '../game/garden.js';
+import { drawChau } from './draw-chau.js';
+import { drawIceTile } from './draw-ice.js';
+import { drawWindTile } from './draw-wind.js';
+import { drawForestTile } from './draw-forest.js';
+import { drawMetalTile } from './draw-metal.js';
+import { drawEarthTile } from './draw-earth.js';
+import { drawVoidTile } from './draw-void.js';
+import { drawGround, drawProp, propBaked, groundPainted, drawPlotSoil, drawSeal, PROP_TILES } from './draw-ground.js';
+import { drawLavaBubble } from './draw-lava.js';
+import { drawMountain, drawWater } from './draw-terrain.js';
+import { drawMangArena, drawArenaSwords } from '../render/draw-mang-arena.js';
+function hash(x, y) {
+  let h = (x * 374761393 + y * 668265263) | 0;
+  h = (h ^ (h >>> 13)) * 1274126177;
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+}
+
+function shade(hex, k) {
+  const n = parseInt(hex.slice(1), 16);
+  const f = c => Math.max(0, Math.min(255, Math.round(c * k)));
+  return `rgb(${f(n >> 16)},${f((n >> 8) & 255)},${f(n & 255)})`;
+}
+
+// Tinh cầu trôi trong không gian: quanh mép đĩa là trời sao, ánh Linh Nhật ở góc, sao trôi chậm theo máy quay.
+// Nền trời (dải màu + ánh Linh Nhật) vẽ sẵn một tấm nhỏ theo bản đồ và cỡ màn rồi dán phóng lên, khỏi tô gradient cả màn mỗi khung
+let skyBg = null;
+function spaceSky(ctx, screen, map, t) {
+  const key = `${map.id}|${screen.w}x${screen.h}`;
+  if (skyBg?.key !== key) {
+    const cv = document.createElement('canvas'), w = Math.ceil(screen.w / 4), h = Math.ceil(screen.h / 4), c = cv.getContext('2d');
+    cv.width = w; cv.height = h;
+    const g = c.createLinearGradient(0, 0, 0, h);
+    g.addColorStop(0, '#0a0918'); g.addColorStop(1, shade(map.def.sky || '#241a4a', 0.35));
+    c.fillStyle = g; c.fillRect(0, 0, w, h);
+    const sun = c.createRadialGradient(0, 0, 0, 0, 0, Math.max(w, h) * 0.7);
+    sun.addColorStop(0, 'rgba(255,220,130,.28)'); sun.addColorStop(1, 'rgba(255,220,130,0)');
+    c.fillStyle = sun; c.fillRect(0, 0, w, h);
+    skyBg = { key, cv };
+  }
+  ctx.save(); ctx.imageSmoothingEnabled = true; ctx.drawImage(skyBg.cv, 0, 0, screen.w, screen.h); ctx.restore();
+  const W = screen.w + 40, H = screen.h + 40;
+  for (let i = 0; i < 90; i++) {
+    const k = 0.03 + hash(i, 5) * 0.06;
+    const x = ((hash(i, 1) * W - screen.camX * k * screen.zoom) % W + W) % W - 20, y = ((hash(i, 2) * H - screen.camY * k * screen.zoom) % H + H) % H - 20;
+    ctx.fillStyle = `rgba(235,240,255,${(0.3 + 0.5 * Math.abs(Math.sin(t * (0.5 + hash(i, 4)) + i))).toFixed(2)})`;
+    const z = hash(i, 3) > 0.9 ? 2 : 1; ctx.fillRect(Math.round(x), Math.round(y), z, z);
+  }
+}
+
+export function drawSky(ctx, screen, map, t) {
+  screen.screenTransform();
+  if (map.def.planet || map.def.space) { spaceSky(ctx, screen, map, t); return; }   // space: vùng Thôn Thiên Mãng
+  const sky = map.def.sky || '#9fd8f0';
+  const g = ctx.createLinearGradient(0, 0, 0, screen.h);
+  g.addColorStop(0, shade(sky, 0.8)); g.addColorStop(1, shade(sky, 1.1));
+  ctx.fillStyle = g; ctx.fillRect(0, 0, screen.w, screen.h);
+  if ((map.def.dark || 0) >= 0.3 || map.def.indoor) return;
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  for (let i = 0; i < 9; i++) {
+    const y = (hash(i, 7) * 1.2 - 0.1) * screen.h;
+    const x = ((hash(i, 3) * 1.4 * screen.w + t * (6 + i * 2) - screen.camX * 0.15 * screen.zoom) % (screen.w * 1.4) + screen.w * 1.4) % (screen.w * 1.4) - screen.w * 0.2;
+    const r = 24 + hash(i, 9) * 30;
+    ctx.beginPath();
+    ctx.ellipse(x, y, r * 1.8, r * 0.6, 0, 0, Math.PI * 2);
+    ctx.ellipse(x + r * 0.8, y - r * 0.3, r, r * 0.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+// Lớp nền một ô bằng hình khối (bản tạm, và cho ô chưa có hình pixel).
+function baseTile(ctx, map, tiles, tx, ty, color) {
+  const T = map.T, ch = map.at(tx, ty), ty_ = tiles.types[ch] || {};
+  const px = tx * T, py = ty * T;
+  if (ty_.void) {
+    // Vách đảo: ô mây ngay dưới đất liền
+    if (!map.type(tx, ty - 1).void) {
+      ctx.fillStyle = '#8a6a48'; ctx.fillRect(px, py, T, 6);
+      ctx.fillStyle = '#6a4e36'; ctx.fillRect(px, py + 6, T, 3);
+      ctx.fillStyle = 'rgba(106,78,54,0.5)'; ctx.fillRect(px + 3, py + 9, T - 6, 3);
+    }
+    return;
+  }
+  const base = color || (ty_.solid && map.def.ground) || ty_.color || '#7cc46a'; // nền dưới cây, đá, nhà theo màu đất của đảo
+  ctx.fillStyle = shade(base, 0.96 + hash(tx, ty) * 0.08);
+  ctx.fillRect(px, py, T, T);
+  if (ch === '.' && hash(tx, ty + 99) > 0.7) {
+    ctx.fillStyle = shade(base, 1.15);
+    ctx.fillRect(px + 3 + hash(tx, ty) * 8, py + 4 + hash(ty, tx) * 7, 2, 3);
+  }
+  if (ch === '_') { ctx.strokeStyle = 'rgba(0,0,0,0.07)'; ctx.lineWidth = 0.6; ctx.strokeRect(px + 0.3, py + 0.3, T - 0.6, T - 0.6); }
+}
+
+export function drawMap(ctx, map, tiles, view, t, game) {
+  if (map.def.space) { drawMangArena(ctx, game, t); drawArenaSwords(ctx, game, t); return; }   // vùng không gian: không có đất, chỉ có con rắn khổng lồ
+  const T = map.T;
+  const x0 = Math.max(0, Math.floor(view.x0 / T)), x1 = Math.min(map.w - 1, Math.floor(view.x1 / T));
+  const y0 = Math.max(0, Math.floor(view.y0 / T)), y1 = Math.min(map.h - 1, Math.floor(view.y1 / T));
+  if (!drawGround(ctx, game, map, tiles, view, hash, baseTile)) for (let ty = y0; ty <= y1; ty++) for (let tx = x0; tx <= x1; tx++) baseTile(ctx, map, tiles, tx, ty);
+  // Vật trên nền (vật đứng yên đã vẽ sẵn trong tấm đệm nền, draw-ground.js → propBaked); hình pixel dán không làm mịn
+  const smooth = ctx.imageSmoothingEnabled;
+  ctx.imageSmoothingEnabled = false;
+  for (let ty = y0; ty <= y1; ty++) for (let tx = x0; tx <= x1; tx++) {
+    const ch = map.at(tx, ty), px = tx * T, py = ty * T, cx = px + T / 2, cy = py + T / 2;
+    if (map.def.prop_hide?.includes(ch)) continue;   // ô đã thay bằng đồ mới (động phủ: lò, bồ đoàn): không vẽ hình khối cũ lúc nền chưa tải
+    if (PROP_TILES.includes(ch) && (propBaked(map, tx, ty) || drawProp(ctx, game, map, ch, tx, ty, hash(tx, ty), t))) continue;
+    if ('LOigolyf='.includes(ch) && groundPainted(ch)) {
+      const fx = { L: 'fx.lava-bubble', f: 'fx.void-wisp', '=': 'fx.water-glint' }[ch];
+      if (fx) drawLavaBubble(ctx, game, px, py, hash(tx, ty), t, fx);
+      continue;
+    }   // đã có hình pixel trong tấm đệm
+    if (map.def.nen?.ky && groundPainted(ch)) continue;   // tinh cầu nền bộ 15 mảnh: ô nền không vẽ thêm hình khối cũ (gợn cát, vết nứt, phù văn)
+    if (ch === 'F') {
+      for (let i = 0; i < 3; i++) {
+        ctx.fillStyle = ['#fff', '#ffe27a', '#ffb0d0'][Math.floor(hash(tx + i, ty) * 3)];
+        ctx.fillRect(px + 2 + hash(tx, ty + i) * 11, py + 2 + hash(tx + i, ty + 5) * 11, 2, 2);
+      }
+    } else if (ch === 'T') {
+      ctx.fillStyle = '#6a4a30'; ctx.fillRect(cx - 2, cy, 4, 7);
+      ctx.fillStyle = '#2f7a44'; circle(ctx, cx, cy - 2, 9);
+      ctx.fillStyle = '#4aa860'; circle(ctx, cx - 2, cy - 4, 6);
+    } else if (ch === 'H') {
+      ctx.fillStyle = '#e8dcc0'; ctx.fillRect(px, py + 4, T, T - 4);
+      ctx.fillStyle = map.at(tx, ty - 1) === 'H' ? '#e8dcc0' : '#a0423a';
+      ctx.fillRect(px - 1, py, T + 2, map.at(tx, ty - 1) === 'H' ? 4 : 7);
+      if (map.at(tx, ty + 1) !== 'H') { ctx.fillStyle = '#5a3a2a'; ctx.fillRect(cx - 3, py + 8, 6, 8); }
+    } else if (ch === 'R') {
+      ctx.fillStyle = '#7a7488'; circle(ctx, cx, cy + 1, 6);
+      ctx.fillStyle = '#a8a2b8'; circle(ctx, cx - 2, cy - 1, 3);
+    } else if (ch === '#') {
+      ctx.fillStyle = '#1f1830'; ctx.fillRect(px, py, T, T);
+      if (map.at(tx, ty + 1) !== '#') { ctx.fillStyle = '#4a3a62'; ctx.fillRect(px, py + T - 5, T, 5); }
+    } else if (ch === 'S') {
+      const col = game.save.element ? game.data.elements[game.save.element].color : '#bff4ff';
+      ctx.fillStyle = '#8a8498'; ctx.fillRect(cx - 5, py - 6, 10, T + 4);
+      ctx.fillStyle = col; ctx.globalAlpha = 0.5 + 0.3 * Math.sin(t * 3);
+      ctx.fillRect(cx - 3, py - 3, 6, T - 2); ctx.globalAlpha = 1;
+    } else if (ch === 'M') {
+      ctx.fillStyle = '#c0504a'; circle(ctx, cx, cy, 6);
+      ctx.fillStyle = '#f2c94c'; circle(ctx, cx, cy, 3);
+    } else if (ch === 'P') {
+      ctx.strokeStyle = `rgba(180,120,255,${0.6 + 0.3 * Math.sin(t * 4)})`; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.ellipse(cx, cy, 7, 5, 0, 0, Math.PI * 2); ctx.stroke();
+      ctx.fillStyle = 'rgba(180,120,255,0.3)'; ctx.fill();
+    } else if (ch === 'L') {
+      const k = 0.5 + 0.5 * Math.sin(t * 2 + hash(tx, ty) * 6);
+      ctx.fillStyle = '#c03a1a'; ctx.fillRect(px, py, T, T);
+      ctx.fillStyle = `rgba(255,180,60,${0.35 + k * 0.4})`;
+      ctx.fillRect(px + 2 + hash(tx, ty) * 6, py + 3 + hash(ty, tx) * 6, 5, 3);
+      ctx.fillRect(px + 8 - hash(ty, tx) * 4, py + 10, 4, 2);
+      if (map.at(tx, ty - 1) !== 'L') { ctx.fillStyle = '#5a2a1a'; ctx.fillRect(px, py, T, 2); }
+    } else if (ch === 'B') {
+      ctx.fillStyle = '#5a4a44'; ctx.fillRect(px, py + 4, T, T - 4);
+      ctx.fillStyle = '#2a1e1e'; ctx.fillRect(px + 2 + hash(tx, ty) * 6, py + 6, 5, 6);
+      if (map.at(tx, ty - 1) !== 'B') { ctx.fillStyle = '#3a2a2a'; ctx.fillRect(px - 1, py + 1, T + 2, 4); ctx.fillRect(px + hash(tx, ty) * 8, py - 2, 6, 3); }
+    } else if (ch === 'K') drawFurnace(ctx, cx, cy, t);
+    else if (ch === 'A') drawAnvil(ctx, cx, cy, t);
+    else if ('wiYOjk'.includes(ch)) drawIceTile(ctx, ch, px, py, T, hash(tx, ty), t, map.at(tx, ty - 1));
+    else if ('dVUe'.includes(ch)) drawWindTile(ctx, ch, px, py, T, hash(tx, ty), t);
+    else if ('mnZlWQrX'.includes(ch)) drawForestTile(ctx, ch, px, py, T, hash(tx, ty), t, map.at(tx, ty - 1));
+    else if ('sghJNbCu'.includes(ch)) drawMetalTile(ctx, ch, px, py, T, hash(tx, ty), t, map.at(tx, ty - 1));
+    else if ('toyIzEv'.includes(ch)) drawEarthTile(ctx, ch, px, py, T, hash(tx, ty), t, map.at(tx, ty - 1));
+    else if ('pf*'.includes(ch)) drawVoidTile(ctx, ch, px, py, T, hash(tx, ty), t);
+    else if (ch === '^') drawMountain(ctx, map, tx, ty, T, hash(tx, ty));
+    else if (ch === '=') drawWater(ctx, map, tx, ty, T, hash(tx, ty), t);
+    else if (ch === 'G') {
+      const grow = plotGrowth(game, tx, ty);
+      if (drawChau(ctx, game, tx, ty, px, py, T, grow, cropOf(game, plotIndex(game, tx, ty)), t)) continue;   // chậu theo cấp (draw-chau.js)
+      drawPlot(ctx, px, py, T, grow, hash(tx, ty), cropOf(game, plotIndex(game, tx, ty)), drawPlotSoil(ctx, game, px, py, grow < 0, hash(tx, ty)));
+    }
+    else if (ch === 'q' && hash(tx, ty) > 0.82) {
+      ctx.fillStyle = 'rgba(255,255,255,0.06)'; ctx.fillRect(px + 2 + hash(ty, tx) * 9, py + 3 + hash(tx, ty + 3) * 9, 3, 2);
+    } else if (ch === 'D' && map.locked.has(tx + ',' + ty) && !drawSeal(ctx, game, map, tx, ty, t)) {
+      ctx.fillStyle = '#5a1a28'; ctx.fillRect(px, py, T, T);
+      ctx.fillStyle = '#c0283a';
+      for (let i = 2; i < T; i += 5) ctx.fillRect(px + i, py, 2, T);
+    }
+  }
+  ctx.imageSmoothingEnabled = smooth;
+}
+
+export function circle(ctx, x, y, r) {
+  ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+}

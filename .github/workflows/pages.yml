@@ -1,0 +1,57 @@
+name: Đưa lên GitHub Pages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  actions: read
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node tools/check.mjs
+      - name: Cài công cụ gói (esbuild, ghim phiên bản)
+        run: |
+          npm i --no-save esbuild@0.28.2 || echo "không cài được esbuild, tools/goi.mjs sẽ đưa bản chưa gói"
+      - name: Gói bản đưa lên (JS vài tệp, dữ liệu một tệp, CSS gộp, gắn số phiên bản)
+        # tools/goi.mjs dùng chung cho GitHub Pages, Vercel và bài chơi thử. Bản gói có chuyện thì thêm "GOI: 0" vào env của bước này:
+        # chép từng tệp như trước 20/11/2026.
+        # GIU_CU: chép thêm khúc code nạp sau của bản đang chạy (máy còn mở bản cũ bấm bảng vẫn chạy tới khi tự tải lại, 21/11/2026)
+        run: node tools/goi.mjs _site
+        env:
+          V: ${{ github.sha }}
+          GIU_CU: https://devhoa.github.io/tutien2d/
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      # 25/11/2026: 7 trong 9 lần đưa lên hỏng ở deploy-pages ("No artifacts named github-pages were found"): gói vừa tải lên xong, 0,3 giây sau
+      # deploy-pages hỏi danh sách gói thì GitHub trả 0 gói; hỏi lại sau thì gói nằm đó. Chờ tới khi danh sách thấy gói rồi mới đưa lên
+      # (hỏi 3 giây một lần, tối đa 2 phút; hết giờ vẫn đi tiếp để deploy-pages tự báo lỗi). Cần quyền actions read.
+      - name: Chờ GitHub thấy gói github-pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+          KHO: ${{ github.repository }}
+          LAN: ${{ github.run_id }}
+        run: |
+          for i in $(seq 1 40); do
+            n=$(gh api "repos/$KHO/actions/runs/$LAN/artifacts?name=github-pages" --jq .total_count 2>/dev/null || echo 0)
+            if [ "${n:-0}" -ge 1 ] 2>/dev/null; then echo "đã thấy gói sau khoảng $(( (i - 1) * 3 )) giây"; sleep 5; exit 0; fi
+            sleep 3
+          done
+          echo "chờ 2 phút chưa thấy gói github-pages trong danh sách, vẫn thử đưa lên"
+      - id: deployment
+        uses: actions/deploy-pages@v4

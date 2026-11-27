@@ -1,0 +1,136 @@
+// Ghi clip từ khung vẽ game: chép khung vẽ sang một tấm nhỏ hơn (nhẹ cho máy, kèm chữ góc), ghép tiếng game, ghi bằng MediaRecorder.
+// Không sửa vòng vẽ của game: mỗi khung hình trình duyệt, tấm nhỏ chép lại hình mới nhất của khung vẽ chính.
+// cfg.ui.on (chủ dự án 25/11/2026): dán đè lớp giao diện HTML (bảng, nút, chữ) chụp bằng src/core/lop-ui.js, cắt đúng khung quay.
+import { lopUi } from './lop-ui.js';
+
+// Khung quay: dải giữa màn như ban đầu (cfg.frame, chủ dự án 09/11/2026 17:38), kể cả khi có lớp giao diện: chủ dự án 26/11/2026 02:51
+// "thích bản quay clip chi tiết nhưng trong khung hình giới hạn ban đầu… vẫn quay được cả kho, cả bảng xếp hạng khi đang mở".
+// ui.ca_man: true thì quay cả màn như bản 25/11.
+export const khungQuay = cfg => (cfg.frame?.on && !(cfg.ui?.on && cfg.ui.ca_man) ? cfg.frame : { top: 0, bottom: 1 });
+export const taoLop = (cfg, size, F) => (cfg.ui?.on ? lopUi(size.w, size.h, cfg.ui, F) : null);
+
+const TYPES = [
+  ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'mp4'],
+  ['video/mp4;codecs=avc1,mp4a', 'mp4'],
+  ['video/mp4', 'mp4'],
+  ['video/webm;codecs=vp9,opus', 'webm'],
+  ['video/webm;codecs=vp8,opus', 'webm'],
+  ['video/webm', 'webm'],
+];
+
+// Máy có quay được không, và dạng file nào (ưu tiên MP4 vì TikTok, Zalo nhận thẳng)
+export function pickType() {
+  if (typeof MediaRecorder === 'undefined' || !HTMLCanvasElement.prototype.captureStream) return null;
+  for (const [mime, ext] of TYPES) {
+    try { if (MediaRecorder.isTypeSupported(mime)) return { mime, ext }; } catch { /* trình duyệt cũ */ }
+  }
+  return null;
+}
+
+export function isWeak(cfg) {
+  const cores = navigator.hardwareConcurrency || 8, mem = navigator.deviceMemory || 8;
+  return cores <= cfg.weak.cores || mem <= cfg.weak.mem;
+}
+
+// Cỡ clip: giữ tỉ lệ khung vẽ, số chẵn (bộ mã hoá H.264 cần). Lớn hơn `long` thì thu nhỏ (có làm mịn); nhỏ hơn thì phóng số nguyên
+// lần cho gần `long` (điện thoại vẽ khung ở độ phân giải thấp cho nhẹ: clip phóng lên mà điểm ảnh vẫn vuông, nét; chủ dự án 09/11/2026:
+// "video sau này là cần câu cơm, phải đẹp")
+export function clipSize(w, h, long) {
+  const m = Math.max(w, h), k = m > long ? long / m : Math.max(1, Math.floor(long / m));
+  const even = v => Math.max(2, Math.round(v * k / 2) * 2);
+  return { w: even(w), h: even(h), up: k > 1 };
+}
+
+// Chữ góc vẽ sẵn một lần vào tấm riêng, mỗi khung chỉ dán lại (vẽ chữ có viền mỗi khung tốn máy)
+export function makeMark(w, h, mark) {
+  const s = Math.max(10, Math.round(Math.min(w, h) / 34));
+  const c = document.createElement('canvas');
+  c.width = w; c.height = Math.ceil(s * 2.6);
+  const ctx = c.getContext('2d');
+  ctx.textAlign = 'right'; ctx.textBaseline = 'bottom'; ctx.lineJoin = 'round';
+  const x = w - s * 0.8, y = c.height - s * 0.3;
+  ctx.font = `600 ${Math.round(s * 0.72)}px system-ui, sans-serif`;
+  ctx.lineWidth = Math.max(2, s * 0.22); ctx.strokeStyle = 'rgba(27,24,48,.85)'; ctx.fillStyle = 'rgba(255,255,255,.88)';
+  ctx.strokeText(mark.sub, x, y); ctx.fillText(mark.sub, x, y);
+  const y2 = y - s * 0.95;
+  ctx.font = `800 ${s}px system-ui, sans-serif`;
+  ctx.lineWidth = Math.max(3, s * 0.3); ctx.strokeText(mark.title, x, y2);
+  ctx.fillStyle = '#ffd86b'; ctx.fillText(mark.title, x, y2);
+  return { img: c, y: h - c.height - Math.round(s * 0.5) };
+}
+
+// Bắt đầu ghi. src: khung vẽ game; master: nút âm lượng tổng của game (có thể null khi chưa có tiếng).
+// Trả về { stop(): Promise<{ blob, sec, ext, mime }>, elapsed(), cancel() }
+// cfg.frame { on, top, bottom }: chỉ quay dải giữa màn (khung chơi, chủ dự án 09/11/2026 17:38), bỏ phần trên dưới có nút.
+export function startRecording(src, master, cfg) {
+  const type = pickType();
+  if (!type) throw new Error('unsupported');
+  const weak = isWeak(cfg), F = khungQuay(cfg);
+  const crop = () => { const y = Math.round(src.height * F.top); return [0, y, src.width, Math.max(2, Math.round(src.height * F.bottom) - y)]; };
+  const [, , cw0, ch0] = crop();
+  const size = clipSize(cw0, ch0, weak ? cfg.long.weak : cfg.long.strong);
+  const copy = document.createElement('canvas');
+  copy.width = size.w; copy.height = size.h;
+  const ctx = copy.getContext('2d');
+  const lop = taoLop(cfg, size, F);
+  ctx.imageSmoothingEnabled = !size.up; ctx.imageSmoothingQuality = 'high';   // phóng số nguyên lần: giữ ô vuông điểm ảnh; thu nhỏ: làm mịn, tắt thì điểm ảnh lúc rụng lúc còn, clip lăn tăn như giật
+
+  // Chép đúng cfg.fps lần mỗi giây (không chép mỗi khung 60–120 Hz): đỡ nặng máy nên game và clip đều mượt hơn
+  const mk = makeMark(copy.width, copy.height, cfg.mark), fps = weak ? cfg.fps_weak || cfg.fps : cfg.fps, gap = 1000 / fps;
+  let raf = 0, live = true, next = 0;
+  const paint = now => {
+    if (!live) return;
+    raf = requestAnimationFrame(paint);
+    if (now < next) return;
+    next = Math.max(next + gap, now - gap);
+    if (!src.width || !src.height) return;
+    const [sx, sy, sw, sh] = crop();
+    ctx.drawImage(src, sx, sy, sw, sh, 0, 0, copy.width, copy.height);
+    if (lop?.ok) ctx.drawImage(lop.canvas, 0, 0);
+    ctx.drawImage(mk.img, 0, mk.y);
+    if (push) vt.requestFrame();   // đẩy đúng khung vừa chép (đỡ giật hơn để trình duyệt tự lấy theo giờ)
+  };
+  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, copy.width, copy.height);
+  raf = requestAnimationFrame(paint);
+
+  // captureStream(0) + requestFrame: mỗi lần chép là một khung trong clip, không lặp, không hụt; máy không có requestFrame thì lấy theo fps
+  let stream = copy.captureStream(0), vt = stream.getVideoTracks()[0];
+  const push = typeof vt?.requestFrame === 'function';
+  if (!push) { for (const t of stream.getTracks()) t.stop(); stream = copy.captureStream(fps); vt = stream.getVideoTracks()[0]; }
+  let tap = null;
+  if (master?.context?.createMediaStreamDestination) {
+    try {
+      tap = master.context.createMediaStreamDestination();
+      master.connect(tap);
+      for (const t of tap.stream.getAudioTracks()) stream.addTrack(t);
+    } catch { tap = null; /* không lấy được tiếng: vẫn quay hình */ }
+  }
+
+  const rec = new MediaRecorder(stream, {
+    mimeType: type.mime,
+    videoBitsPerSecond: (weak ? cfg.kbps.weak : cfg.kbps.strong) * 1000,
+    audioBitsPerSecond: cfg.audio_kbps * 1000,
+  });
+  const chunks = [];
+  rec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+  const t0 = performance.now();
+  rec.start(1000);   // mỗi giây cắt một mảnh, lỡ trang đóng giữa chừng vẫn đỡ mất
+
+  function cleanup() {
+    live = false; cancelAnimationFrame(raf); lop?.stop();
+    for (const t of stream.getTracks()) t.stop();
+    if (tap) { try { master.disconnect(tap); } catch { /* đã ngắt */ } }
+  }
+
+  return {
+    type, size, weak,
+    elapsed: () => (performance.now() - t0) / 1000,
+    stop: () => new Promise((resolve, reject) => {
+      const sec = (performance.now() - t0) / 1000;
+      rec.onstop = () => { cleanup(); resolve({ blob: new Blob(chunks, { type: type.mime.split(';')[0] }), sec, ext: type.ext, mime: type.mime }); };
+      rec.onerror = e => { cleanup(); reject(e.error || e); };
+      if (rec.state === 'inactive') rec.onstop(); else rec.stop();
+    }),
+    cancel: () => { try { if (rec.state !== 'inactive') rec.stop(); } catch { /* đã dừng */ } cleanup(); },
+  };
+}

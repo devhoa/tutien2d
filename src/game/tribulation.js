@@ -1,0 +1,162 @@
+// Thiên kiếp: ở tầng 9 đầy linh khí, người chơi gọi kiếp. Mỗi cảnh giới một kiểu (data/realms.json → tribulation.by_realm):
+// sét, sét thành hàng, tâm ma (bóng của chính mình, máu theo cả máu lẫn công của người chơi), lửa trời, hoặc trộn. Trụ hết các đợt (và hạ tâm ma nếu có) thì lên
+// cảnh giới mới; gục thì thất bại và mất một phần linh khí. Kiểu ket-dan (lên Kim Đan) không có đợt né sét: cả kiếp là một nghi lễ
+// (src/game/ket-dan.js), sét giáng thẳng vào người đang lơ lửng, chịu đủ thì thành.
+import { qiNeed, realmLabel } from './stats.js';
+import { addStrike } from './strikes.js';
+import { addFx } from './combat.js';
+import { upSnap, realmUp } from './len-tang.js';
+import { leTruoc, coLeTruoc } from './le-truoc.js';   // lễ thức tỉnh đang chờ (huyết mạch, thể phách, Nguyên Anh) diễn trước, chúc mừng sau (27/11/2026)
+import { tribSkyTick, tribSkyEnd, scorchTick, tribPal } from './trib-sky.js';   // mưa sét theo cảnh giới, vết cháy (17/11/2026)
+import { startCele, celeTick } from './trib-cele.js';   // lễ ăn mừng độ kiếp thành công
+import { startKetDan, kdTick, kdStop } from './ket-dan.js';   // nghi lễ kết đan lên Kim Đan (chủ dự án 20/11/2026 01:35)
+import { kiepWave } from './kiep-see.js'; import { phat } from './phat.js';   // người cùng tinh cầu thấy kiếp, lễ bùm, cột sáng lên cảnh giới (20/11/2026 17:12)
+
+export function atPeak(game) {
+  const s = game.save, r = game.data.realms;
+  return s.layer >= r.layers && s.qi >= qiNeed(s, r) && s.realm < r.names.length - 1;
+}
+
+// Thông số kiếp của cảnh giới hiện tại: số chung đè bởi by_realm
+export function tribOf(game) {
+  const cfg = game.data.realms.tribulation, by = cfg.by_realm[game.save.realm] || cfg.by_realm[cfg.by_realm.length - 1];
+  return { ...cfg, ...by, info: cfg.kinds[by.kind] };
+}
+
+export function createTribulation(game) {
+  let run = null;
+
+  // follow: sét chính bám theo người tới lúc giáng, không né được (chủ dự án 20/11/2026 01:4x: "khó một chút, ăn hết đan, gần chết mới hợp lý")
+  function strike(x, y, k, kind = 'set', follow = false) {
+    const c = run.cfg, hoa = kind === 'hoa';
+    addStrike(game, {
+      x, y, r: c.r * (hoa ? 1.35 : 1) * (1 + (game.save.realm || 0) * (game.data.config.trib_fx?.sky?.r_realm || 0)), delay: c.delay * (hoa ? 1.15 : 1), trib: !hoa, pal: hoa ? null : tribPal(game),
+      dmg: game.player.maxHp * c.dmg_pct * (c.dmg_mul || 1) * k * (1 - (game.save.flags.thanhTam || 0)),
+      kind: hoa ? 'meteor' : 'thunder', color: hoa ? '#ff9a3a' : run.cfg.info.color, follow: follow && c.follow ? game.player : null,
+    });
+  }
+
+  // Một hàng sét ngang hoặc dọc đi qua chỗ đứng
+  function line(p, k) {
+    const horiz = Math.random() < 0.5, step = run.cfg.r * 1.7;
+    for (let i = -3; i <= 3; i++) strike(p.x + (horiz ? i * step : 0), p.y + (horiz ? 0 : i * step), k * 0.8);
+  }
+
+  function spawnShadow() {
+    const p = game.player, c = run.cfg.info, base = game.data.mobs['tam-ma'];
+    const hp = Math.round(Math.max(p.maxHp * c.hp, p.atk * (c.hp_atk || 0))), def = { ...base, hp, atk: Math.round(p.atk * c.atk * 10) / 10 };
+    const pos = game.map.freeNear(Math.floor(p.x / game.map.T) + 1, Math.floor(p.y / game.map.T), 1, 6);   // sát bên, kẻo mọc sau hàng rào, vách
+    run.shadow = game.spawn('tam-ma', pos.x, pos.y, { def, hp, maxHp: hp, noQi: true, tower: true, aggro: true });
+    addFx(game, { type: 'ring', x: pos.x, y: pos.y, r: 26, color: c.color, life: 0.8, fill: true });
+    game.toast('Tâm ma hiện hình!', 1.6);
+  }
+
+  // Tâm ma kẹt xa (sau cây, vách, không tới được) quá FAR_SEC giây thì hiện lại sát bên người chơi: kiếp chỉ xong khi hạ tâm ma,
+  // trước đây tâm ma kẹt là kiếp không bao giờ kết thúc (chơi thử 28/10: đứng mãi ở Làng Tinh Linh)
+  const FAR = 120, FAR_SEC = 6;
+  function keepShadowNear(dt) {
+    const m = run.shadow, p = game.player;
+    if (!m || m.dead) return;
+    run.far = Math.hypot(m.x - p.x, m.y - p.y) > FAR ? (run.far || 0) + dt : 0;
+    if (run.far < FAR_SEC) return;
+    const T = game.map.T, pos = game.map.freeNear(Math.floor(p.x / T), Math.floor(p.y / T), 1, 6);
+    m.x = pos.x; m.y = pos.y; m.kx = m.ky = 0; run.far = 0;
+    addFx(game, { type: 'ring', x: pos.x, y: pos.y, r: 26, color: run.cfg.info.color, life: 0.8, fill: true });
+    game.toast('Tâm ma đuổi tới sát bên!', 1.4);
+  }
+
+  // Kiếp còn khoá (data/realms.json → by_realm[i].khoa; chủ dự án 27/11/2026 04:38: tạm chưa cho lên Hóa Thần, "ấn cái là 100 tia cùng dí xuống
+  // thất bại ngay lập tức, để mình thiết kế hiệu ứng xong đã rồi mới cho đột phá"): trăm đạo thiên lôi dồn xuống người trong chưa tới một giây rồi
+  // thất bại. Không trừ máu, không mất linh khí (cửa còn đóng, không phải lỗi của người chơi). Người cùng tinh cầu thấy qua tin kiếp (ks-w, ks-hong).
+  function khoa(cfg) {
+    const K = cfg.khoa, p = game.player, n = K.tia ?? 100, dai = K.giay ?? 0.8, pal = tribPal(game);
+    run = { wave: 0, t: 1e9, cfg, khoa: true, het: dai + (K.cho ?? 0.7) };
+    p.meditating = false; game.auto = false; game.darkTarget = 0.7; game.sfx('roar');
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * Math.PI * 2, d = Math.sqrt(Math.random()) * (K.r ?? 46);
+      addStrike(game, { x: p.x + Math.cos(a) * d, y: p.y + Math.sin(a) * d * 0.8, r: 14, delay: 0.12 + dai * i / n, trib: true, pal, dmg: 0, vo: true, kind: 'thunder', color: cfg.info.color });
+    }
+    phat(game, 'ks-bd'); for (let i = 0; i < 5; i++) kiepWave(game, 20);
+  }
+
+  return {
+    get active() { return !!run; },
+    get khoa() { return !!tribOf(game).khoa; },   // đột phá cảnh giới này còn khoá: Hệ Thống thôi giục độ kiếp
+    get wave() { return run ? run.wave : 0; },
+    get wantsAuto() { return !!run?.shadow; },   // kiếp có tâm ma: cho Tự đánh (chủ dự án 09/11/2026 10:42 báo độ kiếp treo: không tự đánh được, tâm ma máu dày)
+    canStart() { return !run && !game.cele && atPeak(game) && !game.dungeon && !game.map.def.no_trib; },
+    async start() {
+      const cfg = tribOf(game), info = cfg.info;
+      if (cfg.khoa) { khoa(cfg); return; }
+      await game.dialog.say([['', `Linh khí trong người đã đầy tới đỉnh. ${info.intro}`], ['', `${info.name}, ${cfg.waves} đợt. ${info.tip}`]]);
+      run = { wave: 0, t: 1, cfg, shadow: null };
+      game.player.meditating = false; game.auto = false;
+      game.darkTarget = 0.55;
+      game.sfx('roar');
+      if (cfg.kind === 'ket-dan') { run.le = true; startKetDan(game, cfg, () => { run = null; tribSkyEnd(game); this.ascend(); }); }
+      else phat(game, 'ks-bd');   // kết đan tự báo bằng tin kd-* (ket-dan.js)
+      if (cfg.kind === 'tam-ma' || cfg.kind === 'mix') spawnShadow();
+    },
+    update(dt) {
+      scorchTick(game, dt); celeTick(game, dt); kdTick(game, dt);
+      if (run?.khoa) { if ((run.het -= dt) <= 0) this.fail(); return; }
+      if (!run || run.le) return;
+      tribSkyTick(game, dt);
+      if (run.shadow && !run.shadow.dead && !game.mobs.includes(run.shadow)) spawnShadow();   // đổi bản đồ giữa kiếp: tâm ma cũ mất theo bản đồ, cho hiện lại (trước đây kiếp kẹt mãi)
+      keepShadowNear(dt);
+      run.age = (run.age || 0) + dt;
+      if (run.wave >= run.cfg.waves && run.age > (run.cfg.timeout_sec || 1e9)) { if (run.shadow) run.shadow.dead = true; game.toast('Tâm ma tan biến.', 1.6); this.finish(); return; }   // quá giờ mà tâm ma chưa hạ: kiếp vẫn qua, không treo mãi
+      run.t -= dt;
+      if (run.t > 0) return;
+      const c = run.cfg, shadowAlive = run.shadow && !run.shadow.dead;
+      if (run.wave >= c.waves) { if (!shadowAlive) this.finish(); else run.t = 0.3; return; }
+      run.wave++;
+      run.t = c.interval;
+      const p = game.player, k = 1 + run.wave * c.grow;
+      const kind = c.kind === 'mix' ? ['set', 'loi', 'hoa'][Math.floor(Math.random() * 3)] : c.kind;
+      const light = kind === 'tam-ma';          // tâm ma: sét nhẹ và thưa
+      const extra = light ? 0 : c.extra + Math.floor(run.wave / 3) + (kind === 'hoa' ? 1 : 0);
+      strike(p.x, p.y, light ? k * 0.5 : k, kind, true);
+      if (kind === 'loi' && run.wave % 2 === 0) line(p, k);
+      for (let i = 0; i < extra; i++) {
+        const a = Math.random() * Math.PI * 2, d = 18 + Math.random() * (kind === 'hoa' ? 60 : 40);
+        strike(p.x + Math.cos(a) * d, p.y + Math.sin(a) * d, k, kind);
+      }
+      kiepWave(game, 1 + extra);
+    },
+    finish() {
+      const color = run?.cfg?.info?.color || '#fff7d6';
+      run = null; tribSkyEnd(game);
+      phat(game, 'ks-ok');
+      startCele(game, color, () => this.ascend());   // tụ linh khí rồi bùm (trib-cele.js), lúc bùm mới lên cảnh giới
+    },
+    ascend() {
+      const s = game.save, before = upSnap(game), le = tribOf(game).kind === 'ket-dan';   // chỉ số trước khi sang cảnh giới mới, cho nghi lễ đột phá so (src/game/len-tang.js)
+      s.realm += 1; s.layer = 1; s.qi = 0; delete s.flags.thanhTam;
+      game.capWarned = false;
+      game.darkTarget = game.map.def.dark || 0;
+      game.refreshStats(); game.player.hp = game.player.maxHp;
+      game.flashT = 0.35;
+      addFx(game, { type: 'ring', x: game.player.x, y: game.player.y, r: 70, color: '#fff7d6', life: 1.2, fill: true });
+      game.sfx('breakthrough'); game.screen.shake(6, 0.6);
+      if (le) phat(game, 'ks-up', 1);   // kết đan: người khác thấy cột sáng lên cảnh giới (kiếp sét thì lễ bùm ks-ok đã có cột sáng)
+      const mung = () => { if (!realmUp(game, before)) { game.toast(`Độ kiếp thành công! ${realmLabel(s, game.data.realms)}`, 3); game.checkUnlocks(); } };   // nghi lễ đột phá cả màn; công tắc mung tắt thì dòng báo như cũ
+      if (coLeTruoc(game)) leTruoc(game).catch(() => {}).finally(mung); else mung();   // lễ thức tỉnh của cảnh giới mới diễn trước, xong mới tới bảng chúc mừng
+      game.story.notify('realm');
+      game.persist();
+    },
+    // Gục giữa kiếp: mất một phần linh khí, phải tích lại rồi thử lần nữa
+    fail() {
+      if (!run) return;
+      const c = run.cfg;
+      if (run.shadow) run.shadow.dead = true;
+      if (!run.le) phat(game, 'ks-hong');
+      const giu = run.khoa;   // kiếp còn khoá: không mất linh khí
+      run = null; game.strikes = []; tribSkyEnd(game); kdStop(game);
+      if (!giu) game.save.qi = Math.floor(game.save.qi * (1 - c.fail_qi));
+      game.darkTarget = game.map.def.dark || 0;
+      game.toast(giu ? c.khoa.bao : `Độ kiếp thất bại... mất ${Math.round(c.fail_qi * 100)}% linh khí. Tu luyện thêm rồi thử lại.`, giu ? 4 : 3);
+      game.persist();
+    },
+  };
+}

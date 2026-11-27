@@ -1,0 +1,96 @@
+// Tiên Ngọc và thẻ tháng (data/topup.json). Đây mới là khung: chưa thu tiền thật, gói nạp chỉ hiện giá.
+// Đã đăng nhập và lưu máy chủ: Tiên Ngọc do máy chủ giữ (hàm p2d_qua_tn, p2d_doi_tn, p2d_nhan_the), máy này chỉ làm theo
+// số máy chủ trả về; hàng đổi được (đá, ngọc, rương, áo) vẫn trao ở máy này như cũ. Chơi thử không tài khoản thì tính ở máy.
+import { grant } from './daily.js';
+import { owned, grantOutfit } from './fashion.js';
+import { newKey } from './inst.js';
+
+const T = game => game.data.topup;
+const DAY = 86400000;
+const ymd = d => `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+const calls = async () => (await import('../net/profile.js')).topupCalls;
+
+export const tn = game => game.save.tn || 0;
+let dangDoi = false;   // đang đổi Tiên Ngọc (chặn bấm trùng)
+function addTn(game, n) { game.save.tn = tn(game) + n; }
+
+// Quà ra mắt một lần để người chơi thử quầy
+export async function starterGift(game) {
+  const s = game.save;
+  if (s.tnStarter) return 0;
+  if (game.cloud) {
+    const c = await calls();
+    const r = await game.cloud.run(() => c.starter(), r => { s.tn = r.tn; s.tnStarter = true; game.persist(); });
+    return r.them || 0;
+  }
+  s.tnStarter = true; addTn(game, T(game).starter); game.persist();
+  return T(game).starter;
+}
+
+export const cardLeft = game => Math.max(0, Math.ceil(((game.save.card?.until || 0) - Date.now()) / DAY));
+export const cardClaimed = game => game.save.card?.last === ymd(new Date());
+
+export async function claimCard(game) {
+  const c = T(game).card;
+  if (!cardLeft(game) || cardClaimed(game)) return null;
+  if (game.cloud) {
+    const k = await calls();
+    let got = null;
+    // máy chủ cộng Tiên Ngọc và Linh Thạch vào bản lưu trên máy chủ; máy này cộng y như vậy
+    await game.cloud.run(() => k.card(), r => {
+      game.save.tn = r.tn; game.save.card = { ...game.save.card, last: r.last };
+      got = [`${c.daily.tn} ${T(game).name}`, ...grant(game, c.daily.give)];
+      game.persist();
+    });
+    return got;
+  }
+  game.save.card.last = ymd(new Date());
+  addTn(game, c.daily.tn);
+  return [`${c.daily.tn} ${T(game).name}`, ...grant(game, c.daily.give)];
+}
+
+export const shopOwned = (game, x) => !!x.outfit && !x.nhieu && owned(game, x.outfit);   // nhieu: mua thêm được nhiều bản (chủ dự án 24/11/2026)
+// Bộ chỉ một giới (fashion only, vd Tử Liềm Y chỉ nữ): người giới khác không mua được (mua thì nhận bản không mặc được)
+export const shopWrongLook = (game, x) => { const o = x.outfit && game.data.fashion.list[x.outfit]?.only; return !!o && o !== versionsLook(game); };
+const versionsLook = game => (game.data.heroes.list[game.save?.look] ? game.save.look : game.data.heroes.default);
+// Món có per_day: số lần còn đổi hôm nay (save.tnDay { day, [id]: n })
+const today = () => new Date().toDateString();
+export function tnLeft(game, x) {
+  if (!x.per_day) return Infinity;
+  const d = game.save.tnDay;
+  return Math.max(0, x.per_day - (d?.day === today() ? d[x.id] || 0 : 0));
+}
+function useTnDay(game, x) {
+  if (!x.per_day) return;
+  const s = game.save; if (s.tnDay?.day !== today()) s.tnDay = { day: today() };
+  s.tnDay[x.id] = (s.tnDay[x.id] || 0) + 1;
+}
+
+export async function buyTn(game, id) {
+  const x = T(game).shop.find(i => i.id === id), s = game.save;
+  if (!x || shopOwned(game, x) || shopWrongLook(game, x) || tnLeft(game, x) <= 0) return null;
+  if (tn(game) < x.tn) return false;
+  if (x.give?.thu_lenh && !game.cloud) return false;   // Thú Lệnh máy chủ giữ (p2d_ht_diem), không mua khi chưa có mạng
+  const give = r => {
+    if (x.give?.thu_lenh) { useTnDay(game, x); game.persist(); return [`${x.give.thu_lenh} ${game.data.pets.thu_lenh?.name || 'Thú Lệnh'}` + (game.thuLenh != null ? ` (đang có ${game.thuLenh})` : '')]; }
+    if (x.outfit) {   // bộ thời trang: máy chủ trả khoá bản (mua lại bộ đã có là bản thêm 'bộ:giới#xxxxxx', phẩm dòng ngẫu nhiên)
+      const k = r?.key || (x.nhieu && owned(game, x.outfit) ? newKey(`${x.outfit}:${versionsLook(game)}`) : null);
+      if (k) (s.outfits ??= {})[k] = true; else grantOutfit(game, x.outfit);
+      game.persist(); const out = [game.data.fashion.list[x.outfit].name]; out.key = k || `${x.outfit}:${versionsLook(game)}`; return out;
+    }
+    useTnDay(game, x);
+    return grant(game, x.give);
+  };
+  if (game.cloud) {
+    if (dangDoi) return false;   // bấm hai lần liền: chờ lần đầu xong
+    dangDoi = true;
+    try {
+      const k = await calls(), khoa = Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+      let got = null;
+      await game.cloud.run(() => k.buy(id, khoa), r => { s.tn = r.tn; if (r.thu_lenh != null) game.thuLenh = r.thu_lenh; got = give(r); game.persist(); });
+      return got;
+    } finally { dangDoi = false; }
+  }
+  addTn(game, -x.tn);
+  return give();
+}

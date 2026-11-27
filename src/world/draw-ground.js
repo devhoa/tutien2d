@@ -1,0 +1,324 @@
+// Nền đảo bằng hình pixel (tools/art/world.py → data/art.json). Cỏ, đường đất, nền đá, mép cỏ, vách đảo vẽ một lần
+// vào tấm đệm riêng của từng bản đồ; nhà, cây, đá, hoa vẽ theo từng ô. Hình chưa tải xong thì trả false để vẽ hình khối như cũ.
+import { spriteImage } from '../render/sprites.js';
+import { roundRim } from './draw-rim.js';
+import { bakeDat } from './draw-dat.js';
+import { paintNature } from './draw-nature.js';
+import { drawNen, nenReady, kyPainted } from './draw-nen.js';
+
+const GRASSY = '.FTRH';   // ô đứng trên nền cỏ
+const EDGES = [[0, -1], [1, 0], [0, 1], [-1, 0]];   // thứ tự khung tile.edge: cỏ ở trên, phải, dưới, trái
+const WALL = { L: 12, M: 13, R: 14, door: 15, win: 16 };   // khung tường trong tile.house, sau 12 khung mái
+const DIAG = [[-1, -1], [1, -1], [1, 1], [-1, 1]];   // thứ tự khung góc của tile.*-rim: trên trái, trên phải, dưới phải, dưới trái
+// Mặt lớn lặp liền (tools/art/terrain.py): khung theo vị trí ô nên cả hồ liền mạch; ROW: ghép liền theo hàng (khung = tx % 4)
+const BIG = { L: 'tile.lava', O: 'tile.icelake', f: 'tile.void', '=': 'tile.water' };
+const ROW = { y: 'tile.terrace' };
+// Nhà ghép theo khối ô cùng loại, cùng bố cục khung với tile.house
+const HOUSE = { H: 'tile.house', B: 'tile.house-burnt', N: 'tile.house-forge', z: 'tile.house-adobe', W: 'tile.house-tree' };
+// Vật đứng một ô: hình, chân đặt ở điểm (x, y) trong ô, true nếu khung chạy theo thời gian (không thì chọn theo hash ô)
+const PROP = {
+  T: ['prop.tree', 8, 14], R: ['prop.rock', 8, 13], J: ['prop.sword-grave', 8, 15], I: ['prop.pillar', 8, 15], h: ['prop.broken-sword', 8, 8],
+  Z: ['prop.oldtree', 8, 15], n: ['prop.mushroom', 8, 13], Q: ['prop.lantern', 8, 15, true], V: ['prop.deadtree', 8, 15],
+  U: ['prop.blackpillar', 8, 15], '*': ['prop.crystal', 8, 15], Y: ['prop.pine', 8, 15], k: ['prop.icepillar', 8, 15],
+  P: ['prop.portal', 8, 9, true], M: ['prop.cushion', 8, 9], K: ['prop.furnace', 8, 15, true], A: ['prop.anvil', 8, 14, true],
+};
+const NATURAL = 'nRY*kTZV';   // cây, đá, nấm, tinh thể: lệch nhẹ cho tự nhiên
+// Vách hang theo hệ: mặt vách khi ô dưới đi được, không thì đỉnh vách
+const WALLS = { X: 'tile.wall-root', C: 'tile.wall-copper', E: 'tile.wall-earth' };
+export const PROP_TILES = Object.keys(HOUSE).join('') + Object.keys(PROP).join('') + Object.keys(WALLS).join('') + 'F^S';
+// Mép bờ phủ lên ô: hình, và ô bên cạnh nào thì có bờ
+const RIM = {
+  L: ['tile.lava-rim', n => n !== 'L'],
+  O: ['tile.snow-rim', n => n !== 'O'],
+  i: ['tile.snow-rim', n => n === 'w' || n === 'Y'],
+  1: ['tile.snow-rim', n => n === 'w' || n === 'Y'],   // phố gạch, sân lát lễ hội: mép tuyết phủ lên
+  2: ['tile.snow-rim', n => n === 'w' || n === 'Y'],
+  f: ['tile.void-rim', n => n !== 'f'],
+  '=': ['tile.water-rim', n => n !== '='],
+};
+let cache = { map: null, cv: null, painted: new Set(), baked: null };
+// Vật có chuyển động hoặc đổi theo người chơi (đèn lồng, cổng, lò, đe, đá linh căn): vẽ mỗi khung. Vật khác đứng yên nên vẽ luôn
+// vào tấm đệm nền một lần mỗi bản đồ (giảm giật: trước đây mỗi khung dán lại 150–200 cây, đá, nhà, vách).
+const LIVE = 'QPKAS';
+let waitMap = { map: null, t0: 0 };
+
+// Ô loại ch của bản đồ đang vẽ đã có hình pixel trong tấm đệm (draw-map.js khỏi vẽ hình khối đè lên)
+export const groundPainted = ch => cache.painted.has(ch);
+
+function sheet(game, id) {
+  const s = game.data.art.sprites[id], im = s && spriteImage(s);
+  return im ? { s, im } : null;
+}
+
+// Hình vật trên bản đồ này cần (để chờ tải đủ rồi mới dựng tấm đệm, kẻo vật thiếu hình phải dán lại mỗi khung)
+function propIds(map) {
+  const ids = new Set(), key = (map.def.ground || '#8a8070').slice(1);
+  for (const ch of new Set(map.def.grid.join(''))) {
+    if (LIVE.includes(ch)) continue;
+    if (HOUSE[ch]) ids.add(HOUSE[ch]); else if (PROP[ch]) ids.add(PROP[ch][0]); else if (WALLS[ch]) ids.add(WALLS[ch]);
+    else if (ch === 'F') ids.add('decal.flowers'); else if (ch === '^') { ids.add('prop.peak-' + key); ids.add('tile.slope-' + key); }
+  }
+  return ids;
+}
+
+function put(ctx, sp, f, x, y) {
+  ctx.drawImage(sp.im, f * sp.s.w, 0, sp.s.w, sp.s.h, x, y, sp.s.w, sp.s.h);
+}
+
+// Làm mờ, nhạt nền đã nướng: nhoè hộp 3×3 (k lượt), kéo màu về màu trung bình của nền (contrast) rồi sáng thêm (lift).
+// Số ở data/config.json → ground_soft.
+function soften(c, w, h, o = { pass: 1, contrast: 0.6, lift: 10 }) {
+  if (!o || w * h > 16e6) return;
+  const im = c.getImageData(0, 0, w, h), d = im.data, n = w * h;
+  let sr = 0, sg = 0, sb = 0, cnt = 0;
+  for (let i = 0; i < n * 4; i += 64) if (d[i + 3] > 200) { sr += d[i]; sg += d[i + 1]; sb += d[i + 2]; cnt++; }
+  const av = cnt ? [sr / cnt, sg / cnt, sb / cnt] : [0, 0, 0], tmp = new Uint8ClampedArray(d.length);
+  for (let p = 0; p < (o.pass || 0); p++) {
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {   // ngang
+      const i = (y * w + x) * 4, a = (y * w + Math.max(0, x - 1)) * 4, b = (y * w + Math.min(w - 1, x + 1)) * 4;
+      for (let k = 0; k < 3; k++) tmp[i + k] = (d[a + k] + d[i + k] * 2 + d[b + k]) >> 2;
+      tmp[i + 3] = d[i + 3];
+    }
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {   // dọc
+      const i = (y * w + x) * 4, a = (Math.max(0, y - 1) * w + x) * 4, b = (Math.min(h - 1, y + 1) * w + x) * 4;
+      for (let k = 0; k < 3; k++) d[i + k] = (tmp[a + k] + tmp[i + k] * 2 + tmp[b + k]) >> 2;
+    }
+  }
+  const ct = o.contrast ?? 1, lf = o.lift || 0;
+  for (let i = 0; i < n * 4; i += 4) for (let k = 0; k < 3; k++) d[i + k] = av[k] + (d[i + k] - av[k]) * ct + lf;
+  c.putImageData(im, 0, 0);
+}
+
+function build(game, map, tiles, hash, baseTile) {
+  const sp = {};
+  for (const id of ['tile.grass', 'tile.path', 'tile.stone', 'tile.edge', 'tile.cliff', 'decal.dirt', 'prop.bush']) if (!(sp[id] = sheet(game, id))) return null;
+  const lit = game.data.light.maps.includes(map.def.id);
+  // Nền pixel theo kiểu "tex" của ô (tools/art/ground.py); ô cây, đá, nhà đứng trên nền màu đất của đảo thì lấy nền ô cùng màu
+  // Ô không có tex thì lấy nền của ô có tex cùng màu (kiếm gãy, mộ kiếm trên nền bãi mộ; nhà đất trên đất hậu thổ), không có nữa thì ô đặc đứng trên nền đảo
+  const byColor = col => col && Object.keys(tiles.types).find(t => tiles.types[t].tex && tiles.types[t].color === col);
+  const tex = {}, under = byColor(map.def.ground);
+  const keyOf = (ch, k) => (k.tex ? ch : byColor(k.color)) || (k.solid ? under : null);
+  const texOf = (ch, k) => lit ? null : tex[ch] ??= sheet(game, 'ground.' + keyOf(ch, k)) || false;
+  // Hình nền riêng của bản đồ này chưa tải xong thì chờ (trả null, khung sau dựng lại), kẻo nền phẳng mãi
+  const need = lit ? ['tile.dfloor'] : [...new Set(map.def.grid.join(''))].map(ch => 'ground.' + keyOf(ch, tiles.types[ch] || {}));
+  for (const id of need) if (game.data.art.sprites[id] && !sheet(game, id)) return null;
+  // hình vật: chờ tối đa 3 giây (hình hỏng thì thôi, vật thiếu hình vẽ mỗi khung như cũ)
+  if (waitMap.map !== map) waitMap = { map, t0: performance.now() };
+  for (const id of propIds(map)) if (game.data.art.sprites[id] && !sheet(game, id) && performance.now() - waitMap.t0 < 3000) return null;
+  const big = {}, row = {}, rim = {};
+  for (const ch in BIG) if (game.data.art.sprites[BIG[ch]] && !(big[ch] = sheet(game, BIG[ch]))) return null;
+  for (const ch in ROW) if (game.data.art.sprites[ROW[ch]] && !(row[ch] = sheet(game, ROW[ch]))) return null;
+  for (const ch in RIM) if (game.data.art.sprites[RIM[ch][0]] && !(rim[ch] = sheet(game, RIM[ch][0]))) return null;
+  const painted = new Set();
+  const T = map.T, cv = document.createElement('canvas');
+  cv.width = map.w * T; cv.height = map.h * T + (map.def.planet ? T : 0);   // tinh cầu: chừa chỗ vách dưới đáy đĩa
+  const c = cv.getContext('2d');
+  c.imageSmoothingEnabled = false;
+  for (let ty = 0; ty < map.h; ty++) for (let tx = 0; tx < map.w; tx++) {
+    const ch = map.at(tx, ty), k = tiles.types[ch] || {}, px = tx * T, py = ty * T, h = hash(tx, ty);
+    if (k.void) {   // vách đảo: hai hàng dưới đất liền (tinh cầu tròn thì vách uốn theo mép đĩa, vẽ ở roundRim)
+      if (map.def.planet) continue;
+      if (!map.type(tx, ty - 1).void) put(c, sp['tile.cliff'], Math.floor(h * 3), px, py);
+      else if (!map.type(tx, ty - 2).void) put(c, sp['tile.cliff'], 3 + Math.floor(h * 3), px, py);
+      continue;
+    }
+    if (big[ch]) { put(c, big[ch], (tx % 4) + (ty % 4) * 4, px, py); painted.add(ch); }
+    else if (row[ch] && !lit) { put(c, row[ch], tx % 4, px, py); painted.add(ch); }
+    else if (ch === ',') put(c, sp['tile.path'], Math.floor(h * 4), px, py);
+    else if (ch === '_') put(c, sp['tile.stone'], Math.floor(h * 4), px, py);
+    else if ((GRASSY.includes(ch) || ch === '^') && !(k.solid && map.def.ground)) put(c, sp['tile.grass'], Math.floor(h * 4), px, py);
+    else if ('PMS'.includes(ch)) {   // cổng, bồ đoàn, đá linh căn: lấy nền của ô đi được bên cạnh (nền đá, cỏ, nền bí cảnh...)
+      const n = EDGES.map(([dx, dy]) => map.at(tx + dx, ty + dy)).find(x => !'PMS'.includes(x) && !tiles.types[x]?.solid) || '.';
+      const own = !lit && texOf(n, tiles.types[n] || {});
+      if (n === '_' || GRASSY.includes(n)) put(c, sp[n === '_' ? 'tile.stone' : 'tile.grass'], Math.floor(h * 4), px, py);
+      else if (own) put(c, own, Math.floor(h * 4), px, py);
+      else baseTile(c, map, tiles, tx, ty, tiles.types[n]?.color);
+    }
+    else if (texOf(ch, k)) { put(c, tex[ch], Math.floor(h * 4), px, py); painted.add(ch); }
+    else if (lit && PROP[ch] && !k.solid && map.def.ground) baseTile(c, map, tiles, tx, ty, map.def.ground);   // nấm, kiếm gãy trong hầm: nền hầm, không lấy màu ô
+    else baseTile(c, map, tiles, tx, ty);
+    if (',_12'.includes(ch)) EDGES.forEach(([dx, dy], i) => { if ('.F'.includes(map.at(tx + dx, ty + dy))) put(c, sp['tile.edge'], i, px, py); });   // cỏ lấn mép đường (cả phố lát lễ hội)
+    if (rim[ch]) rimTile(c, map, rim[ch], RIM[ch][1], tx, ty, px, py);
+  }
+  const floor = lit && sheet(game, 'tile.dfloor');   // hầm ngục về đêm: phủ phiến đá lên nền
+  if (floor) for (let ty = 0; ty < map.h; ty++) for (let tx = 0; tx < map.w; tx++) {
+    const k = map.type(tx, ty);
+    if (!k.solid && !k.void) put(c, floor, Math.floor(hash(tx + 11, ty) * 4), tx * T, ty * T);
+  }
+  // chủ dự án 04/11/2026 15:38: nền đất mờ, nhạt hơn, bỏ chi tiết nhỏ (hoa cỏ lấm tấm, vệt đất, bụi nhỏ) cho nhân vật, đồ vật nổi lên
+  bakeDat(c, map, hash, game.data['le-hoi']?.festivals?.[map.def.id]?.dat);   // mặt đất lễ hội (draw-dat.js)
+  soften(c, cv.width, cv.height, game.data.config.ground_soft);
+  if (!lit) paintNature(c, map, hash, game.data.config.nature, tiles);   // sông hồ, đường đất bo mép, nền bớt gắt (draw-nature.js)
+  roundRim(c, map, sp['tile.cliff'], hash);
+  cache.painted = painted;
+  cache.baked = bakeProps(c, game, map, hash);
+  return cv;
+}
+
+// Vật đứng yên vẽ vào tấm đệm theo đúng thứ tự từng hàng như lúc vẽ mỗi khung; trả về ô nào đã vẽ
+function bakeProps(c, game, map, hash) {
+  const baked = new Uint8Array(map.w * map.h);
+  for (let ty = 0; ty < map.h; ty++) for (let tx = 0; tx < map.w; tx++) {
+    const ch = map.at(tx, ty);
+    if (PROP_TILES.includes(ch) && !LIVE.includes(ch) && drawProp(c, game, map, ch, tx, ty, hash(tx, ty), 0)) baked[ty * map.w + tx] = 1;
+  }
+  return baked;
+}
+
+// Bờ quanh hồ: cạnh nào giáp bờ thì phủ mép; góc có hai cạnh kề đều là bờ thì bo tròn,
+// hai cạnh kề đều là hồ mà ô chéo là bờ thì phủ góc trong.
+function rimTile(c, map, sp, isBank, tx, ty, px, py) {
+  const bank = (dx, dy) => !map.type(tx + dx, ty + dy).void && isBank(map.at(tx + dx, ty + dy));
+  EDGES.forEach(([dx, dy], i) => { if (bank(dx, dy)) put(c, sp, i, px, py); });
+  DIAG.forEach(([dx, dy], i) => {
+    const a = bank(dx, 0), b = bank(0, dy);
+    if ((a && b) || (!a && !b && bank(dx, dy))) put(c, sp, 4 + i, px, py);
+  });
+}
+
+// Bãi cỏ loang (chơi thử 28/10: cỏ một màu phẳng lì, nhìn lâu mỏi mắt): nhiễu thô mỗi 5 ô, nội suy ra từng khối 4×4 điểm ảnh,
+// mảng cỏ dày sẫm hơn một bậc, mép lởm chởm theo khối. Vẽ một lần vào tấm đệm nền.
+function meadow(c, map, hash) {
+  const T = map.T, S = 5, B = 4, n = (gx, gy) => hash(gx * 13 + 101, gy * 17 + 7);
+  for (let ty = 0; ty < map.h; ty++) for (let tx = 0; tx < map.w; tx++) {
+    if (!GRASSY.includes(map.at(tx, ty))) continue;
+    for (let by = 0; by < T; by += B) for (let bx = 0; bx < T; bx += B) {
+      const fx = (tx * T + bx) / (S * T), fy = (ty * T + by) / (S * T), gx = Math.floor(fx), gy = Math.floor(fy), u = fx - gx, v = fy - gy;
+      const su = u * u * (3 - 2 * u), sv = v * v * (3 - 2 * v);
+      const val = (n(gx, gy) * (1 - su) + n(gx + 1, gy) * su) * (1 - sv) + (n(gx, gy + 1) * (1 - su) + n(gx + 1, gy + 1) * su) * sv;
+      const d = (hash(tx * 4 + bx / B + 503, ty * 4 + by / B + 211) - 0.5) * 0.2;   // lệch ngưỡng ngẫu nhiên theo khối: mép mảng lởm chởm như cỏ mọc, không thành cạnh thẳng
+      if (val + d < 0.34) { c.fillStyle = 'rgba(10,40,30,0.08)'; c.fillRect(tx * T + bx, ty * T + by, B, B); }
+    }
+  }
+}
+
+// Rải vùng đất trống và bụi cây thấp lên bãi cỏ rộng, cố định theo vị trí ô (vẽ luôn vào tấm đệm, không chắn đường).
+function scatter(c, map, hash, dirt, bush) {
+  const T = map.T;
+  const open = (x0, y0, w, h) => { for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) if (map.at(x, y) !== '.') return false; return true; };
+  for (let ty = 1; ty < map.h - 2; ty++) for (let tx = 1; tx < map.w - 3; tx++) {
+    const h = hash(tx * 7 + 3, ty * 5 + 1);
+    if (h < 0.025 && open(tx - 1, ty - 1, 5, 4)) put(c, dirt, Math.floor(hash(ty, tx) * 3), tx * T + 24 - dirt.s.anchor[0], ty * T + 16 - dirt.s.anchor[1]);
+    else if (h > 0.95 && open(tx - 1, ty - 1, 3, 3)) put(c, bush, h > 0.99 ? 1 : 0, tx * T + 8 - bush.s.anchor[0], ty * T + 13 - bush.s.anchor[1]);
+  }
+}
+
+// Ô có vật đã vẽ sẵn trong tấm đệm nền (draw-map.js khỏi vẽ lại)
+// Tấm đệm nền của bản đồ này đã dựng xong (màn che lúc tải, src/render/world-veil.js)
+export const groundReady = (map, game) => cache.map === map || (!!map.def.nen && !!game && nenReady(game, map));
+export const propBaked = (map, tx, ty) => cache.map === map && cache.baked?.[ty * map.w + tx] === 1;
+
+// Lớp nền từ tấm đệm, chỉ phần đang thấy. baseTile: cách vẽ hình khối một ô (draw-map.js) cho ô chưa có hình.
+export function drawGround(ctx, game, map, tiles, view, hash, baseTile) {
+  if (map.def.nen) {   // nền bộ 15 mảnh SpriteCook, vẽ theo mảng (draw-nen.js)
+    if (cache.nen !== map) cache = { map: null, nen: map, cv: null, painted: kyPainted(map.def.nen), baked: null };   // ô đã vẽ ở nền: draw-map.js chỉ thêm ánh nước, bọt dung nham
+    return drawNen(ctx, game, map, tiles, view, hash);
+  }
+  if (cache.map !== map) { const cv = build(game, map, tiles, hash, baseTile); if (!cv) { cache.painted = new Set(); cache.baked = null; return false; } cache = { map, cv, painted: cache.painted, baked: cache.baked }; }
+  const T = map.T, x0 = Math.max(0, Math.floor(view.x0)), y0 = Math.max(0, Math.floor(view.y0));
+  const w = Math.min(cache.cv.width, Math.ceil(view.x1)) - x0, h = Math.min(cache.cv.height, Math.ceil(view.y1)) - y0;
+  if (w <= 0 || h <= 0) return true;
+  ctx.save(); ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(cache.cv, x0, y0, w, h, x0, y0, w, h);
+  ctx.restore();
+  return true;
+}
+
+// Một khối nhà chữ nhật gồm các ô cùng loại (bảng HOUSE): hàng dưới là tường (cửa ở giữa, cửa sổ xen kẽ), các hàng trên là mái.
+function houseBlock(map, tx, ty, ch) {
+  let x0 = tx, y0 = ty;
+  while (map.at(x0 - 1, ty) === ch) x0--;
+  while (map.at(tx, y0 - 1) === ch) y0--;
+  let w = 1, h = 1;
+  while (map.at(x0 + w, y0) === ch) w++;
+  while (map.at(x0, y0 + h) === ch) h++;
+  return { x0, y0, w, h };
+}
+
+function housePiece(map, tx, ty, ch) {
+  const { x0, y0, w, h } = houseBlock(map, tx, ty, ch);
+  const c = tx - x0, r = ty - y0, pos = c === 0 ? 0 : c === w - 1 ? 2 : 1;
+  if (r === h - 1) return h === 1 ? WALL.M : pos !== 1 ? WALL[pos ? 'R' : 'L'] : c === Math.floor((w - 1) / 2) ? WALL.door : c % 2 ? WALL.win : WALL.M;
+  const kind = h === 2 ? 3 : r === 0 ? 0 : r === h - 2 ? 2 : 1;   // nóc, giữa, mép, nhà thấp (nóc + mép)
+  return kind * 3 + pos;
+}
+
+// Vật trên nền bằng hình: trả true nếu đã vẽ ô này.
+export function drawProp(ctx, game, map, ch, tx, ty, h, t = 0) {
+  if (map.def.prop_hide?.includes(ch)) return true;   // bản đồ đã thay hình ô này bằng đồ mới (động phủ: lò, bồ đoàn)
+  if (ch === '^') return drawPeak(ctx, game, map, tx, ty, h);
+  if (WALLS[ch]) return drawWallTile(ctx, game, map, ch, tx, ty, h);
+  if (ch === 'S') return drawSpiritStone(ctx, game, map, tx, ty, t);
+  const id = HOUSE[ch] || PROP[ch]?.[0] || (ch === 'F' && 'decal.flowers'), sp = id && sheet(game, id);
+  if (!sp) return false;
+  const T = map.T, a = sp.s.anchor;
+  // Vật tự nhiên lệch vài điểm ảnh theo ô, nấm dày thì bỏ bớt: trước đây xếp thẳng hàng như ô cờ (chơi thử 28/10 ở Thanh Mộc)
+  if (ch === 'n' && (h * 31) % 1 < 0.35) return true;
+  const nat = NATURAL.includes(ch), px = tx * T + (nat ? Math.round(((h * 97) % 1 - 0.5) * 6) : 0), py = ty * T + (nat ? Math.round(((h * 53) % 1 - 0.5) * 4) : 0);
+  ctx.imageSmoothingEnabled = false;
+  if (ch === 'T') put(ctx, sp, h < 0.1 ? 2 : h < 0.55 ? 1 : 0, px + 8 - a[0], py + 14 - a[1]);
+  else if (PROP[ch]) put(ctx, sp, PROP[ch][3] ? Math.floor(t * 3 + h * 5) % sp.s.frames : Math.floor(h * sp.s.frames), px + PROP[ch][1] - a[0], py + PROP[ch][2] - a[1]);
+  else if (HOUSE[ch]) {
+    // Nhà nguyên căn ảnh Canva house.<ô>-<số ô ngang> (chủ dự án chọn 30/10/2026): vẽ một lần ở ô dưới trái của khối, chân nhà sát đáy khối,
+    // giữa theo bề ngang; các ô khác của khối không vẽ gì. Cỡ khối chưa có hình thì ghép ô tile.house như cũ.
+    const b = houseBlock(map, tx, ty, ch), whole = sheet(game, `house.${ch}-${b.w}`);
+    if (!whole) put(ctx, sp, housePiece(map, tx, ty, ch), px, py);
+    else if (tx === b.x0 && ty === b.y0 + b.h - 1) put(ctx, whole, (b.x0 * 7 + b.y0 * 13) % whole.s.frames,   // nhiều căn: mỗi khối một căn theo vị trí
+       b.x0 * T + Math.round((b.w * T - whole.s.w) / 2), (b.y0 + b.h) * T - whole.s.h);
+  }
+  else for (let i = 0; i < 2; i++) put(ctx, sp, Math.floor((h * 7 + i * 0.4) * 3) % 3, px + 2 + Math.floor(((h * 13 + i * 0.5) % 1) * 7), py + 2 + Math.floor(((h * 29 + i * 0.37) % 1) * 7));
+  return true;
+}
+
+// Đất linh điền (tile.plot): đã khai thì luống cày, còn hoang thì cỏ dại. Trả false nếu hình chưa tải để draw-cave.js vẽ hình khối.
+export function drawPlotSoil(ctx, game, px, py, wild, h) {
+  const sp = sheet(game, 'tile.plot');
+  if (!sp) return false;
+  put(ctx, sp, (wild ? 2 : 0) + (h < 0.5 ? 0 : 1), px, py);
+  return true;
+}
+
+// Núi (tools/art/terrain2.py): ô không có núi phía trên là đỉnh phủ tuyết vượt lên trên ô, còn lại là sườn đá; đá theo màu đất bản đồ
+function drawPeak(ctx, game, map, tx, ty, h) {
+  const key = (map.def.ground || '#8a8070').slice(1), top = map.at(tx, ty - 1) !== '^';
+  const sp = sheet(game, (top ? 'prop.peak-' : 'tile.slope-') + key);
+  if (!sp) return false;
+  const T = map.T, px = tx * T, py = ty * T, a = sp.s.anchor;
+  ctx.save(); ctx.imageSmoothingEnabled = false;
+  if (top) put(ctx, sp, Math.floor(h * sp.s.frames), px + 8 - a[0], py + 15 - a[1]);
+  else put(ctx, sp, Math.floor(h * sp.s.frames), px, py);
+  if (map.at(tx, ty + 1) !== '^') { ctx.fillStyle = 'rgba(20,16,30,.25)'; ctx.fillRect(px, py + T - 1, T, 1); }
+  ctx.restore();
+  return true;
+}
+
+function drawWallTile(ctx, game, map, ch, tx, ty, h) {
+  const sp = sheet(game, WALLS[ch]);
+  if (!sp) return false;
+  const face = !map.type(tx, ty + 1).solid;
+  put(ctx, sp, (face ? 0 : 2) + (h < 0.5 ? 0 : 1), tx * map.T, ty * map.T);
+  return true;
+}
+
+// Đá linh căn: trụ đá pixel, khe giữa sáng màu linh căn của người chơi (chưa có thì xanh nhạt), nhấp nháy
+function drawSpiritStone(ctx, game, map, tx, ty, t) {
+  const sp = sheet(game, 'prop.spiritstone');
+  if (!sp) return false;
+  const T = map.T, x = tx * T + 8 - sp.s.anchor[0], y = ty * T + 15 - sp.s.anchor[1];
+  ctx.save(); ctx.imageSmoothingEnabled = false;
+  put(ctx, sp, 0, x, y);
+  ctx.fillStyle = game.save.element ? game.data.elements[game.save.element].color : '#bff4ff';
+  ctx.globalAlpha = 0.6 + 0.3 * Math.sin(t * 3);
+  ctx.fillRect(x + 6, y + 5, 2, 16);
+  ctx.globalAlpha = 1; ctx.fillStyle = '#ffffff'; ctx.fillRect(x + 6, y + 6 + (Math.floor(t * 6) % 14), 1, 1);
+  ctx.restore();
+  return true;
+}
+
+// Cửa bí cảnh còn khoá (map.locked): màn phong ấn đỏ có bùa, vân chạy 2 khung
+export function drawSeal(ctx, game, map, tx, ty, t) {
+  const sp = sheet(game, 'tile.seal');
+  if (!sp) return false;
+  put(ctx, sp, Math.floor(t * 2 + tx) % 2, tx * map.T, ty * map.T);
+  return true;
+}

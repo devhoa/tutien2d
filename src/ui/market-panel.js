@@ -1,0 +1,128 @@
+// Bảng Chợ Phiên (data/market.json): tab Mua (hàng người khác đang rao), Bán (đồ trong túi, nguyên liệu), Của tôi (hàng mình đang rao).
+// Mọi việc mua bán đi qua game/market.js.
+import { canTrade, errText, goodsName, sellItem, sellMat, buy, cancel, claimMail } from '../game/market.js';
+import { coins } from '../game/shop.js';
+import { isEquipped } from '../game/items.js';
+import { matInfo } from '../game/cave.js';
+import { mkCss, oCho, luoiCho, tamCho } from './market-luoi.js';   // lưới như Kho, chạm ô mới xem và mua (26/11/2026)
+
+const $ = id => document.getElementById(id);
+const fill = (t, o) => String(t).replace(/\{(\w+)\}/g, (_, k) => o[k] ?? '');
+
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+
+export function createMarketPanel(game) {
+  const M = game.data.market;
+  let tab = 'buy', rows = [], note = '', pick = null, xem = null, busy = false, lock = null, drawn = null;   // xem: mã hàng đang mở chi tiết (Mua, Của tôi)   // lock: chợ chưa mở cho tài khoản mới (data/market.json → mo_khoa)
+
+  function sub() {
+    $('market-sub').textContent = note || `${game.data.shop.name} ${coins(game.save).toLocaleString('vi-VN')} · ${M.sub.replace('{tax}', Math.round(M.tax * 100)).replace('{h}', M.hours)}`;
+  }
+
+  function button(text, fn, disabled) {
+    const b = el('button', 'mini', text); b.disabled = !!disabled || busy;
+    b.onclick = () => run(fn);
+    return b;
+  }
+
+  async function run(fn) {
+    if (busy) return;
+    busy = true; note = M.loading; render();
+    try { const got = await fn(); note = Array.isArray(got) && got.length ? got.join(' · ') : ''; game.sfx?.('coin'); }
+    catch (e) { note = errText(game, e); }
+    busy = false; await load();
+  }
+
+  async function load() {
+    if (!canTrade(game)) { render(); return; }
+    if (tab === 'sell') { render(); return; }
+    try { const { listMarket } = await import('../net/market.js'); rows = await listMarket(); }
+    catch (e) { note = errText(game, e); rows = []; }
+    render();
+  }
+
+  const dong = (t, o) => el('div', 'mk-tam-dong', fill(t, o));
+
+  function renderSell(box) {
+    const s = game.save, list = [];
+    for (const it of s.bag.filter(i => !isEquipped(s, i.uid) && !game.data.items.bases[i.base]?.dv)) list.push({ key: `i${it.uid}`, loai: 'mon', mon: it, it, price: M.price.item[it.rarity] });
+    for (const [id, n] of Object.entries(s.mats)) if (n > 0 && matInfo(game.data, id) && id !== game.data.daovan.reroll.mat && matInfo(game.data, id).loai !== 'can') list.push({ key: `m${id}`, loai: 'nl', id, n, mon: { id, n }, price: M.price.mat });
+    if (!list.length) { box.append(el('div', 'empty', M.empty_sell)); return; }
+    if (pick && !list.some(x => x.key === pick.key)) pick = null;
+    if (pick) box.append(tamCho(game, pick, goodsName(game, pick.loai, pick.mon), [], [], () => { pick = null; render(); }));
+    else box.append(el('div', 'empty', M.luoi.chon_ban));
+    box.append(luoiCho(list.map(x => oCho(game, x, pick?.key === x.key, () => {
+      if (pick?.key === x.key) pick = null;
+      else { pick = x; drawn = null; $('market-price').value = x.price; $('market-n').value = x.loai === 'nl' ? 1 : ''; }
+      render();
+    }))));
+  }
+
+  function render() {
+    if ($('market').hidden) return;
+    for (const b of document.querySelectorAll('#market-tabs [data-tab]')) b.classList.toggle('on', b.dataset.tab === tab);
+    sub();
+    const box = $('market-list'), top = tab === drawn ? box.scrollTop : 0; box.innerHTML = '';   // vẽ lại cùng tab (tải xong, chọn món bán) giữ chỗ đang xem
+    drawn = tab; queueMicrotask(() => { box.scrollTop = top; });
+    $('market-form').hidden = tab !== 'sell' || !pick;
+    if (!canTrade(game)) { box.append(el('div', 'empty', M.offline)); return; }
+    if (lock?.ly_do) {   // tài khoản mới: 1 ngày tuổi và 4 tiếng chơi mới mở chợ (chủ dự án 06/11/2026 23:12)
+      const K = M.mo_khoa, h = Math.max(0, Math.ceil((new Date(lock.tao).getTime() + K.ngay * 86400000 - Date.now()) / 3600000));
+      const w = el('div', 'empty'); w.append(el('b', null, K.title), el('p', null, fill(K.desc, { ngay: K.ngay, gio: K.gio })),
+        el('p', null, h > 0 ? fill(K.wait_day, { h }) : K.ok_day), el('p', null, fill(K.played, { a: (lock.giay / 3600).toFixed(1), b: K.gio })));
+      box.append(w); return;
+    }
+    box.classList.add('luoi');
+    if (tab === 'sell') { renderSell(box); updateForm(); return; }
+    const list = rows.filter(r => (tab === 'mine') === r.la_toi).map(r => ({ ...r, key: 'r' + r.id }));
+    if (!list.length) { box.append(el('div', 'empty', tab === 'mine' ? M.empty_mine : M.empty_buy)); return; }
+    const r = list.find(x => x.key === xem);
+    if (!r) xem = null;
+    else {
+      const btn = tab === 'mine' ? button(M.cancel_btn, () => cancel(game, r.id)) : button(M.buy_btn, () => buy(game, r), coins(game.save) < r.gia);
+      box.append(tamCho(game, r, goodsName(game, r.loai, r.mon), [dong(M.luoi.nguoi_ban, { ten: r.ten }), dong(M.luoi.gia, { gia: r.gia.toLocaleString('vi-VN') })], [btn], () => { xem = null; render(); }));
+    }
+    box.append(luoiCho(list.map(x => oCho(game, x, x.key === xem, () => { xem = x.key === xem ? null : x.key; if (xem) drawn = null; render(); }))));
+  }
+
+  function updateForm() {
+    if (!pick) return;
+    $('market-n').hidden = pick.loai !== 'nl';
+    const v = Math.floor(+$('market-price').value || 0);
+    $('market-get').textContent = M.you_get.replace('{v}', (v - Math.ceil(v * M.tax)).toLocaleString('vi-VN'));
+  }
+
+  function open() {
+    if (!game.save || game.dialog.open) return;
+    game.uiOpen = true; $('market').hidden = false; note = ''; pick = null; xem = null; mkCss();
+    render();
+    if (canTrade(game)) { import('../net/market.js').then(N => N.marketLock()).then(r => { lock = r; render(); }).catch(() => {}); run(() => claimMail(game)); }
+  }
+  function close() { game.uiOpen = false; $('market').hidden = true; drawn = null; }
+
+  $('market-title').textContent = M.title;
+  $('market-price').placeholder = M.price_ph;
+  $('market-n').placeholder = M.n_ph;
+  $('market-send').textContent = M.list_btn;
+  $('market-close').onclick = close;
+  $('market-price').oninput = updateForm;
+  for (const b of document.querySelectorAll('#market-tabs [data-tab]')) {
+    b.textContent = M.tabs[b.dataset.tab];
+    b.onclick = () => { tab = b.dataset.tab; pick = null; xem = null; note = ''; load(); };
+  }
+  $('market-form').onsubmit = ev => {
+    ev.preventDefault();
+    const price = Math.floor(+$('market-price').value || 0), x = pick;
+    if (!x || price < 1) return;
+    pick = null;
+    if (x.loai === 'mon') run(() => sellItem(game, x.it.uid, price));
+    else run(() => sellMat(game, x.id, Math.max(1, Math.min(x.n, Math.floor(+$('market-n').value || 1))), price));
+  };
+  game.openMarket = open;
+  return { open, close };
+}

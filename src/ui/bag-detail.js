@@ -1,0 +1,213 @@
+// Tấm chi tiết món đồ trong Túi đồ: trượt lên từ đáy túi khi chạm một món, nên không phải cuộn xuống cuối túi.
+// Thứ tự từ trên xuống: tên + ô + cấp → nút chính (Mặc / Thay / Tháo) và lực chiến đổi bao nhiêu → rèn luyện (khoá, cường hoá,
+// luyện, tẩy luyện, đổi hệ, phân giải, bán) → so với món đang mặc cùng ô → chỉ số, dòng phụ, ngọc (khảm).
+import {
+  equip, unequip, salvage, rerollFee, gemInfo, rarityOf, itemName, statText, artOf, enhanceRefund, matchEl, matchMul,
+  enhanceMul,
+} from '../game/items.js';
+import { lineText } from './hc-text.js';
+import { hcMain } from '../game/he-chien.js';
+import { salvageIron, costText } from '../game/cave.js';
+import { sell, sellPrice } from '../game/shop.js';
+import { dailyEvent } from '../game/daily.js';
+import { enhanceCost, setStats } from '../game/enhance.js';
+import { isArt, refineCost, salvageArt } from '../game/refine.js';
+import { kyUnsocket, kyRefine } from '../game/ky-ngoc.js';   // khảm / gỡ ngọc, luyện pháp bảo: máy chủ quyết khi đã đăng nhập
+import { kyReroll, kyEnhance, kyRerollEl } from '../game/ky-mon.js';   // đã đăng nhập: máy chủ quyết (chống sửa món)
+import { tierOf, linesFull, itemTier } from '../game/tiers.js';
+import { playerStats } from '../game/stats.js';
+import { power } from '../game/achieve.js';
+import { buyBlock } from './buy-mats.js';   // ô mua nguyên liệu nâng cấp ở cuối tấm chi tiết, mua theo số lượng
+import { trial } from '../game/autoequip.js';
+import { gemIcon } from './gem-icon.js';
+import { tranNote } from './tran-chu.js';   // chỉ số đã chạm trần (23/11/2026)
+import { hoiThien } from './hoi-thien.js';   // món phẩm Thiên trở lên: hỏi lại trước khi phân giải, bán, tẩy luyện (CSKH #237, 25/11/2026)
+import { mungEnhance, mungReroll, mungRefine } from './mung-mon.js';   // màn mừng mạnh lên (src/ui/mung.js): có game.mung thì diễn thay tiếng báo cũ
+
+const bonusText = (s, v) => ({ lifesteal: `hút máu ${v}%`, thorns: `phản đòn ${v}%`, regen: `hồi ${v} máu/giây`, regen_pct: `hồi ${v}% máu/giây`, dr: `giảm sát thương ${v}%`, mp_pct: `linh lực tối đa +${v}%`, mp_regen: `hồi linh lực +${v}%/giây` })[s] || null;
+
+export function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+
+export function icon(data, it) {
+  // biểu tượng theo loại món (bộ biểu tượng mới, chủ dự án 04/11/2026 11:17: ui-ic-<ô>), nằm trong lòng khung phẩm cấp (style-ui-icon.css)
+  // món có hình thật (ui-vk-<món>, chủ dự án 11:33) thì hiện hình đó; chưa có thì biểu tượng loại
+  const S = data.art.sprites, slot = data.items.bases[it.base]?.slot, ico = el('i', 'ico'), spr = S['ui.vk-' + it.base] || (slot && S['ui.ic-' + slot]);
+  if (spr) ico.style.setProperty('--ic', `url("${spr.file}?v=${spr.v}")`);
+  if (S['ui.vk-' + it.base]) ico.classList.add('that');
+  return ico;
+}
+
+// Chỉ số chính đã nhân cường hoá và hợp hệ Đạo Vận (như lúc tính vào người)
+export function mainStats(data, save, it) {
+  const H = data['he-chien'], hm = H?.on && hcMain(H, data, save, it);   // luật mới: chỉ số chính theo cảnh giới món, phẩm, cấp (he-chien.js)
+  if (hm) return hm;
+  const base = data.items.bases[it.base];
+  const k = enhanceMul(data, it.plus) * matchMul(data, save, it);
+  return Object.fromEntries(Object.entries(it.main).map(([s, v]) => [s, Math.round(v * k)]));
+}
+
+// Lực chiến đổi bao nhiêu nếu mặc món này (0 nếu đang mặc)
+export function powerGain(game, it) {
+  const s = game.save, slot = game.data.items.bases[it.base].slot;
+  if (s.equip[slot] === it.uid) return 0;
+  return trial(game, slot, it.uid) - power(game, playerStats(s, game.data));
+}
+
+const signed = n => (n > 0 ? '+' : n < 0 ? '−' : '±') + Math.abs(n).toLocaleString('vi-VN');
+
+// box: nơi vẽ; st: trạng thái túi; changed(): lưu, tính lại, vẽ lại túi; close(): đóng tấm chi tiết
+// Dòng phụ tô màu theo bậc (lục → đen; đen có viền đỏ sẫm)
+export function tierLine(data, l) {   // dòng tẩy luyện: mỗi dòng một màu (cả hồ sơ người khác, src/ui/profile-side.js)
+  const t = Number.isInteger(l.t) ? tierOf(data, l.t) : null, d = el('div', 'd-line' + (t?.edge ? ' tier-den' : ''), '◆ ' + lineText(data, l));
+  if (t) { d.style.color = t.edge ? '#ffd6d6' : t.color; if (t.edge) d.style.setProperty('--edge', t.edge); }
+  return d;
+}
+
+export function renderDetail(game, st, box, changed, close) {
+  const { data } = game, save = game.save;
+  box.innerHTML = '';
+  const it = save.bag.find(i => i.uid === st.sel);
+  if (!it) return false;
+  const r0 = rarityOf(data.items, it.rarity), q = itemTier(data, it), r = q ? { ...r0, name: `Phẩm ${q.name}`, color: q.edge || q.color } : r0, base = data.items.bases[it.base], slot = base.slot;
+  const worn = save.equip[slot] === it.uid, cur = !worn && save.bag.find(i => i.uid === save.equip[slot]);
+
+  // đầu tấm: biểu tượng, tên, ô, nút đóng
+  const head = el('div', 'd-head');
+  const title = el('div', 'd-title', itemName(data, it)); title.style.color = r.color;
+  const sub = el('div', 'd-sub', `${r.name} · ${data.items.slots[slot]} · cấp ${it.lvl}`);
+  const txt = el('div', 'd-name'); txt.append(title, sub);
+  const x = el('button', 'd-close', '✕'); x.setAttribute('aria-label', 'Đóng chi tiết'); x.onclick = close;
+  const ico = icon(data, it); ico.style.borderColor = r.color;
+  if (worn) ico.append(el('span', 'd-worn', 'Đang mặc'));   // nhãn đè chân biểu tượng, chừa chỗ cho tên một dòng
+  head.append(ico, txt, x);
+  box.append(head);
+
+  // nút chính ngay dưới tên
+  const main = el('div', 'd-primary');
+  let mainBtn;   // nút Mặc / Thay / Tháo: nằm ô đầu lưới rèn luyện (chủ dự án 07/11/2026 10:52: 6 nút xếp 2 cột × 3 hàng)
+  if (worn) {
+    const b = el('button', 'act-btn', 'Tháo xuống'); b.onclick = () => { unequip(save, slot); changed(); };
+    mainBtn = b;
+  } else {
+    const gain = powerGain(game, it);
+    const b = el('button', 'act-btn primary', cur ? 'Thay vào' : 'Mặc vào');
+    b.onclick = () => { equip(save, data, it.uid); game.sfx('shield'); st.msg = cur ? 'Đã thay.' : 'Đã mặc.'; changed(); };
+    const g = el('span', 'd-gain ' + (gain > 0 ? 'up' : gain < 0 ? 'down' : ''), `Lực chiến ${signed(gain)}`);
+    main.append(g); mainBtn = b;
+  }
+  if (main.childNodes.length) box.append(main);
+  const forge = el('div', 'd-forge');   // Rèn luyện ngay dưới nút Mặc / Tháo (chủ dự án 07/11/2026 09:04: người mới không tìm ra chỗ cường hoá)
+  if (st.msg) { box.append(el('div', 'd-msg', st.msg)); st.msg = ''; }   // kết quả vừa rèn: ngay trên các nút rèn
+  box.append(forge);
+
+  // so với món đang mặc cùng ô
+  const mine = mainStats(data, save, it);
+  if (cur) {
+    const old = mainStats(data, save, cur), cmp = el('div', 'd-compare');
+    cmp.append(el('div', 'd-label', `So với ${itemName(data, cur)}`));
+    for (const s of new Set([...Object.keys(mine), ...Object.keys(old)])) {
+      const d = (mine[s] || 0) - (old[s] || 0), row = el('div', 'd-diff ' + (d > 0 ? 'up' : d < 0 ? 'down' : ''));
+      row.append(el('span', null, data.items.stats[s].name), el('b', null, `${signed(d)}${data.items.stats[s].pct ? '%' : ''}`));
+      cmp.append(row);
+    }
+    box.append(cmp);
+  }
+
+  // chỉ số
+  const stats = el('div', 'd-stats');
+  for (const [s, v] of Object.entries(mine)) stats.append(el('div', 'd-main', statText(data, s, v)));
+  const art = artOf(data, it);
+  if (art) stats.append(el('div', 'd-line', `Chiêu pháp bảo ${data.skills[art].name}: ${data.skills[art].desc}`));
+  if (it.el) {   // Đạo Vận mới: mọi món có hệ, cùng hệ linh căn thì chỉ số chính mạnh thêm và tính vào bộ Đạo Vận
+    const ok = matchEl(data, save, it), t = el('div', 'd-line', `Hệ ${data.elements[it.el]?.name || '?'}: ${ok ? `hợp linh căn, chỉ số chính +${Math.round(data.daovan.match_main * 100)}%, tính vào bộ Đạo Vận` : 'khác hệ linh căn, chưa tính vào bộ Đạo Vận'}`);
+    t.style.color = data.elements[it.el]?.color || '#ffd27a'; stats.append(t);
+  }
+  if (base.set) {
+    const sd = data.gear.sets[base.set], n = setStats(data, save).count[base.set] || 0;
+    const t = el('div', 'd-line', `${sd.name} (đang mặc ${n}): ` + Object.entries(sd.bonus).map(([need, b]) => `${need} món: ` + Object.entries(b).map(([s, v]) => bonusText(s, v) || statText(data, s, v)).join(', ')).join(' · '));
+    t.style.color = sd.color; stats.append(t);
+  }
+  it.lines.forEach(l => stats.append(tierLine(data, l)));   // tẩy luyện mới: mỗi dòng một màu
+  const tn = tranNote(game, it); if (tn) stats.append(tn);   // chỉ số của món đã chạm trần: thêm dòng không mạnh hơn (23/11/2026)
+  stats.append(el('div', 'muted tiny', linesFull(data, it) ? `Đã mở đủ ${it.lines.length} dòng, món này không tẩy thêm được.` : `Đã mở ${it.lines.length} dòng. Mỗi lần tẩy mở thêm 1 dòng, màu ngẫu nhiên lục → đen và giữ cố định; món có từ 1 đến ${data.items.line_tiers.max} dòng, tẩy tới khi hết.`));
+  if (it.sockets.length) {
+    const row = el('div', 'd-sockets');
+    it.sockets.forEach((g, idx) => {
+      const b = el('button', 'socket' + (g ? ' full' : ''));
+      if (g) { const gi = gemInfo(data, g); b.append(gemIcon(game, g, 20, 'gem-ico sm'), gi.name); b.style.borderColor = gi.color; b.onclick = async () => { b.disabled = true; await kyUnsocket(game, it.uid, idx); changed(); }; }
+      else { b.textContent = '+ Khảm ngọc'; b.onclick = () => { st.pickSocket = { uid: it.uid, idx }; st.tab = 'ngoc'; st.sel = null; changed(false); }; }
+      row.append(b);
+    });
+    stats.append(row, el('div', 'muted tiny', 'Chạm ô có ngọc để gỡ ngọc về túi.'));
+  }
+  box.append(stats);
+
+  // việc khác
+  const acts = el('div', 'd-acts');
+  const btn = (t, fn, off) => { const b = el('button', 'act-btn', t); b.disabled = !!off; b.onclick = fn; acts.append(b); };
+  const wait = fn => async e => {   // nút hỏi máy chủ: tắt nút, hiện "Đang hỏi máy chủ…" tới khi có kết quả
+    const b = e?.currentTarget; if (b) { b.disabled = true; b.textContent = data.items.ky_mon.busy; }
+    await fn();
+  };
+  const ec = enhanceCost(data, it, save);
+  if (ec?.locked) btn(`Cường hóa +${(it.plus || 0) + 1}: mở ở ${data.realms.names[Math.min(data.realms.names.length - 1, data.gear.enhance.open.from_realm + Math.ceil(((it.plus || 0) + 1 - data.gear.enhance.open.base) / data.gear.enhance.open.per_realm))]}`, () => {}, true);
+  else if (ec) {
+    const can = Object.entries(ec.cost).every(([m, n]) => (save.mats[m] || 0) >= n) && (save.lingshi || 0) >= ec.coins;
+    btn(`Cường hóa +${(it.plus || 0) + 1} (${costText(data, ec.cost)}${ec.coins ? `, ${ec.coins.toLocaleString('vi-VN')} ${data.shop.name}` : ''}, ${Math.round(ec.rate * 100)}%)`, wait(async () => {
+      const m0 = mainStats(data, save, it), p0 = power(game, playerStats(save, data));
+      const res = await kyEnhance(game, it.uid);
+      if (!res) { changed(); return; }
+      st.msg = res === 'up' ? `Thành công! +${it.plus}` : res === 'drop' ? `Hỏng, tụt còn +${it.plus}` : 'Hỏng, giữ nguyên cấp';
+      if (res === 'up' && game.mung) game.mung(mungEnhance(game, it, m0, mainStats(data, save, it), worn ? power(game, playerStats(save, data)) - p0 : 0));
+      else game.sfx(res === 'up' ? 'anvil' : 'hurt');
+      changed();
+    }), !can);
+  }
+  const rc = refineCost(data, it), rm = data.gear.refine.mat;   // pháp bảo: luyện bằng mảnh
+  if (isArt(data, it)) btn(rc == null ? `Luyện: đã tối đa ★${it.pb}` : `Luyện ★${(it.pb || 0) + 1} (${rc} ${data.cave.materials[rm].name}, có ${save.mats[rm] || 0})`, wait(async () => { const p0 = power(game, playerStats(save, data)); if (await kyRefine(game, it)) { st.msg = `Luyện thành công! ★${it.pb}`; if (game.mung) game.mung(mungRefine(game, it, worn ? power(game, playerStats(save, data)) - p0 : 0)); else game.sfx('levelup'); } changed(); }), rc == null || (save.mats[rm] || 0) < rc);
+  const stones = save.mats['tay-luyen-thach'] || 0, cost = data.items.reroll_cost, fee = rerollFee(data, save, it), free = (it.free || 0) > 0;
+  const full = linesFull(data, it);
+  btn(full ? `Tẩy luyện: đã đủ ${it.lines.length} dòng` : free ? `Tẩy luyện: mở dòng ${it.lines.length + 1} (miễn phí ×${it.free})` : `Tẩy luyện: mở dòng ${it.lines.length + 1} (${cost} thạch + ${fee.toLocaleString('vi-VN')} ${data.shop.name})`, hoiThien(game, it, 'tay', wait(async () => {
+    const p0 = power(game, playerStats(save, data)), q0 = null;   // phẩm món theo rarity, tẩy không đổi
+    const res = await kyReroll(game, it.uid);
+    if (!res || res.full) { changed(); return; }
+    const t = tierOf(data, res.line.t), gain = Math.round(power(game, playerStats(save, data)) - p0);   // góp ý #77: hiện rõ món mạnh lên bao nhiêu (phẩm có thể tụt khi dòng mới màu thấp)
+    st.msg = `Dòng ${it.lines.length}: ${lineText(data, res.line)} (${t.name}).${worn ? ` Lực chiến +${gain.toLocaleString('vi-VN')}.` : ''}${res.last ? ' Đây là dòng cuối của món!' : ''}`;   // phẩm món không đổi theo dòng nữa (19/11/2026 13:18)
+    if (game.mung) game.mung(mungReroll(game, it, res, q0, worn ? gain : 0)); else game.sfx(res.line.t >= 4 || res.last ? 'levelup' : 'heal');
+    changed();
+  })), full || (!free && (stones < cost || (save.lingshi || 0) < fee)));
+  const iron = data.cave.salvage_iron[it.rarity] || 0;
+  if (it.el) {   // đổi hệ bằng Đạo Vận Thạch (mọi món); món Đạo Vận cũ: phân giải, bán cho tiệm phải bấm hai lần (không rao chợ)
+    const R = data.daovan.reroll, have = save.mats[R.mat] || 0;
+    btn(data.daovan.texts.reroll.replace('{n}', R.n).replace('{mat}', `${data.cave.materials[R.mat].name}, có ${have}`), wait(async () => { const e = await kyRerollEl(game, it.uid); if (e) { st.msg = data.daovan.texts.rerolled.replace('{item}', data.items.bases[it.base].name).replace('{el}', data.elements[e].name); game.sfx('heal'); } changed(); }), have < R.n);
+  }
+  const sure = (act, fn) => () => {   // món Đạo Vận: lần bấm đầu chỉ hỏi lại
+    if (base.dv && st.sure !== act + it.uid) { st.sure = act + it.uid; game.toast(data.daovan.texts.confirm.replace('{act}', act), 2); return; }
+    st.sure = null; fn();
+  };
+  const rf = enhanceRefund(data, it), rfTxt = it.plus ? `, gồm ${Math.round(data.gear.enhance.refund * 100)}% nguyên liệu cường hoá` : '';   // trả lại một phần nguyên liệu cường hoá
+  const dvTxt = base.dv ? Object.entries(data.daovan.salvage?.mats || {}).map(([m, k]) => `, +${k} ${data.cave.materials[m].name}`).join('') : '';
+  btn(`Phân giải (+${r.salvage + rf.stones} thạch, +${iron + rf.iron} tinh thiết${dvTxt}${rfTxt})`, hoiThien(game, it, 'pg', sure('phân giải', () => { if (salvage(data, save, it.uid)) { salvageArt(game, it); salvageIron(game, it.rarity); dailyEvent(game, 'salvage'); } st.sel = null; game.sfx('die'); changed(); })), worn || it.lock);
+  btn(`Bán (+${sellPrice(game, it)} ${data.shop.name})`, hoiThien(game, it, 'ban', sure('bán', () => { sell(game, it.uid); st.sel = null; game.sfx('pickup'); changed(); })), worn || it.lock);
+  const lk = el('button', 'act-btn' + (it.lock ? ' primary' : ''), it.lock ? '🔒 Đã khoá (chạm để mở)' : 'Khoá (không bị bán, phân giải)');   // góp ý #61
+  lk.onclick = () => { if (it.lock) delete it.lock; else it.lock = true; changed(); };
+  acts.prepend(mainBtn, lk);
+  acts.classList.add('d-grid');
+  for (const b of acts.children) {   // chữ dài "Việc (chi tiết…)": tên việc một dòng, chi tiết chữ nhỏ bên dưới
+    const t = b.textContent, i = t.indexOf(' (');
+    if (i > 0 && t.endsWith(')')) { b.textContent = ''; b.append(el('b', null, t.slice(0, i)), el('small', null, t.slice(i + 2, -1))); }
+    else if (t.includes(': ')) { const j = t.indexOf(': '); b.textContent = ''; b.append(el('b', null, t.slice(0, j)), el('small', null, t.slice(j + 2))); }
+  }
+  forge.append(el('div', 'd-label', 'Rèn luyện'), acts);
+  // Mua nguyên liệu: cuối tấm, xa các nút rèn (chủ dự án 11/11/2026 23:27: bấm nhầm nút Mua nằm giữa các nút rèn)
+  const need = [['tinh-thiet', ec?.cost?.['tinh-thiet'] || 0], ['tay-luyen-thach', Math.max(ec?.cost?.['tay-luyen-thach'] || 0, full || free ? 0 : cost)]];
+  if (isArt(data, it)) need.push([rm, rc || 0]);
+  const bm = buyBlock(game, need, 'mon:' + it.uid, () => changed(false), m => { st.msg = m; changed(); });
+  if (bm) box.append(bm);
+  return true;
+}

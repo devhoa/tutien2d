@@ -1,0 +1,44 @@
+/* Ô lưới khung phẩm cho Kỹ năng, Thân pháp, Công pháp (src/ui/o-luoi.js; chủ dự án 23/11/2026 12:43: ô nhỏ như kho trang bị, chạm xem chi tiết).
+   Ô dùng .sv-stk của Kho (style-self.css): khung ảnh theo phẩm qua data-o. Ở đây: hàng ô đang mang, dấu khoá, dấu đang mang, chữ nhắc, tóm tắt chỉ số. */
+.ol { display: flex; flex-direction: column; gap: 4px; padding: 2px 1px 6px; color: #efe9dc; }
+.ol-hang { display: grid; grid-template-columns: repeat(3, 40px); justify-content: center; gap: 8px; padding: 2px 0 1px; }
+.ol-chuoi { grid-template-columns: 1fr 7px 1fr 7px 1fr 7px 1fr 7px 1fr; gap: 0; align-items: center; justify-content: stretch; }
+.ol-mui { font: 900 9px/1 var(--f-body, system-ui); color: #8f86a8; text-align: center; }
+.ol-hang .sv-stk.sel { filter: none; box-shadow: 0 0 0 1.5px #ffd76a, 0 0 7px rgba(255, 215, 106, .65); }
+.ol-hang .ol-nhan { display: block; text-align: center; font: 700 7px/1.1 var(--f-body, system-ui); color: #b9b0cf; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ol-hang > span { min-width: 0; display: block; }
+.ol-hang .sv-stk { width: 100%; }
+.sv-stk.trong::before { content: '+'; position: absolute; inset: 0; display: grid; place-items: center; font: 900 13px/1 var(--f-body, system-ui); color: rgba(255, 255, 255, .28); }
+.sv-stk.khoa > .ico, .sv-stk.khoa > canvas { filter: grayscale(1) brightness(.55) !important; opacity: .75; }
+.sv-stk .ol-khoa { position: absolute; left: 50%; bottom: 1px; width: 9px; height: 9px; transform: translateX(-50%); background: center / contain no-repeat; z-index: 1; }
+.sv-stk.mang::after { content: '✓'; position: absolute; right: 2px; bottom: 0; z-index: 1; font: 900 8.5px/1.1 var(--f-body, system-ui); color: #ffd76a;
+  text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; }
+.sv-stk.mang > small { right: 11px; }
+.sv-stk > canvas.tpv-hinh { position: static !important; width: 80% !important; height: 80% !important; border: 0 !important; border-radius: 0 !important; image-rendering: pixelated; }
+.ol-ghi { font-size: 8px; line-height: 1.3; color: #9a90ad; text-align: center; padding: 0 2px; }
+.ol-ghi.vang { color: #ffd76a; }
+.ol-chip { align-self: center; padding: 1px 7px; border-radius: 8px; border: 1px solid #c79a3a; background: rgba(60, 42, 12, .8); color: #ffd76a; font: 700 8px/1.4 var(--f-body, system-ui); }
+/* Tóm tắt chỉ số công pháp đang nhận: hình + số; số kẹp trần màu cam, kèm chữ "trần" */
+.ol-tong { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 6px; padding: 2px 3px; border-radius: 5px; background: rgba(12, 8, 22, .55); border: 1px solid rgba(255, 255, 255, .06); }
+.ol-cs { display: inline-flex; align-items: center; gap: 2px; font: 700 8px/1.3 var(--f-body, system-ui); color: #e8e1f4; white-space: nowrap; }
+.ol-cs .sv-sico { width: 10px; height: 10px; background: center / contain no-repeat; flex: none; }
+.ol-cs.tran { color: #ffb04a; }
+.ol-cs.tran small { margin-left: 1px; font-size: 6.5px; color: #ff8a3a; }
+/* Tấm chi tiết */
+/* .ol-dau (hình đầu tấm chi tiết) ở style-self2.css: var(--o), var(--ic) chứa url tương đối nên phải dùng ở tệp CSS gốc */
+.ol-dau > canvas { width: 78%; height: 78%; image-rendering: pixelated; }
+.sv-mid.sheet .ol-cs-dong { display: flex; align-items: center; gap: 4px; font-size: 8.5px; }
+.sv-mid.sheet .ol-cs-dong .sv-sico { width: 11px; height: 11px; background: center / contain no-repeat; flex: none; }
+.sv-mid.sheet .ol-cs-dong b { color: #fff; }
+.sv-mid.sheet .ol-cs-dong em { font-style: normal; color: #ffb04a; }
+.sv-mid.sheet .ol-cs-dong i.ok { font-style: normal; color: #7dffa0; }
+.sv-mid.sheet .ol-nut { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; margin: 3px 0; }
+.sv-mid.sheet .kn-t { margin-top: 2px; padding: 3px 6px; }
+.sv-mid.sheet .kn-t b { font-size: 9.5px; }
+.sv-mid.sheet .kn-t small { font-size: 8px; }
+/* Tên dài (Huyền Vực Tỏa Hồn, Kiếm Tông Tâm Pháp) xuống hai dòng thay vì bị cắt sau nút ✕ */
+.sv-mid.sheet .ol-tam .d-title { white-space: normal; overflow: visible; line-height: 1.15; overflow-wrap: anywhere; }
+.sv-mid.sheet .ol-tam .d-sub { white-space: normal; }
+/* Vừa mang / khảm vào ô: ô loé vàng rồi đáp xuống (máy để chế độ êm thì CSS tắt mọi chuyển động) */
+.sv-stk.moi { animation: ol-loe .7s cubic-bezier(.2, .9, .3, 1.2); z-index: 2; }
+@keyframes ol-loe { 0% { transform: scale(1.4); filter: brightness(2.4) drop-shadow(0 0 9px #ffd76a); } 55% { transform: scale(.94); filter: brightness(1.3) drop-shadow(0 0 4px #ffd76a); } 100% { transform: none; filter: none; } }

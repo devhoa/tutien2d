@@ -1,0 +1,153 @@
+// Khung phải bảng Nhân vật, phần kho (chủ dự án 11/11/2026 01:47, khuôn mẫu: hàng mục trên đầu, lưới ô giữa, thanh dưới cùng).
+// Trang bị: lọc theo nhóm (Tất cả, Vũ khí, Phòng cụ, Trang sức, Pháp bảo), ô khung phẩm, mũi tên xanh khi mặc vào mạnh hơn;
+// thanh dưới: số ô, Xếp, Bán nhanh, Mặc tốt nhất. Kho: Ngọc, Nguyên liệu, Cá, Đan dược (ô hình + số lượng); thanh dưới: Linh Thạch
+// (chạm xem lịch sử), Khảm tốt nhất. Chạm ô: phần mặc / rèn / ghép / dùng hiện ngay trong khung (src/ui/self-panel.js vẽ).
+// Đang chọn ngọc để khảm (st.pickSocket): Kho → Ngọc hiện dòng nhắc, chạm viên nào là khảm viên đó.
+import { pbOn } from '../game/phap-bao.js';
+import { knOn } from '../game/ky-nang.js';
+import { el, icon, powerGain } from './bag-detail.js';
+import { renderGemGrid, renderMatGrid, renderPillGrid, matEmpty } from './bag-stock.js';
+import { gradeColor, gradeId, uiIco, socketCol } from './self-gear.js';
+import { kySocket } from '../game/ky-ngoc.js';
+import { mungSocket } from './mung-them.js';   // màn mừng khảm ngọc (docs/10-CAI-HON.md việc 4b)
+import { power } from '../game/achieve.js';
+import { bestGems } from '../game/autogem.js';
+import { bestGear } from '../game/autogear.js';
+import { itemName, bagCap } from '../game/items.js';
+import { moTile } from './bag-mo.js';
+import { grade } from '../game/tiers.js';
+import { renderQuick } from './bag-quick.js';
+import { coins } from '../game/shop.js';
+import { boDoHang } from './bo-do-hang.js';
+
+// Hàng mục trên kho theo từng trang: [mục, hình, tên]
+const GROUPS = { all: null, vk: ['vu-khi'], pc: ['mu', 'giap', 'giay'], ts: ['ngoc-boi', 'nhan'], pb: ['phap-bao'] };
+export const SUBS = {   // biểu tượng mục con (ảnh GPT 11/11/2026 03:03, tools/art/ui_nhan_vat.py)
+  do: [['all', 'ui.nv-tab-tat-ca', 'Tất cả'], ['vk', 'ui.nv-tab-vu-khi', 'B.mệnh'], ['pc', 'ui.nv-tab-giap', 'Giáp'], ['ts', 'ui.nv-tab-nhan', 'Nhẫn'], ['pb', 'ui.nv-tab-phap-bao', 'P.bảo']],   // Giáp: mũ, giáp, giày; Nhẫn: nhẫn, ngọc bội
+  tiem: [['tiem', 'ui.nv-tu-luyen', 'Huyết mạch']],   // Tiềm năng: một mục, tự vẽ (src/ui/tiem-nang-view.js)
+  kho: [['ngoc', 'ui.nv-tab-ngoc', 'Ngọc'], ['nl', 'ui.nv-tab-nguyen-lieu', 'N.liệu'], ['dan', 'ui.nv-tab-dan', 'Đan']],
+  ca: [['ca', 'ui.nv-tab-ca', 'Cá'], ['moi', 'ui.vk-giun-dat', 'Mồi'], ['can', 'ui.vk-han-thiet-can', 'Cần'], ['mon', 'ui.vk-ca-nuong', 'Món']],   // câu cá (chủ dự án 24/11/2026 00:38: "mục cá cũng có cá, mồi và cần", src/ui/cau-view.js); hình Mồi, Cần, Món tạm vẽ bằng code tới khi có ảnh GPT
+  cp: [['chieu', 'ui.nv-tab-chieu', 'Kỹ năng'], ['than-phap', 'ui.nv-tab-vu-khi', 'Thân pháp'], ['cong-phap', 'ui.nv-tab-bi-kip', 'Công pháp']],   // Thân pháp: chủ dự án 22/11/2026 04:25 "gần ô công pháp chiêu thức, thêm 1 ô thân pháp" (src/ui/than-phap-view.js)   // Kỹ năng nằm trong phần Công pháp (chủ dự án 21/11/2026 17:23)
+  lt: [['linh-thu', 'ui.ic-linh-thu', 'Linh thú'], ['thu-cuoi', 'ui.ic-thu-cuoi', 'Thú cưỡi'], ['dong-hanh', 'ui.nv-khoi-loi', 'Khôi lỗi']],
+  tt: [['thoi-trang', 'ui.nv-tab-thoi-trang', 'Thời trang'], ['danh-hieu', 'ui.nv-tab-danh-hieu', 'Danh hiệu']],
+  ld: [['lo', 'ui.k-i-lo-dan', 'Lò đan'], ['nl', 'ui.nv-tab-nguyen-lieu', 'Nguyên liệu']],   // chủ dự án 20/11/2026 14:5x: hai mục ngang như Vũ khí / Pháp bảo
+};
+// Mục con hiện được: hệ Pháp Bảo Luyện Chế (src/game/phap-bao.js pbOn) ẩn mục Chiêu cũ (chủ dự án 12/11/2026 03:35; 04:07 trả lại mục P.bảo cho hệ mới)
+export const subsOf = (game, page) => (pbOn(game) && !knOn(game) ? SUBS[page].filter(([id]) => !(page === 'cp' && id === 'chieu')) : SUBS[page]);   // có Kỹ năng thì mục này trở lại   // mục P.bảo giữ: hiện hệ mới (self-pb-page.js)
+export const groupOf = slot => Object.keys(GROUPS).find(g => GROUPS[g]?.includes(slot)) || 'all';
+const worn = (save, uid) => Object.values(save.equip || {}).includes(uid);
+const SORTS = [['moi', 'Mới', 'mới nhất'], ['manh', 'Mạnh', 'mạnh nhất'], ['pham', 'Phẩm', 'phẩm cao'], ['cap', 'Cấp', 'cấp cao']];
+const btn = (txt, cls, fn, ico) => {   // ico: biểu tượng ảnh trước chữ (màn hẹp chỉ hiện hình, style-self.css)
+  const b = el('button', cls + (ico ? ' has-ico' : '')); if (ico) b.append(ico); if (txt) b.append(el('span', null, txt)); b.onclick = fn; return b;
+};
+
+function gearGrid(game, st, box, refresh) {
+  const { data, save } = game, g = GROUPS[st.sub] || null;
+  const oldPb = pbOn(game);   // hệ Pháp Bảo Luyện Chế: pháp bảo cũ ẩn khỏi lưới (mục P.bảo vẽ hệ mới, self-pb-page.js)
+  let items = save.bag.filter(i => !worn(save, i.uid) && (!g || g.includes(data.items.bases[i.base]?.slot)) && !(oldPb && data.items.bases[i.base]?.slot === 'phap-bao'));
+  const gain = new Map(items.map(i => [i.uid, powerGain(game, i)]));
+  if (st.sort === 'manh') items.sort((a, b) => gain.get(b.uid) - gain.get(a.uid));
+  else if (st.sort === 'pham') items.sort((a, b) => grade(data, b).idx - grade(data, a).idx || b.lvl - a.lvl);
+  else if (st.sort === 'cap') items.sort((a, b) => b.lvl - a.lvl || grade(data, b).idx - grade(data, a).idx);
+  else items.sort((a, b) => b.uid - a.uid);
+  for (const it of items) {
+    const b = el('button', 'sv-slot sv-bagc');
+    b.style.setProperty('--q', gradeColor(data, it)); b.dataset.o = gradeId(data, it);   // khung ảnh riêng từng phẩm
+    b.setAttribute('aria-label', itemName(data, it));
+    b.append(icon(data, it));
+    if (it.plus) b.append(el('b', 'sv-plus', '+' + it.plus));
+    if (it.lock) b.append(uiIco(data, 'ui.nv-khoa', 'sv-lock'));   // đã khoá: không bị bán, phân giải
+    if (gain.get(it.uid) > 0) b.append(el('span', 'sv-up', '▲'));   // góc dưới phải như mẫu: mặc vào mạnh hơn
+    const gems = socketCol(game, it); if (gems) b.append(gems);   // cột ngọc khảm dọc mép trái
+    b.onclick = () => { st.sel = it.uid; st.stock = null; refresh(); };
+    box.append(b);
+  }
+  const free = Math.max(0, bagCap(data, save) - save.bag.length);
+  for (let i = 0; i < free; i++) box.append(el('i', 'sv-empty'));   // ô trống như mẫu: thấy túi còn bao nhiêu chỗ
+  const mo = moTile(game, refresh); if (mo) box.append(mo);   // ô khoá "+": mở thêm ô bằng Linh Thạch (src/ui/bag-mo.js)
+}
+
+// Kho (Ngọc, Nguyên liệu, Cá, Đan): dựng lại ô thành ô như kho trang bị (chủ dự án 23/11/2026 12:43: "đồ hoạ đồng bộ khung trong kho, ảnh
+// kho 1 đang làm rất tốt"): khung ảnh theo phẩm (data-o, như .sv-bagc), hình giữa lòng khung, số lượng góc dưới, ngọc có cấp góc trên;
+// lấp ô trống tới đủ lưới như kho trang bị. Ngọc cấp thấp vẽ nhỏ trong tấm 28 điểm (tools/art/gems_ai.py): phóng cho cỡ nhìn gần đều nhau.
+function khoO(grid) {
+  const cells = [...grid.querySelectorAll('.item.stock')];
+  for (const c of cells) {
+    const t = el('button', 'sv-stk' + (c.classList.contains('sel') ? ' sel' : ''));
+    t.dataset.o = c.dataset.pham || 'luc';
+    t.style.setProperty('--rar', c.style.getPropertyValue('--rar') || '#8a84b0');
+    t.title = c.querySelector('b')?.textContent || '';
+    const ico = c.querySelector('.ico, canvas');
+    if (ico?.tagName === 'CANVAS' && c.dataset.cap) {
+      const lv = +c.dataset.cap, to = Math.min(1, 0.25 + 0.0625 * (lv - 1)), z = Math.min(2.4, (0.5 + 0.012 * (lv - 1)) / to);
+      ico.style.setProperty('--z', z.toFixed(2)); ico.style.setProperty('--dy', ((Math.max(0.5, 0.7 - 0.02 * (lv - 1)) - 0.5) * 100).toFixed(1) + '%');
+      t.append(el('b', 'sv-plus sv-cap', String(lv)));
+    }
+    if (ico) t.prepend(ico);
+    t.append(el('small', null, (c.querySelector('small')?.textContent || '').split(' · ')[0]));
+    t.onclick = c.onclick; c.replaceWith(t);
+  }
+  for (const p of grid.querySelectorAll(':scope > p')) grid.before(p);   // lời "chưa có" nằm trên lưới, không chiếm một ô
+  const du = Math.max(40, Math.ceil(cells.length / 5) * 5) - cells.length;
+  for (let i = 0; i < du; i++) grid.append(el('i', 'sv-empty'));
+}
+
+// Phần giữa (lưới) và thanh dưới cho trang Trang bị / Kho. changed(): lưu + vẽ lại; refresh(): chỉ vẽ lại
+export function renderStore(game, st, changed, refresh) {
+  const { data, save } = game, grid = el('div', 'sv-bag-grid'), wrap = el('div', 'sv-bag'), bar = el('div', 'sv-bar');
+  const pickStock = v => { st.stock = v; st.sel = null; refresh(); };
+  if (st.page === 'do') {
+    if (st.qs) {   // Bán nhanh: chọn phẩm rồi bán (src/ui/bag-quick.js giữ trạng thái ở st.quick)
+      if (!st.quick) renderQuick(game, el('div'), st, () => {});
+      st.quick.open = true; renderQuick(game, wrap, st, full => (full ? changed() : refresh()));
+    }
+    else { if (st.sub === 'all') wrap.append(boDoHang(game, changed, refresh)); gearGrid(game, st, grid, refresh); wrap.append(grid); }   // hàng Bộ 1–4 (src/ui/bo-do-hang.js)
+    const n = el('span', 'sv-cnt', `${save.bag.length}/${bagCap(data, save)}`);
+    const sort = btn('', 'sv-bbtn ico', () => {   // nút xếp chỉ có hình cho gọn, bấm thì báo đang xếp theo gì
+      st.sort = SORTS[(SORTS.findIndex(x => x[0] === st.sort) + 1) % SORTS.length][0];
+      game.toast?.(`Xếp: ${SORTS.find(x => x[0] === st.sort)[2]}`, 1.2); refresh();
+    }, uiIco(data, 'ui.nv-sap-xep', 'sv-bico'));
+    sort.title = 'Xếp: ' + SORTS.find(x => x[0] === st.sort)[2];
+    const quick = btn(st.qs ? 'Xong' : 'Bán', 'sv-bbtn' + (st.qs ? ' on' : ''), () => { st.qs = !st.qs; refresh(); }, uiIco(data, 'ui.nv-ban', 'sv-bico'));
+    const best = btn('Mặc', 'sv-bbtn gold', () => {   // mặc đồ tốt nhất   // góp ý #58
+      const r = bestGear(game);
+      game.toast?.(r.n ? `Đã thay ${r.n} món: lực chiến ${r.gain >= 0 ? '+' : ''}${r.gain.toLocaleString('vi-VN')}` : 'Đồ đang mặc đã là tốt nhất.', 2.2);
+      if (r.n) { game.sfx('shield'); changed(); }
+    }, uiIco(data, 'ui.nv-mac-tot', 'sv-bico'));
+    bar.append(n, sort, quick, best);
+    return { wrap, bar };
+  }
+  // Kho
+  if (st.pickSocket) {
+    const it = save.bag.find(i => i.uid === st.pickSocket.uid), tip = el('div', 'sv-pick');
+    tip.append(el('span', null, `Chọn ngọc khảm vào ${it ? itemName(data, it) : 'món đồ'}`), btn('Huỷ', 'sv-bbtn', () => { st.pickSocket = null; st.page = 'do'; st.sel = it?.uid ?? null; refresh(); }));
+    wrap.append(tip);
+  }
+  if (st.sub === 'ngoc') {
+    if (!renderGemGrid(game, grid, st, pickStock, async k => {
+      const p = st.pickSocket; if (!p) return;
+      const p0 = power(game);
+      if (await kySocket(game, p.uid, p.idx, k)) game.mung?.(mungSocket(game, k, p0));
+      st.sel = p.uid; st.pickSocket = null; st.page = 'do'; changed();
+    })) wrap.append(el('p', 'muted sv-none', 'Chưa có ngọc. Quái và boss có thể rơi ngọc.'));
+  } else if (st.sub === 'nl' || st.sub === 'ca') { if (!renderMatGrid(game, grid, st, pickStock, st.sub === 'ca')) wrap.append(el('p', 'muted sv-none', matEmpty(st.sub === 'ca'))); }
+  else renderPillGrid(game, grid, st, pickStock);
+  grid.classList.add('stock'); wrap.append(grid);
+  khoO(grid);
+
+  const money = el('button', 'sv-money');   // Linh Thạch, chạm xem lịch sử vào ra (đề xuất #137)
+  money.append(uiIco(data, 'ui.ic-linh-thach', 'sv-bico'), `${coins(save).toLocaleString('vi-VN')}`, uiIco(data, 'ui.nv-lich-su', 'sv-bico'));
+  money.onclick = () => { st.coinLog = true; st.sel = null; st.stock = null; refresh(); };
+  bar.append(money);
+  if (st.sub === 'ngoc' && !st.pickSocket && Object.keys(save.gems || {}).length) {   // đề xuất #33: khảm hết bằng một lần bấm
+    const b = btn('Khảm tốt nhất', 'sv-bbtn gold', async () => {   // nút có hình khảm (cuối hàm)
+      b.disabled = true; b.textContent = data.items.ky_mon.busy;
+      const r = await bestGems(game);
+      game.toast(!r.n ? 'Ngọc đang khảm đã là tốt nhất.' : r.gain > 0 ? `Đã khảm ${r.n} lần: lực chiến +${r.gain.toLocaleString('vi-VN')}` : `Đã thay ${r.n} viên bằng ngọc cấp cao hơn (ngọc đã chạm trần chỉ số nên lực chiến không đổi).`, 2.2);
+      if (r.n) game.sfx('levelup');
+      changed();
+    }, uiIco(data, 'ui.nv-kham', 'sv-bico'));
+    bar.append(b);
+  }
+  return { wrap, bar };
+}

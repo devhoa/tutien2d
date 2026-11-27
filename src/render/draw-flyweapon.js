@@ -1,0 +1,108 @@
+// Vẽ vũ khí bay (ngự kiếm, src/game/flyweapon.js tính vị trí): hình fw.<loại vũ khí> xoay sẵn 32 hướng (tools/art/flyweapons.py),
+// quầng linh lực màu linh căn nhấp nháy, đốm linh khí bay lên; lúc lao ra có bóng mờ màu linh căn phía sau.
+// Gọi hai lần quanh hình nhân vật: layer 'back' (đang treo sau lưng) và 'front' (đang lao ra, hoặc lượn phía trước lúc đả tọa).
+import { theoGan } from '../game/others-theo.js';
+import { spriteImage, tintedImage } from './sprites.js';
+import { weaponId } from '../game/stats.js';
+import { heroLook } from './draw-hero.js';
+
+// Hình vũ khí bay: fw.<loại> (tools/art/flyweapons.py, xoay sẵn từng hướng); loại mới chưa có hình thì xoay biểu tượng túi đồ
+// Chủ dự án 04/11/2026 15:02: vũ khí bay phải đúng món đang mặc → món có hình thật (ui-vk-<món>, ảnh GPT) thì bay hình đó
+function weaponSprite(game) {
+  const s = game.save, eq = s.bag?.find(i => i.uid === s.equip?.['vu-khi']);
+  return spriteOf(game, eq?.base, weaponId(s, game.data));
+}
+// base: mã món (data/items.json → bases), wid: loại vũ khí (kiem, thuong…). Dùng chung cho mình và người chơi khác (drawOtherWeapon)
+function spriteOf(game, base, wid) {
+  const S = game.data.art.sprites, real = base && S['ui.vk-' + base];
+  if (real) return { spr: real, im: spriteImage(real), dirs: 0, size: 22, smooth: true, flip: !!game.data.items.bases[base]?.fw_flip };   // ảnh mũi chĩa xuống trái (Thanh Vân, Thiên Mạch Kiếm): xoay thêm nửa vòng cho mũi đi trước
+  const fw = wid && S['fw.' + wid];
+  if (fw) return { spr: fw, im: spriteImage(fw), dirs: fw.frames };
+  const spr = base && S['gear.' + base];
+  return spr ? { spr, im: spriteImage(spr), dirs: 0 } : null;
+}
+
+// Hình vũ khí của một người theo hồ sơ của họ (data/dong-bo.json: vk = món đang mặc, vkl = loại vũ khí; mình: game.hoSo). Chưa mặc món nào
+// vẫn có vũ khí bay theo loại (fw.<loại>), như mình thấy trên máy mình. Bản game cũ chưa báo vkl: suy từ món.
+export const hoSoSprite = (game, h) => spriteOf(game, h?.vk, h?.vkl || game.data.items.bases[h?.vk]?.weapon);
+
+// Vũ khí người chơi khác (fit: hồ sơ họ báo qua phòng, vk / vkl): treo sau vai như của mình (flyweapon.js rest),
+// cưỡi thú thì treo xa vai, vẽ trên người; vừa vung đòn (o.swingT) thì lao ra trước mặt theo hướng nhìn. front: lớp trước thân người
+export function drawOtherWeapon(ctx, game, o, t, front, fit) {
+  const ws = hoSoSprite(game, fit);
+  if (!ws?.im || o.flying || o.tpAnT > (game.time || 0)) return;   // đang bay: vũ khí nằm dưới chân làm phi kiếm (draw-fly.js); đang làm thức Thân pháp: vũ khí ở trong màn diễn (draw-than-phap.js)
+  const c = game.data.heroes.fly, k = heroLook(game, fit).fw_scale || c.scale, side = (o.face?.x ?? 0) < 0 ? -1 : 1;
+  const sw = o.swingT > 0 ? Math.sin(Math.PI * Math.min(1, 1 - o.swingT / 0.18)) : 0;   // 0 → 1 → 0 trong một nhát
+  const q = t * Math.PI * 2 * (c.orbit?.speed || 0.5), med = o.meditating && !sw && c.orbit;   // đả tọa: vũ khí lượn vòng quanh người như của mình (flyweapon.js rest)
+  if (front !== (med ? Math.sin(q) > 0 : o.riding || sw > 0)) return;
+  const dir = Math.atan2(o.face?.y || 0, o.face?.x || 1), bob = Math.sin(t * 2.2 + (o.x % 7)) * c.bob;
+  let x = o.x + side * (c.back[0] - (o.riding ? 5 : 0)), y = o.y + c.back[1] + bob, a = -Math.PI / 2 + side * (c.tilt ?? 0.35);
+  if (med) { x = o.x + Math.cos(q) * c.orbit.r; y = o.y - 8 + Math.sin(q) * c.orbit.r * 0.45; a = q + Math.PI / 2; }
+  if (sw > 0) { const R = 18 * sw; x = x + (o.x + Math.cos(dir) * R - x) * sw; y = y + (o.y - 6 + Math.sin(dir) * R - y) * sw; a = a + (dir - a) * sw; }
+  const el = (o.element && game.data.elements[o.element]?.color) || '#bff4ff', glow = tintedImage(ws.spr, ws.im, el);
+  ctx.save(); ctx.imageSmoothingEnabled = false;
+  const gan = game.others?.visible?.().indexOf(o) ?? 0;   // quầng màu hệ (4 lần vẽ) chỉ cho người gần nhất lúc đông (realtime.theo_gan, others-theo.js)
+  ctx.globalAlpha = (c.halo ?? 0.3) + 0.12 * Math.sin(t * 4);
+  if (gan < theoGan(game)) for (const [ox, oy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) blit(ctx, ws, glow, x + ox, y + oy, a, k);
+  ctx.globalAlpha = 1; blit(ctx, ws, ws.im, x, y, a, k);
+  ctx.restore();
+}
+
+// Vẽ một bản tại (x, y) góc a: hình xoay sẵn thì chọn khung gần góc nhất, không thì xoay biểu tượng (mũi gốc chĩa lên phải). Thân pháp dùng chung (draw-tp-cu.js)
+export function blit(ctx, ws, im, x, y, a, k) {
+  if (!im) return;   // bản phủ màu chưa tạo được (máy hết bộ nhớ canvas, src/render/canvas-kho.js): bỏ lớp phủ
+  const { spr, dirs } = ws;
+  ctx.save();
+  if (ws.smooth) ctx.imageSmoothingEnabled = true;   // ảnh to thu nhỏ: làm mịn kẻo vỡ
+  ctx.translate(Math.round(x), Math.round(y));
+  if (dirs) {
+    const f = ((Math.round(a / (Math.PI * 2) * dirs) % dirs) + dirs) % dirs;
+    ctx.scale(k, k);
+    ctx.drawImage(im, f * spr.w, 0, spr.w, spr.h, -spr.anchor[0], -spr.anchor[1], spr.w, spr.h);
+  } else {
+    ctx.rotate(a + Math.PI / 4 + (ws.flip ? Math.PI : 0)); ctx.scale(k * (ws.size || 16) / spr.w, k * (ws.size || 16) / spr.w);
+    ctx.drawImage(im, 0, 0, spr.w, spr.h, -spr.w / 2, -spr.h / 2, spr.w, spr.h);
+  }
+  ctx.restore();
+}
+
+// Vũ khí vẽ tại (x, y) góc a, cỡ k, phủ đỏ red (0–1): Phá Thiên Tuyệt Trảm tụ lực (render/draw-charge.js). false: chưa có hình.
+// h: hồ sơ của người cầm (draw-fly.js: phi kiếm dưới chân mình lẫn người khác); không đưa h thì là vũ khí của mình đọc từ bản lưu.
+export function drawWeaponAt(ctx, game, x, y, a, k, red, tint, h) {
+  const ws = h ? hoSoSprite(game, h) : weaponSprite(game);
+  if (!ws?.im) return false;
+  k *= heroLook(game, h || undefined).fw_scale || game.data.heroes.fly.scale;   // k: lần so với cỡ vũ khí bay thường
+  ctx.save(); ctx.imageSmoothingEnabled = k > 2.5;   // phóng to nhiều lần: làm mịn, khỏi thành khối vuông
+  const sm = ws.smooth; ws.smooth = ws.smooth || k > 2.5;
+  blit(ctx, ws, ws.im, x, y, a, k);
+  const A = ctx.globalAlpha;   // độ đậm người gọi đặt (vũ khí bay ra mờ dần)
+  if (red > 0) { ctx.globalAlpha = A * red; blit(ctx, ws, tintedImage(ws.spr, ws.im, tint), x, y, a, k); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = A * red * 0.5; blit(ctx, ws, tintedImage(ws.spr, ws.im, '#ff8a6a'), x, y, a, k); }   // đỏ rực: phủ đỏ, cộng sáng cam
+  ws.smooth = sm;
+  ctx.restore();
+  return true;
+}
+
+export function drawFlyWeapon(ctx, game, layer) {
+  const p = game.player, fw = p?.fw, ws = fw && !p.charge && weaponSprite(game);
+  if (p?.flying || p?.tpAn) return;   // đang làm thức Thân pháp: vũ khí đang ở trong màn diễn (src/render/draw-than-phap.js); đang bay: vũ khí nằm dưới chân làm phi kiếm (draw-fly.js)   // đang tụ lực Phá Thiên: vũ khí vẽ ở lớp trên (draw-charge.js)
+  if (!ws?.im) return;
+  // Đang ra đòn: vẽ ở lớp trên cùng (layer 'top', src/render/draw.js), trên quái, thú, pháp tượng, hiệu ứng (chủ dự án 16/11/2026 23:35:
+  // "vũ khí phải hiện lên trên tất cả, hiệu ứng chém cũng vậy"); lúc treo sau lưng vẫn theo trước / sau thân người như cũ
+  if (layer === 'top' ? !fw.act : fw.act || (layer === 'front') !== !!fw.front) return;
+  const { spr, im } = ws, c = game.data.heroes.fly, k = heroLook(game).fw_scale || c.scale, t = game.time;   // chibi thấp đầu to: vũ khí nhỏ lại cho cân
+  const el = game.save.element ? game.data.elements[game.save.element].color : '#bff4ff', glow = tintedImage(spr, im, el);
+  ctx.save();
+  ctx.imageSmoothingEnabled = false;
+  fw.trail.forEach((q, i) => { ctx.globalAlpha = 0.45 - i * 0.13; blit(ctx, ws, glow, q.x, q.y, q.a, k); });   // bóng linh lực khi lao
+  ctx.globalAlpha = (c.halo ?? 0.3) + 0.12 * Math.sin(t * 4);   // quầng linh lực: bản màu linh căn lệch một điểm tám phía, nổi trên tóc tối và cỏ
+  for (const [ox, oy] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [1, -1], [-1, 1]]) blit(ctx, ws, glow, fw.x + ox, fw.y + oy, fw.a, k);
+  ctx.globalAlpha = 1;
+  blit(ctx, ws, im, fw.x, fw.y, fw.a, k);
+  ctx.fillStyle = el;   // đốm linh khí bay lên quanh vũ khí
+  for (let i = 0; i < 2; i++) {
+    const ph = (t * 0.9 + i * 0.5) % 1;
+    ctx.globalAlpha = 0.8 * (1 - ph);
+    ctx.fillRect(Math.round(fw.x + (i ? 4 : -3) + Math.sin(t * 3 + i) * 1.5), Math.round(fw.y + 4 - ph * 12), 1, 1);
+  }
+  ctx.restore();
+}

@@ -1,0 +1,399 @@
+// Trạng thái ván chơi và vòng cập nhật. Vẽ ở src/render, giao diện ở src/ui.
+import { mapGate } from './map-gate.js';
+import { seasonReset } from './season.js';
+import { fitBag } from './autoequip.js';
+import { buildMap } from '../world/map.js';
+import { loadSave, newSave, writeSave } from '../core/save.js';
+import { createPlayer, updatePlayer, refreshStats } from './player.js';
+import { spawnMob, updateMobs, scaleMobBy } from './mobs.js';
+import { zonePower } from './mob-power.js';
+import { startGhost, ghostTick, afterGhost, maHoiSinh } from './ghost.js';
+import { updateBullets, updateFx, addNumber, dist } from './combat.js';
+import { addQi, totalLayer, rollRoot } from './stats.js';
+import { mocTang } from './moc-tang.js';
+import { updateTaps } from './taps.js';
+import { createStory } from './story.js';
+import { createDungeon } from './dungeon.js';
+import { createOthers } from './others.js';
+import { hoSoCuaToi } from './ho-so-phong.js';
+import { nhipMang } from './nhip-mang.js';
+import { phongThu } from './thu-moc.js';
+import { caveRoom } from './friends.js';
+import { updateParty, partyGuest } from './party-sync.js';
+import { dropLoot, updateLoot, collectAll } from './loot.js';
+import { ensureInv, rollItem, addItem, equip, fixGearPct, bagCap } from './items.js';
+import { startTrip, updateTrip } from './travel.js'; import { ttTick } from './truyen-tong.js';   // pháp trận truyền tống
+import { updateBossMusic } from './boss-music.js';
+import { updatePowerPop } from './power-pop.js';
+import { updateSparks } from './sparks.js';
+import { updateInteract, updatePortals, updatePickups } from './interact.js';
+import { updateStrikes } from './strikes.js';
+import { updateZones } from './zones.js';
+import { checkUnlocks } from './skills.js';
+import { layerUp } from './len-tang.js';
+import { ensureTech, techDrop, gainTechExp, learnTech } from './techniques.js';
+import { createTribulation } from './tribulation.js';
+import { ensureCave, matDrop, viTriVao } from './cave.js';
+import { ensureDaily, dailyEvent, dailyKill } from './daily.js';
+import { updateDuel, duelFail, duelGoal } from './duel.js';
+import { pilotDialog, pilotDied } from './pilot.js';
+import { praise, updatePraise } from './praise.js';
+import { updateGarden } from './garden.js';
+import { updateDayNight } from './daynight.js';
+import { syncClock, setFloor } from './clock-sync.js';
+import { updateWeather } from './weather.js';
+import { updateJournal } from './journal.js';
+import { updateHome } from './home.js';
+import { updateChatter } from './chatter.js';
+import { applyWords, askGender } from './gender.js';
+import { cheerKill, updateCheer } from './cheer.js';
+import { updateDaoVan } from './daovan.js';
+import { showBanner } from './banner.js';
+import { cloudHooks, pickSave, startGuard } from './cloud-guard.js';
+import { updateStroll } from './stroll.js';
+import { updateVfx } from './vfx.js';
+import { spawnWild, updateWild } from './wildlife.js';
+import { eliteKill, cleanOutfits } from './fashion.js';
+import { updatePilotLog } from './pilotlog.js';
+import { updateEta } from './eta.js';
+import { updateAnniv } from './anniv.js';
+import { onSay, updateSocial } from './social.js';
+import { updatePetFetch } from './pat.js';
+import { updateFishing } from './fishing.js';
+import { camFollow } from './camera.js';
+import { coinDrop } from './shop.js';
+import { eventMul, eventKill, eventToast, festSpawn } from './events.js';
+import { ensureStats, countKill, checkAchv, power } from './achieve.js';
+import { initRank } from './rank.js';
+import { updateWorldBoss } from './worldboss.js';
+import { spawnMang, updateMang, onMangBoard, arenaGuard } from './thien-mang.js';
+import { createPvp, updatePvp, onPvp } from './pvp.js';
+import { qcTin, qcTick, qcNapLai } from './quai-chung.js';   // quái chung: máu, chết, hồi sinh, công do máy chủ phòng giữ
+import { stamp, offlineGains } from './offline.js';
+import { spawnHome } from './home.js';
+import { spawnCompanion, updateCompanion, gainCompExp, downFx } from './companion.js';
+import { updateCombo } from './affinity.js';
+import { doiMoi } from './doi-moi.js';
+import { ensurePets, maybeRare, petKill, gainPetExp, spawnPet, updatePet, updateRide } from './pets.js';
+export function createGame(data, screen, input, ui, audio) {
+  const cfg = data.config;
+  const game = {
+    data, screen, input, dialog: ui.dialog, ui,
+    save: null, map: null, player: null,
+    mobs: [], npcs: [], pickups: [], bullets: [], fx: [], numbers: [], loot: [], strikes: [], zones: [],
+    spawners: [], dungeon: null, story: null,
+    hitstop: 0, flashT: 0, dark: 0, darkTarget: 0, noDeath: false,
+    trip: null, traveling: false, paused: false, portalLock: 0, peek: null, time: 0,
+    owner: 'guest', online: null, others: null, hoSo: {},   // hoSo: hồ sơ của mình (ho-so-phong.js), vừa gửi cho phòng vừa dùng để vẽ mình
+  };
+  game.sfx = (name, vol) => audio?.play(name, vol); game.sfxWarm = names => audio?.warm?.(names);   // sfxWarm: dựng sẵn tiếng chiêu đang mang (skill-sfx.js)
+  game.note = (step, vol) => audio?.note?.(step, vol);
+  game.combat = k => audio?.combat(k);   // lớp trống nhạc nền khi đánh nhau (boss-music.js)
+  game.music = id => audio?.music(id);   // nhạc nền theo bản đồ, hoặc 'boss' lúc đánh boss, độ kiếp (boss-music.js)
+  game.rain = on => audio?.rain(on);
+  game.night = on => audio?.night(on);
+  game.others = createOthers(game);
+  createPvp(game);   // PvP Ngoại Vực (data/pvp.json)
+  game.persist = () => {
+    if (!game.save || !game.map || game.dangVao) return;   // đang vào game (có thể là tài khoản khác): bản trong bộ nhớ là của lần trước, không ghi
+    stamp(game.save); if (game.save.bag?.length > bagCap(data, game.save)) fitBag(game);   // túi lố thì máy chủ từ chối cả bản lưu
+    if (game.player) game.save.power = power(game);   // máy chủ đọc để xếp hạng lực chiến
+    game.cloud?.mark(game.save);   // dấu phiên cho pickSave (src/game/cloud-guard.js)
+    writeSave(game.owner, game.save);
+    game.cloud?.save(game.save);
+  };
+  game.toast = (text, sec = 1.6) => ui.toast(text, sec);
+  // Chữ nhiệm vụ góc phải: bước truyện và việc treo thưởng
+  game.goals = () => [game.duel && duelGoal(game), game.story?.goal()?.text].filter(Boolean).join('\n');
+  game.say = (who, text, sec) => ui.toast(`${who}: ${text}`, sec);
+  game.number = (x, y, t, c) => addNumber(game, x, y, t, c);
+  game.refreshStats = () => refreshStats(game);
+  game.spawn = (id, x, y, extra) => spawnMob(game, id, x, y, extra);
+  game.addNpc = (id, at) => {
+    const p = at ? (game.map.blocked(game.map.center(at[0], at[1]).x, game.map.center(at[0], at[1]).y, 6) ? game.map.freeNear(Math.floor(at[0]), Math.floor(at[1]), 1, 6) : game.map.center(at[0], at[1])) : game.map.freeNear(Math.floor(game.player.x / cfg.tile) + 1, Math.floor(game.player.y / cfg.tile) - 1, 1, 6);   // chỗ đứng vướng nhà, cây: dời sang ô trống gần nhất (NPC đồ cũ, data/do-cu.json)
+    game.npcs.push({ id, def: data.npcs[id], x: p.x, y: p.y, r: 6, bob: Math.random() * 6 });
+  };
+  // Trang bị khởi đầu (Phàm) và tự mặc vào
+  game.giveGear = bases => {
+    if (game.save.flags.starterGear) return; // làm lại bước truyện không nhận thêm
+    game.save.flags.starterGear = true;
+    for (const b of bases) {
+      const it = rollItem(data, game.save, { base: b, rarity: 'pham' });
+      if (addItem(data, game.save, it)) equip(game.save, data, it.uid);
+    }
+    game.refreshStats(); game.persist();
+  };
+  // Phần thưởng cốt truyện: một món đồ định sẵn phẩm chất (r.base, r.rarity; r.tier: màu dòng định sẵn, không có thì bốc ngẫu nhiên) và/hoặc đá tẩy luyện
+  game.giveReward = r => {
+    const it = r.base && rollItem(data, game.save, { base: r.base, rarity: r.rarity, tier: r.tier, lvl: totalLayer(game.save, data.realms) }), got = it && addItem(data, game.save, it);
+    if (got) game.newItems = (game.newItems || 0) + 1;
+    if (r.stones) game.save.mats['tay-luyen-thach'] = (game.save.mats['tay-luyen-thach'] || 0) + r.stones;
+    game.persist();
+    return got ? game.rewardGive?.(it) : undefined;   // lời hứa: xong khi người chơi đóng nghi lễ nhận thưởng (ui/reward-show.js); công tắc tắt thì xong ngay
+  };
+  game.learnTech = id => learnTech(game, id);
+  game.eventMul = k => eventMul(game, k);
+  game.addPickup = (item, tx, ty) => {
+    const p = game.map.center(tx, ty);
+    game.pickups.push({ item, x: p.x, y: p.y });
+  };
+  game.gainQi = (amount, x, y, quiet, raw, real, thuan) => {   // raw: không nhân đôi Thăng Linh Đan; real: số thật (quái lk, đan), không nhân qi_rate; thuan: thưởng theo % tầng (việc ngày, Mốc quà) nhận ĐÚNG số ghi, không nhân Hấp thu linh khí / linh căn / đạo lữ / sư đồ (máy chủ chỉ cho hạn mức phần quà + 10%, nhân thêm là bị cờ linh_khi oan, 26/11/2026; docs/03 mục chống hack)
+    if (!thuan) amount = Math.round(amount * (game.player?.st.qiMul || 1) * (!raw && (game.save.qiX2 || 0) > Date.now() ? 2 : 1) * (game.daoLuMul?.() || 1) * (game.suDoQiMul?.() || 1) * 10) / 10;   // đạo lữ +5% (src/game/daolu.js), sư phụ chỉ điểm +10% (su-do.js)
+    const got = Math.round(amount * (real ? 1 : data.realms.qi_rate ?? 1) * 100) / 100, broke = addQi(game.save, data.realms, got);   // qi_rate: mọi nguồn linh khí (data/realms.json); công pháp, linh thú, bạn đồng hành vẫn nhận kinh nghiệm theo số gốc
+    gainTechExp(game, amount);
+    gainPetExp(game, amount);
+    gainCompExp(game, amount);
+    if (!quiet) addNumber(game, x, y - 18, `+${got} linh khí`, '#bff4ff');
+    if (broke > 0) layerUp(game, broke);   // lên tầng: hồi đầy máu, quà tu vi, mừng (src/game/len-tang.js)
+    else if (broke === -1 && !game.capWarned) {
+      game.capWarned = true;
+      game.toast('Linh khí đã đầy tới đỉnh! Bấm "Độ thiên kiếp" để đột phá.', 3);
+    }
+    mocTang(game);   // qua mỗi 10% tầng: quà nhỏ (src/game/moc-tang.js)
+    game.persist(); return got;
+  };
+  game.onKill = m => {
+    if (m.tower || m.cong?.bo) return; // quái dàn cảnh (tâm ma thiên kiếp, bản sao so tài): không tính; quái chung mình góp dưới mức tính công
+    const top = !m.cong || m.cong.top;   // quái chung: đồ, nguyên liệu, linh thú dị chủng về người góp nhiều sát thương nhất (quai-chung.js)
+    countKill(game, m);
+    if (m.def.ai === 'boss') praise(game, 'boss', { boss: m.def.name });
+    if (top) dropLoot(game, m);
+    coinDrop(game, m); eliteKill(game, m); cheerKill(game, m);
+    if (top) { techDrop(game, m); matDrop(game, m); petKill(game, m); }
+    eventKill(game, m);
+    dailyKill(game, m);
+    if (m.rare) dailyEvent(game, 'rare', m.id);
+    game.story.notify('kill', m.id, m);
+    if (m.def.ai === 'boss') { if (!m.wb) game.story.notify('boss'); game.toast(`Hạ ${m.def.name}!`, 2); }
+  };
+
+  function loadMap(id, spawnName) {
+    id = arenaGuard(game, id);   // vùng Thôn Thiên Mãng lúc boss ngủ: về tinh cầu cũ
+    const qcCu = game.qc;   // quái chung đang có: nạp lại tại chỗ (cùng bản đồ, cùng phòng) thì xin phòng gửi lại (quai-chung.js qcNapLai)
+    if (game.loot.length && game.save) collectAll(game);
+    const def = data.maps[id];
+    game.map = buildMap(def, data.tiles, cfg.tile, data);
+    if (game.player) { game.player.flying = false; game.player.landTo = null; }   // sang bản đồ khác thì đáp (src/game/fly.js)
+    game.mobs = []; game.bullets = []; game.pickups = []; game.loot = []; game.npcs = []; game.fx = []; game.numbers = []; game.strikes = []; game.zones = []; game.vfx = null; game.knFx = null; game.naDs = null; game.naLe = null;
+    const sp = def.spawns[spawnName || 'vao'] || (spawnName === 'phap-tran' && def.phap_tran?.at) || def.spawns.vao;   // phap-tran: giữa pháp trận (truyen-tong.js)
+    let c = game.map.center(sp[0], sp[1]);
+    if (game.map.blocked(c.x, c.y, game.player?.r || 5)) c = game.map.freeNear(sp[0], sp[1], 0, game.player?.r || 5);   // chỗ ra rơi vào chân cột, nhà: dời sang ô trống gần nhất (chủ dự án 12/11/2026 11:29: ra bí cảnh kẹt ở cổng Thiên Kiếm Phong)
+    if (!game.player) game.player = createPlayer(game, c.x, c.y);
+    game.player.x = c.x; game.player.y = c.y; game.player.meditating = false;
+    for (const n of def.npcs) {
+      if ((n.unless && game.save.flags[n.unless]) || (n.need && !game.save.flags[n.need])) continue;
+      if ((n.id === game.save.companion || n.id === game.save.companion2) && !game.story.wants(n.id)) continue; // đang đi cùng người chơi
+      game.addNpc(n.id, n.at);
+    }
+    spawnPet(game); spawnCompanion(game); spawnHome(game); spawnWild(game); spawnMang(game); game.onMapLoad?.(game);   // onMapLoad: NPC công trình tinh cầu khai hoang (khai-hoang.js)
+    game.spawners = def.spawners.map(s => ({ ...(s.farm ? data.planets.farm : {}), ...s, alive: [], timer: 0 }));   // bãi treo máy: số con, tốc hồi ở planets.json
+    qcNapLai(game, qcCu);
+    festSpawn(game, def);
+    game.dungeon = createDungeon(game);
+    game.darkTarget = def.dark || 0; game.dark = game.darkTarget;
+    game.fish = null;
+    game.save.map = id; game.save.spawn = spawnName || 'vao';
+    (game.save.visited ??= {})[id] = true;
+    dailyEvent(game, 'visit', id);   // việc ngày Về động phủ / ghé tinh cầu
+    game.portalLock = 0.8;
+    joinOnline();
+    audio?.music(id);
+    screen.snap(c.x, c.y);
+    game.persist();
+  }
+
+  // fly: đi bằng cảnh bay/truyền tống; opts.text là chữ hiện trên đường, opts.with là NPC chở người chơi
+  game.travel = async (id, spawnName, fly, opts = {}) => {
+    const gate = !opts.force && mapGate(game, id); if (gate) { if (!(game.gateT > performance.now())) { game.gateT = performance.now() + 4000; game.toast(gate, 2.4); } return; }   // mở theo tu vi (map-gate.js)
+    game.traveling = true;
+    try {
+      if (fly) {
+        ui.tripMode(true);
+        await startTrip(game, id, { ...opts, text: opts.text || `Ngự kiếm bay tới ${data.maps[id].name}` }, () => loadMap(id, spawnName));
+        game.player.hp = game.player.maxHp; // nghỉ ngơi trên đường bay
+      }
+      else loadMap(id, spawnName);
+    } finally { ui.tripMode(false); game.traveling = false; }   // chuyến đi lỗi giữa chừng: không kẹt "đang bay" mãi (góp ý #55)
+    showBanner(game);   // bảng tên nơi vừa tới
+    game.story.notify('enter', id);
+  };
+
+  // Bí cảnh là phòng riêng, chưa đồng bộ quái nên không hiện người khác. Động phủ: phòng riêng của chủ nhà (game/friends.js caveRoom)
+  function joinOnline() {
+    const h = { ...hoSoCuaToi(game, game.hoSo) };   // hồ sơ của mình: có ngay từ lúc vào bản đồ (hàm vẽ nhân vật dùng nó kể cả khi chơi một mình)
+    if (!game.online) return;
+    const solo = (game.map.def.rooms || []).length > 0, home = game.map.id === data.home.map;
+    game.others.daBao(h);   // bản gửi lúc vào: others.js nhớ chữ ký của nó, sau đó đổi gì thì báo lại
+    game.online.join(solo ? null : home ? caveRoom(game, game.online.me.id) : game.map.id, h)
+      .catch(() => game.toast('Mất kết nối, đang chơi một mình.'));
+  }
+
+  // Lưu máy chủ: chỉ khi config bật server_save và đã đăng nhập. Lỗi mạng thì vẫn chơi với bản trong máy.
+  async function loadCloud(session) {
+    game.cloud = null;
+    if (!session || !cfg.server_save) return null;
+    try {
+      const { createCloudSave } = await import('../net/profile.js');
+      game.cloud = createCloudSave(cloudHooks(game));   // báo lỗi lưu, nhận số máy chủ sửa: src/game/cloud-guard.js
+      return await Promise.race([game.cloud.load(), new Promise((_, no) => setTimeout(() => no(new Error('cham')), cfg.cloud_timeout_ms || 8000))]);
+    } catch { game.cloud = null; game.cloudDown = true; return null; }   // máy chủ chậm hoặc lỗi: chơi bằng bản trong máy, không lưu lên
+  }
+
+  game.begin = async ({ fresh, session, owner }) => {
+    if (game.beginning) return;   // bấm nhiều lần lúc đang tải
+    game.beginning = true;
+    try { await beginGame({ fresh, session, owner }); } finally { game.beginning = false; }
+  };
+
+  async function beginGame({ fresh, session, owner }) {
+    game.dangVao = true; game.cloud?.stop?.(); game.cloud = null;   // bản lưu lần trước (có khi của tài khoản khác) không được ghi đi đâu nữa
+    game.owner = owner;
+    const thu = session ? null : phongThu();   // bài thử hai máy tự động: khách vào phòng giả trong máy (src/game/thu-moc.js)
+    if (session || thu) {
+      try {
+        const R = data.config.realtime || {}, cf = R.backend === 'cf' && R.cf_url;   // máy chủ phòng Cloudflare (cloud/) hay kênh Realtime cũ
+        const { createOnline } = await (cf ? import('../net/online-cf.js') : import('../net/online.js'));
+        const me = thu ? { id: thu.id, name: thu.ten } : { id: session.user.id, name: 'Đạo hữu' };   // tên hiển thị lấy từ máy chủ ngay dưới (không dùng tên đăng nhập)
+        game.online = createOnline(me, {
+          onPresence: l => game.others.presence(l), onMove: p => game.others.move(p), onClear: () => game.others.clear(), onSay: p => onSay(game, p),
+          onCast: c => game.others.cast(c), onBoss: bx => onMangBoard(game, bx), onPvp: m => onPvp(game, m), onQuai: m => qcTin(game, m),
+        }, { url: R.cf_url, ve: thu ? async () => thu.id : undefined });
+      } catch { game.online = null; }
+    }
+    const msg = document.getElementById('login-msg');
+    if (session && msg) { msg.classList.remove('bad'); msg.textContent = 'Đang tải bản lưu...'; }
+    game.cloudDown = false;
+    const local = loadSave(owner), [remote] = await Promise.all([loadCloud(session), syncClock()]);   // giờ máy chủ làm mốc (src/game/clock-sync.js)
+    setFloor(Math.max(local?.lastSeen || 0, remote?.lastSeen || 0));   // giờ không lùi dưới lần chơi trước
+    if (game.online && game.cloud?.name) game.online.me.name = game.cloud.name;
+    if (game.cloudDown && !local && !fresh) {   // máy này chưa có bản lưu, máy chủ không trả lời: đừng mở game trống
+      if (msg) { msg.classList.add('bad'); msg.textContent = 'Máy chủ đang chậm, chưa tải được bản lưu. Bấm lại sau ít phút.'; }
+      return;
+    }
+    if (msg) msg.textContent = '';
+    if (remote && !local) fresh = false; // máy mới chưa có bản lưu: menu chỉ có nút Bắt đầu, vẫn chơi tiếp bản trên máy chủ
+    const saved = pickSave(local, remote, game.cloud?.version);   // máy khác đã ghi sau bản trong máy thì lấy bản máy chủ (src/game/cloud-guard.js)
+    game.save = fresh || !saved ? newSave(cfg) : saved;
+    game.dangVao = false;
+    startGuard(game);   // giấu số, bẫy sửa bộ nhớ
+    const lastSeen = game.save.lastSeen; // đọc trước khi nạp bản đồ ghi đè
+    seasonReset(game);   // mùa mới: reset cảnh giới, truyện (src/game/season.js; máy chủ đã reset thì bỏ qua)
+    ensureInv(game.save); fixGearPct(game.data, game.save); ensureTech(game.save); ensureCave(game.save, data); ensurePets(game.save); ensureStats(game.save);
+    cleanOutfits(game); doiMoi(game);   // bộ thời trang đã gỡ (src/game/fashion.js); ngọc bội → pháp tượng, thú cưỡi cũ (src/game/doi-moi.js)
+    applyWords(game);   // lời thoại theo nam / nữ
+    if (game.save.element && !game.save.root) game.save.root = rollRoot(data); // bản lưu trước khi có phẩm linh căn
+    if (game.save.step > 0 && !game.save.techs[data.techniques.starter]) game.pendingTech = data.techniques.starter; // thiếu công pháp khởi đầu (truyện Trấn Ma Kỷ 21/11 bỏ bước tặng; chủ dự án 25/11: tự nhận khi vào game)
+    ensureDaily(game);
+    if (!game.save.visited) { // bản lưu trước khi có bản đồ thế giới: đảo có cổng đã mở coi như đã tới
+      const v = game.save.visited = { [cfg.start.map]: true };
+      if (game.save.step > 0) v['thien-kiem-phong'] = true;
+      for (const m of Object.values(data.maps)) for (const pt of m.portals) if (pt.need && game.save.flags[pt.need]) v[pt.to] = true;
+    }
+    game.story = createStory(game);
+    game.trib = createTribulation(game);
+    game.checkUnlocks = () => checkUnlocks(game);
+    await viTriVao(game, loadMap);   // chỗ vừa thoát (cùng phiên / vừa rời: src/game/vi-tri.js), không thì trận tông môn hoặc chỗ mặc định
+    game.refreshStats(); game.player.hp = game.player.maxHp;
+    game.checkUnlocks(); // bản lưu cũ: ghi nhận chiêu đã có, không báo
+    if (game.pendingTech) { learnTech(game, game.pendingTech); game.pendingTech = null; }
+    ui.showPlay(true);
+    initRank(game);
+    await offlineGains(game, lastSeen);
+    eventToast(game);
+    if (game.cloudDown) game.toast('Máy chủ đang chậm: đang chơi bằng bản lưu trong máy, chưa lưu lên máy chủ.', 4);
+    await askGender(game);   // tạo nhân vật mới, hoặc bản lưu cũ chưa chọn: hỏi nam hay nữ một lần
+    await game.story.start();
+  }
+
+  function respawn(o) {   // o.im: không báo chữ hồi sinh (ma bị Thiên Kiếm Tinh đẩy đi đã có chữ riêng, thien-phat.js)
+    game.cheer = null;   // gục thì chuỗi hạ quái tính lại
+    if (!game.duel) pilotDied(game);   // gục trên đài so tài thì chỉ là thua; việc vặt ngoài trời thì tự hành đi tiếp
+    const ma = maHoiSinh(game);   // đang là ma, gục trên tinh cầu ngoài trời: chỗ ngẫu nhiên xa làng (ghost.js); null: điểm vào như cũ
+    if (game.trib.active) game.trib.fail();
+    else if (!(game.duel && duelFail(game)) && !o?.im) game.toast(ma ? game.data.pvp.text.ma_hoi_sinh : 'Bạn đã gục... hồi phục ở điểm hồi sinh.', ma ? 3 : 2);
+    downFx(game);   // hiệu ứng gục tại chỗ: hồn người chơi bay lên, bạn đồng hành ngã theo (render/draw-act-fx.js)
+    const p = game.player, sp = game.map.def.spawns.vao, c = ma || game.map.center(sp[0], sp[1]);
+    p.x = c.x; p.y = c.y; p.hp = p.maxHp; p.shield = 0; p.kx = p.ky = 0; p.invT = 1.5;
+    game.bullets = [];
+    for (const m of game.mobs) { m.x = m.hx; m.y = m.hy; m.state = 'idle'; m.tele = null; }
+    screen.snap(c.x, c.y);
+  }
+
+  function updateSpawners(dt) {
+    if (partyGuest(game)) return;   // tổ đội: quái trên bản đồ chung do máy đội trưởng sinh (trận Khai Tinh tổ đội, src/game/kh-doi.js)
+    for (const s of game.spawners) {
+      if (s.qc || (s.need && !game.save.flags[s.need]) || (s.unless && game.save.flags[s.unless])) continue;   // s.qc: bãi quái chung, máy chủ phòng lo (quai-chung.js)
+      s.alive = s.alive.filter(m => !m.dead);
+      if (s.alive.length >= s.n) continue;
+      s.timer -= dt;
+      if (s.timer > 0) continue;
+      s.timer = s.respawn;
+      const p = game.map.freeNear(s.at[0], s.at[1], s.spread, 7);
+      const m = game.spawn(s.mob, p.x, p.y);
+      zonePower(game, m, s);   // lực chiến quái theo đảo (mob-power.js, config.mob_cp); s.cp: trùm trận Khai Tinh
+      if (s.mul && s.mul !== 1) scaleMobBy(game, m, s.mul, s.tag);
+      if (s.farm) { m.lootMul = data.planets.farm.loot; m.farm = true; }
+      maybeRare(game, m); s.alive.push(m);
+    }
+  }
+
+  game.update = dt => {
+    game.time += dt;
+    updateFx(game, dt);
+    game.flashT -= dt;
+    game.dark += (game.darkTarget - game.dark) * Math.min(1, dt * 2);
+    if (game.trip) { updateTrip(game, dt); return; }
+    if (!game.save || !game.player || (game.traveling && !game.tt)) return;   // pháp trận truyền tống (game.tt): traveling bật cho các hệ khác đứng chờ, thế giới vẫn chạy; chưa có nhân vật: đang chờ hỏi trận tông môn lúc vào game (vi-tri.js vaoTran, tới 3 giây), 24/11/2026 lỗi swingT của null ~180 người
+    pilotDialog(game, dt);
+    const keep = game.uiOpen && !game.dialog.open && (game.pilot || game.auto || game.tuCau || game.player?.meditating);   // tự hành, tự đánh, tự câu, đả tọa chạy tiếp khi mở bảng (báo lỗi #6, CSKH #291)
+    const blocked = (game.dialog.open || game.uiOpen) && !keep;
+    game.paused = blocked;
+    nhipMang(game, dt); const tt = ttTick(game, dt);   // người khác, hồ sơ và vị trí của mình: chạy cả lúc mở bảng / hội thoại (src/game/nhip-mang.js); trận truyền tống đang chạy: người đứng yên (truyen-tong.js)
+    if (blocked || keep) game.input.clear();
+    if (blocked) { if (game.uiOpen) camFollow(game, screen, dt); return; }
+    if (game.hitstop > 0) { game.hitstop -= dt; return; }
+    updateTaps(game, dt);
+    if (!game.ghost && !tt) updatePlayer(game, dt);   // gục: bong bóng linh hồn đứng yên chờ hồi sinh (ghost.js)
+    updateRide(game, dt);
+    updatePet(game, dt);
+    updateCompanion(game, dt); updateCombo(game, dt);
+    updateMobs(game, dt);
+    updateBullets(game, dt);
+    updateStrikes(game, dt);
+    updateZones(game, dt);
+    updateVfx(game, dt);   // hiệu ứng chiêu thế hệ mới (src/game/vfx.js)
+    game.trib.update(dt);
+    updateLoot(game, dt);
+    updatePickups(game);
+    updateSpawners(dt); qcTick(game, dt);
+    game.dungeon?.update();
+    updateParty(game, dt);
+    if (game.duel) updateDuel(game, dt);
+    updatePraise(game, dt); updateCheer(game, dt); updateDaoVan(game, dt); updateBossMusic(game, dt); updatePowerPop(game, dt); updateSparks(game, dt);
+    updateGarden(game, dt);
+    updateDayNight(game, dt);
+    updateWeather(game, dt);
+    updateJournal(game, dt);
+    updateHome(game, dt);
+    updateChatter(game, dt);
+    updateStroll(game, dt); updateWild(game, dt);
+    updatePilotLog(game);
+    updateEta(game, dt);
+    updateAnniv(game, dt);
+    updateSocial(game, dt);
+    updatePetFetch(game, dt);
+    updateFishing(game, dt);
+    if ((game.achvT = (game.achvT || 0) - dt) <= 0) { game.achvT = 2; checkAchv(game); }
+    updateWorldBoss(game, dt); updateMang(game, dt); updatePvp(game, dt);
+    updateInteract(game);
+    updatePortals(game, dt);
+    for (const n of game.npcs) n.bob += dt * 3;
+    game.story.update();
+    if (game.player.hp <= 0 && !game.ghost) startGhost(game);
+    const gk = ghostTick(game, dt); if (gk) afterGhost(game, gk, respawn);   // 've': về pháp trận tông môn (src/game/diem-ve.js)
+    if ((game.stampT = (game.stampT ?? 30) - dt) <= 0) { game.stampT = 30; game.persist(); } // mốc giờ cho bế quan khi vắng
+    camFollow(game, screen, dt);
+  };
+
+  return game;
+}

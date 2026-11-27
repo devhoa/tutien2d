@@ -1,0 +1,2953 @@
+{
+ "story_ui": false, "_story_ui": "Chủ dự án 12/11/2026 11:05: bỏ khung Tự hành / Việc đang làm của cốt truyện cũ (bảng Hệ Thống đã dẫn bốc linh căn, gặp Lạc Tuyết qua nhiệm vụ). false: không hiện Việc đang làm, nút Dẫn đường trong bảng Hệ Thống và khung việc truyện trên màn (#goal); truyện vẫn chạy ngầm để mở cờ.",
+ "_note": "Hệ Thống đi theo ký chủ (chủ dự án 06/11/2026 16:15: người chơi là kẻ xuyên không, có hệ thống đi theo; bảng giữa màn hình, chạm ra ngoài thì thu nhỏ bay sang phải thành biểu tượng cạnh nút pháp bảo; chạm biểu tượng mở lại). src/game/he-thong.js, src/ui/he-thong.js, kiểu he-thong.css. Ba mục: Nhiệm vụ (việc truyện đang làm, nút Dẫn đường bật Tự hành), Hỏi đáp (dùng data/faq.json), Hỏi thêm (gửi câu hỏi về máy chủ p2d_ht_hoi, Claude đọc và bổ sung Hỏi đáp). Hệ thống tự lên tiếng (biểu tượng rung + một dòng): đứng yên idle_s giây không làm gì, gục deaths lần trong deaths_s giây, các bước truyện trong steps (bước 10 là chỗ người mới hay bỏ game).",
+ "name": "Hệ Thống Bạo Kích Tài Nguyên Vô Hạn",
+ "icon": "Hệ",
+ "intro": [
+  "Đinh! Hệ Thống Bạo Kích Tài Nguyên Vô Hạn liên kết thành công. Từ giờ bổn hệ thống là... ừm, người đồng hành của ký chủ.",
+  "Ma khí từ Ngoại Vực đang nuốt dần tinh hà này. Chín tinh cầu đã vỡ. Ký chủ mà yếu thì cũng chẳng sống được lâu đâu.",
+  "Bổn hệ thống giao nhiệm vụ, làm xong có điểm hệ thống. Đủ 100 điểm thì triệu hồi quà: Linh Thạch, ngọc, đá, trang bị... ra gì là nhờ khí vận của ký chủ.",
+  "Có gì không hiểu, chạm biểu tượng Hệ bên phải mà hỏi. Đừng hỏi câu ngớ ngẩn quá là được. Chạm ra ngoài để thu nhỏ."
+ ],
+ "intro_old": [
+  "Đinh! Hệ Thống Bạo Kích Tài Nguyên Vô Hạn đã nâng cấp. Ký chủ cũ, lâu rồi không gặp.",
+  "Từ nay bổn hệ thống giao nhiệm vụ thay cho mấy việc hằng ngày lặt vặt. Làm xong có điểm, đủ 100 điểm triệu hồi quà, khí vận tốt thì ra cả trang bị Thượng Cổ.",
+  "Cần gì chạm biểu tượng Hệ bên phải. Chạm ra ngoài để thu nhỏ."
+ ],
+ "tabs": {
+  "task": "Nhiệm vụ",
+  "moc": "Mốc quà",
+  "gacha": "Triệu hồi",
+  "tra": "Tàng Thư",
+  "faq": "Hỏi đáp"
+ },
+ "tra": {
+  "_note": "Tàng Thư (chủ dự án 10/11/2026 09:16: nâng cấp Hệ Thống thông minh hơn, mọi thông tin game, từ khoá nào cũng bấm xem được; mẫu wiki cotienlo.com). Tự dựng từ data/ (src/game/tra-cuu.js), giao diện src/ui/he-thong-tra.js. kinds: tên loại mục; row: nhãn dòng chỉ số.",
+  "find": "Tìm pháp bảo, quái, đan, bản đồ… (không dấu cũng được)",
+  "all": "Tất cả",
+  "suggest": "Bổn hệ thống gợi ý cho ký chủ",
+  "count": "Tàng Thư đang chép {n} mục. Gõ tên bất kỳ, hoặc chạm chữ màu ở khắp Hệ Thống để xem.",
+  "none": "Tàng Thư chưa chép thứ này. Ký chủ hỏi ở mục Hỏi đáp nhé.",
+  "related": "Liên quan",
+  "ask_quick": "Bổn hệ thống biết ngay",
+  "ask_quick_none": "Chưa tìm thấy trong Tàng Thư, ký chủ gửi đi để người thật trả lời.",
+  "kinds": {"realm": "Cảnh giới", "root": "Linh căn", "pb": "Pháp bảo", "ck": "Chiêu khảm", "tech": "Công pháp", "map": "Bản đồ", "mob": "Quái", "boss": "Boss", "npc": "NPC", "pill": "Đan", "mat": "Nguyên liệu", "pet": "Linh thú", "mount": "Thú cưỡi", "outfit": "Thời trang"},
+  "row": {"layers": "Số tầng", "next": "Cảnh giới kế", "realm_desc": "Cảnh giới thứ {n}, mỗi cảnh giới {l} tầng; đủ tầng thì độ thiên kiếp để đột phá.", "qi": "Linh khí", "chance": "Tỉ lệ thức tỉnh", "cd": "Hồi chiêu", "mp": "Linh lực", "group": "Nhóm", "get_at": "Nhận ở", "learn_at": "Lĩnh ngộ ở", "level": "cấp", "hp": "Sinh lực", "atk": "Công", "rate": "Tỉ lệ thành", "make": "Mỗi lò ra", "tech_drop": "Rơi bí kíp công pháp", "shop": "Bán ở tiệm", "coin": "Linh Thạch", "gem": "Tiên Ngọc", "evo": "Tiến hoá thành", "speed": "Tốc chạy", "price": "Giá", "drop_from": "Rơi từ", "recipe": "Công thức"}
+ },
+ "task_head": "Nhiệm vụ hệ thống",
+ "task_none": "Ký chủ đã làm hết nhiệm vụ bổn hệ thống giao lúc này. Đi bí cảnh, săn boss, luyện cảnh giới đi, nhiệm vụ mới sẽ tới.",
+ "guide": "Dẫn đường",
+ "guide_on": "Đang dẫn đường",
+ "realm": "Cảnh giới: {realm}",
+ "ask_head": "Không tìm thấy câu trả lời? Hỏi bổn hệ thống. Câu hỏi được ghi lại, câu nào nhiều ký chủ hỏi sẽ có trong Hỏi đáp.",
+ "ask_ph": "Ví dụ: làm sao lên Trúc Cơ?",
+ "ask_send": "Gửi",
+ "ask_this": "Hỏi bổn hệ thống câu này",
+ "ask_ok": "Đinh! Bổn hệ thống ghi nhận rồi. Câu nào nhiều người hỏi sẽ có trả lời trong Hỏi đáp.",
+ "ask_err": {
+  "chua_dang_nhap": "Cần đăng nhập để hỏi hệ thống.",
+  "qua_nhieu": "Hôm nay ký chủ đã hỏi nhiều rồi, mai hỏi tiếp nhé.",
+  "ngan": "Câu hỏi ngắn quá.",
+  "other": "Mạng lỗi, thử lại sau."
+ },
+ "ask_mine": "Câu đã hỏi",
+ "close_hint": "Chạm ra ngoài để thu nhỏ",
+ "idle_s": 45,
+ "deaths": 2,
+ "deaths_s": 240,
+ "nudge": {
+  "idle": "Ký chủ đứng ngẩn ra đó làm gì? Chạm Dẫn đường, bổn hệ thống dắt đi làm nhiệm vụ.",
+  "death": "Lại gục? Ký chủ ơi... Mặc trang bị tốt nhất, nâng cấp pháp bảo, hoặc đi đánh quái yếu hơn mà lên cấp đi.",
+  "nv_moi": "Đinh! Trấn Ma Kỷ còn trang trống, ký chủ. Trưởng lão Vân Hạc đang đợi. Chạm thẻ nhiệm vụ ở góc trái, bổn hệ thống dẫn đường.",
+  "step": "Có nhiệm vụ mới. Chạm vào đây.",
+  "kiep": "Đinh! Linh khí ký chủ đã đầy, đủ sức phá cảnh giới! Bấm nút Độ thiên kiếp trên màn hình rồi né sét cho khéo. Tự hành không độ hộ đâu.",
+  "claim": "Đinh! Ký chủ có nhiệm vụ đã xong mà chưa nhận điểm. Chạm vào đây nhận đi, đủ điểm là triệu hồi quà được rồi."
+ },
+ "steps": {
+  "5": "Biết đánh nhau rồi đấy. Mở Túi mặc đồ vừa nhặt vào đi, bổn hệ thống không muốn thấy ký chủ gục vì lười thay đồ.",
+  "10": "Đinh! Ký chủ đã vượt chặng đầu. Phần khó nhất là bắt đầu, ký chủ làm được rồi. Quà lớn đang ở phía trước, đừng bỏ cuộc."
+ },
+ "_persona": "Giọng hệ thống (chủ dự án 06/11/2026 16:49 'nói chuyện phải như người có hồn'): xưng 'bổn hệ thống', gọi 'ký chủ', hơi kiêu, hay trêu nhưng thật lòng muốn ký chủ mạnh lên; mở đầu thông báo bằng 'Đinh!'. Lời dẫn cốt truyện (data/story.json, người nói 'he-thong') theo cùng giọng.",
+ "missions": [
+  {
+   "id": "hoi-xuyen-khong",
+   "goal": "Ký chủ vừa xuyên không tới một tinh hà sắp bị ma khí nuốt. Việc đầu tiên nên làm là gì?",
+   "hoi": {
+    "opts": [
+     "Nghe theo bổn hệ thống",
+     "Tìm chỗ nằm ngủ tiếp",
+     "Chạy đi tìm đường về nhà"
+    ],
+    "dap": 0,
+    "sai": [
+     null,
+     "Ngủ tiếp? Ma khí sắp nuốt cả tinh hà mà ký chủ còn đòi ngủ? Dậy! Chọn lại.",
+     "Đường về? Không có đâu ký chủ. Vé một chiều thôi. Chọn lại."
+    ]
+   },
+   "dk": {
+    "dap": 0
+   },
+   "qua": [
+    {
+     "coins": 3000
+    },
+    {
+     "pill": "hoi-xuan-dan",
+     "n": 10
+    }
+   ],
+   "xong": "Đinh! Thức thời là tuấn kiệt. Quà tân thủ đã gửi vào Hòm thư: Linh Thạch và Hồi Xuân Đan. Máu tụt thì bấm nút Đan, đừng có gục lãng xẹt."
+  },
+  {
+   "id": "truyen-1",
+   "goal": "Tới đá linh căn giữa làng, thức tỉnh linh căn",
+   "dk": {
+    "step": 1
+   },
+   "qua": [
+    {
+     "coins": 2000
+    },
+    {
+     "gem": "hong-ngoc:1",
+     "n": 2
+    }
+   ],
+   "xong": "Đinh! Linh căn đã thức tỉnh. Có linh căn mới gọi là người tu tiên, trước đó ký chủ chỉ là... phàm nhân biết đi thôi. Tặng hai viên Hồng Ngọc, để dành khảm vào đồ.",
+   "tip": "Chạm Dẫn đường, bổn hệ thống dắt tới tận nơi."
+  },
+  {
+   "id": "hoi-linh-can",
+   "goal": "Linh căn ảnh hưởng tới điều gì?",
+   "hoi": {
+    "opts": [
+     "Trang bị nào hợp hệ với ký chủ",
+     "Màu tóc của ký chủ",
+     "Số bạn bè trong game"
+    ],
+    "dap": 0,
+    "sai": [
+     null,
+     "Màu tóc? Ký chủ tưởng đây là tiệm cắt tóc à? Chọn lại.",
+     "Bạn bè thì liên quan gì linh căn. Ký chủ cô đơn quá rồi... Chọn lại."
+    ]
+   },
+   "dk": {
+    "step": 1,
+    "dap": 0
+   },
+   "qua": [
+    {
+     "mat": "tinh-thiet",
+     "n": 6
+    }
+   ],
+   "xong": "Đinh! Trả lời đúng. Trang bị cùng hệ linh căn được cộng thêm sức mạnh, nhớ ưu tiên mặc. Thưởng Tinh Thiết, lát nữa dùng để cường hoá."
+  },
+  {
+   "id": "truyen-2",
+   "goal": "Nói chuyện với {sư tỷ Lạc Tuyết|sư huynh Tiêu Dao}",
+   "dk": {
+    "step": 2
+   },
+   "qua": [
+    {
+     "gear": 0,
+     "slot": "thieu"
+    },
+    {
+     "gear": 0,
+     "slot": "thieu"
+    }
+   ],
+   "xong": "Đinh! Có người dẫn đường rồi, khỏi lo lạc. Bổn hệ thống tặng thêm hai món trang bị, vào Túi đồ mặc ngay, đừng để mốc."
+  },
+  {
+   "id": "mac-4",
+   "goal": "Mặc đủ 4 món trang bị",
+   "dk": {
+    "equip": 4
+   },
+   "qua": [
+    {
+     "coins": 2000
+    },
+    {
+     "mat": "tinh-thiet",
+     "n": 4
+    }
+   ],
+   "xong": "Đinh! Trông ra dáng người tu tiên rồi đấy. Đồ mặc vào thì phải cường hoá, Tinh Thiết ở Hòm thư.",
+   "tip": "Túi đồ → chạm món đồ → Mặc. Đồ trong Hòm thư tự vào túi.",
+   "go": "btn-bag"
+  },
+  {
+   "id": "hoi-cuong-hoa",
+   "goal": "Cường hoá trang bị cần nguyên liệu gì?",
+   "hoi": {
+    "opts": [
+     "Tinh Thiết",
+     "Linh Thảo",
+     "Cá ngoài mép tinh cầu"
+    ],
+    "dap": 0,
+    "sai": [
+     null,
+     "Linh Thảo để luyện đan, đem đi cường hoá thì kiếm thành rau. Chọn lại.",
+     "Đem cá đi cường hoá thì kiếm chỉ có mùi tanh thôi. Chọn lại."
+    ]
+   },
+   "dk": {
+    "step": 2,
+    "dap": 0
+   },
+   "qua": [
+    {
+     "coins": 2000
+    }
+   ],
+   "xong": "Đinh! Tinh Thiết là gốc cường hoá, càng lên cao càng tốn. Bổn hệ thống thêm cho ít Linh Thạch tiêu vặt."
+  },
+  {
+   "id": "truyen-3",
+   "goal": "Hái 3 linh thảo",
+   "dk": {
+    "step": 3
+   },
+   "qua": [
+    {
+     "pill": "hoi-linh-dan",
+     "n": 5
+    },
+    {
+     "coins": 2000
+    }
+   ],
+   "xong": "Đinh! Linh thảo là gốc của đan dược. Tặng Hồi Linh Đan: hết linh lực thì uống, pháp bảo tung được tiếp."
+  },
+  {
+   "id": "hoi-tu-danh",
+   "goal": "Đánh quái mà lười bấm, ký chủ bấm nút nào?",
+   "hoi": {
+    "opts": [
+     "Tự đánh",
+     "Lướt",
+     "Túi đồ"
+    ],
+    "dap": 0,
+    "sai": [
+     null,
+     "Bấm Lướt thì chỉ chạy vòng vòng thôi ký chủ ạ. Chọn lại.",
+     "Mở Túi đồ ra ngắm thì quái nó đánh cho. Chọn lại."
+    ]
+   },
+   "dk": {
+    "step": 2,
+    "dap": 0
+   },
+   "qua": [
+    {
+     "coins": 2000
+    },
+    {
+     "pill": "hoi-xuan-dan",
+     "n": 5
+    }
+   ],
+   "xong": "Đinh! Bật Tự đánh là nhân vật tự tìm quái, tự tung pháp bảo. Bổn hệ thống khuyên: tự đánh nhưng vẫn phải nhìn máu."
+  },
+  {
+   "id": "pb-kham-1",
+   "goal": "Khảm chiêu đầu tiên vào pháp bảo",
+   "dk": {
+    "pb_mods": 1
+   },
+   "qua": [
+    {
+     "coins": 2000
+    },
+    {
+     "pill": "hoi-linh-dan",
+     "n": 3
+    }
+   ],
+   "xong": "Đinh! Phi Kiếm đã biết thêm chiêu. Ô khảm chạy theo thứ tự ô 1 → ô 4, thứ sinh ra kế thừa thứ trước. Thử đổi thứ tự xem đòn biến ra sao.",
+   "tip": "Trang bị → mục Pháp bảo → chạm Phi Kiếm → chạm ô 1 rồi chạm Liên Phát.",
+   "go": "btn-bag"
+  },
+  {
+   "id": "cuong-hoa-3",
+   "goal": "Cường hoá một món đang mặc lên +3",
+   "dk": {
+    "plus": 3
+   },
+   "qua": [
+    {
+     "gem": "lam-ngoc:1",
+     "n": 1
+    },
+    {
+     "gear": 1,
+     "slot": "thieu"
+    }
+   ],
+   "xong": "Đinh! +3 rồi, chém đau hơn hẳn. Tặng một món phẩm Linh có ô khảm, mặc vào rồi khảm ngọc.",
+   "tip": "Túi đồ → chạm món đang mặc → Cường hoá. +1 tới +3 gần như chắc chắn thành công.",
+   "go": "btn-bag"
+  },
+  {
+   "id": "hoi-kham",
+   "goal": "Ngọc khảm vào đâu?",
+   "hoi": {
+    "opts": [
+     "Ô khảm trên trang bị phẩm Linh trở lên",
+     "Gắn lên đầu linh thú",
+     "Đem bán cho Lão Ngư Ông"
+    ],
+    "dap": 0,
+    "sai": [
+     null,
+     "Linh thú không thích đội ngọc đâu, nó cắn đấy. Chọn lại.",
+     "Lão Ngư Ông chỉ mua cá, không mua ngọc. Chọn lại."
+    ]
+   },
+   "dk": {
+    "step": 2,
+    "dap": 0
+   },
+   "qua": [
+    {
+     "gem": "hong-ngoc:1",
+     "n": 1
+    }
+   ],
+   "xong": "Đinh! Món có ô khảm thì chạm vào, chọn ngọc. Hồng Ngọc tăng công, Lam Ngọc tăng máu. Tặng thêm một viên."
+  },
+  {
+   "id": "kham-1",
+   "goal": "Khảm 1 viên ngọc vào trang bị đang mặc",
+   "dk": {
+    "socket": 1
+   },
+   "qua": [
+    {
+     "pill": "tu-khi-dan",
+     "n": 5
+    },
+    {
+     "coins": 2000
+    },
+    {
+     "mat": "tinh-thiet",
+     "n": 5
+    }
+   ],
+   "xong": "Đinh! Ngọc khảm vào là chỉ số cộng thẳng. Tặng Tụ Khí Đan, uống vào linh khí tăng ngay.",
+   "tip": "Túi đồ → chạm món có ô khảm → chọn ngọc. Món phẩm Linh trở lên mới có ô.",
+   "go": "btn-bag"
+  },
+  {
+   "id": "kham-2",
+   "goal": "Khảm 2 viên ngọc vào đồ đang mặc",
+   "dk": {
+    "socket": 2
+   },
+   "qua": [
+    {
+     "gem": "hong-ngoc:1",
+     "n": 2
+    },
+    {
+     "coins": 2000
+    }
+   ],
+   "xong": "Đinh! Hai viên ngọc sáng lấp lánh. Đồ hiếm Linh trở lên mới có lỗ khảm.",
+   "tip": "Đồ Linh có 1 lỗ, Địa 2 lỗ, Thiên 3 lỗ. Ngọc rơi từ quái và quà triệu hồi."
+  },
+  {
+   "id": "truyen-4",
+   "goal": "Đánh lui ma tộc ở Thanh Khê",
+   "dk": {
+    "step": 4
+   },
+   "qua": [
+    {
+     "coins": 3000
+    },
+    {
+     "mat": "tinh-thiet",
+     "n": 6
+    }
+   ],
+   "xong": "Đinh! Trận đầu thắng rồi. Ma tộc chỉ là lính quèn thôi, đừng vội kiêu."
+  },
+  {
+   "id": "hoi-mau",
+   "goal": "Đang đánh mà máu còn một phần ba, ký chủ làm gì?",
+   "hoi": {
+    "opts": [
+     "Uống Hồi Xuân Đan hoặc lùi lại",
+     "Lao thẳng vào boss",
+     "Đứng yên cầu nguyện"
+    ],
+    "dap": 0,
+    "sai": [
+     null,
+     "Lao vào boss với một phần ba máu? Dũng cảm đấy... rồi gục. Chọn lại!",
+     "Cầu nguyện ai? Bổn hệ thống không nhận lời cầu nguyện. Chọn lại."
+    ]
+   },
+   "dk": {
+    "step": 3,
+    "dap": 0
+   },
+   "qua": [
+    {
+     "pill": "hoi-xuan-dan",
+     "n": 10
+    }
+   ],
+   "xong": "Đinh! Còn sống mới tu tiếp được. Thêm Hồi Xuân Đan, cài tự uống trong phần Cài đặt cũng được."
+  },
+  {
+   "id": "truyen-5",
+   "goal": "Lên Thiên Kiếm Phong",
+   "dk": {
+    "step": 5
+   },
+   "qua": [
+    {
+     "coins": 3000
+    },
+    {
+     "gear": 0,
+     "slot": "thieu"
+    }
+   ],
+   "xong": "Đinh! Tới tông môn rồi. Ở đây có lò rèn, linh điền, bồ đoàn đả tọa, cái gì cũng có."
+  },
+  {
+   "id": "hoi-len-tang",
+   "goal": "Muốn lên tầng tu vi nhanh, cách nào đúng?",
+   "hoi": {
+    "opts": [
+     "Đả tọa, đánh quái và uống đan",
+     "Chỉ cần đứng chờ",
+     "Đổi tên nhân vật"
+    ],
+    "dap": 0,
+    "sai": [
+     null,
+     "Đứng chờ thì tới mùa sau cũng chưa lên tầng. Chọn lại.",
+     "Đổi tên thì tu vi vẫn thế, chỉ có tên là mới. Chọn lại."
+    ]
+   },
+   "dk": {
+    "step": 4,
+    "dap": 0
+   },
+   "qua": [
+    {
+     "pill": "tu-khi-dan",
+     "n": 5
+    },
+    {
+     "pill": "thang-linh-dan",
+     "n": 1
+    }
+   ],
+   "xong": "Đinh! Đả tọa ra linh khí, đánh quái ra linh khí, đan dược ra linh khí. Ba đường cùng đi thì lên như diều."
+  },
+  {
+   "id": "luyen-khi-3",
+   "goal": "Tu luyện tới Luyện Khí tầng 3",
+   "dk": {
+    "realm": 0,
+    "layer": 3
+   },
+   "qua": [
+    {
+     "pill": "tu-khi-dan",
+     "n": 6
+    },
+    {
+     "coins": 1000
+    }
+   ],
+   "xong": "Đinh! Luyện Khí tầng 3. Nền đã vững, cứ thế mà tiến."
+  },
+  {
+   "id": "truyen-6",
+   "goal": "Đả tọa tới Luyện Khí tầng 2",
+   "dk": {
+    "step": 6
+   },
+   "qua": [
+    {
+     "coins": 3000
+    },
+    {
+     "pill": "tu-khi-dan",
+     "n": 5
+    }
+   ],
+   "xong": "Đinh! Luyện Khí tầng 2, tu vi tăng tiến, ký chủ lĩnh ngộ chiêu khảm mới! Vào Trang bị → Pháp bảo khảm vào Phi Kiếm. Chậm hơn bổn hệ thống tưởng, nhưng được rồi."
+  },
+  {
+   "id": "luyen-khi-5",
+   "goal": "Đả tọa tới Luyện Khí tầng 5",
+   "dk": {
+    "realm": 0,
+    "layer": 5
+   },
+   "qua": [
+    {
+     "mat": "tinh-thiet",
+     "n": 10
+    },
+    {
+     "coins": 3000
+    }
+   ],
+   "xong": "Đinh! Tầng 5, nửa đường Luyện Khí, lĩnh ngộ thêm chiêu khảm và nhận Đá Khai Khiếu. Bí cảnh đang đợi ký chủ, đồ trong đó tốt hơn ngoài này nhiều.",
+   "tip": "Uống Tụ Khí Đan trong Túi đồ → Đan dược, rồi đả tọa hoặc bật Tự đánh."
+  },
+  {
+   "id": "pb-mac-3",
+   "goal": "Mặc đủ 3 pháp bảo",
+   "dk": {
+    "pb_wear": 3
+   },
+   "qua": [
+    {
+     "coins": 3000
+    },
+    {
+     "pill": "tu-khi-dan",
+     "n": 4
+    }
+   ],
+   "xong": "Đinh! Ba pháp bảo ba nút, công thủ tùy ký chủ phối. Hạ Huyết Nha là có Linh Châu.",
+   "tip": "Hộ Thuẫn nhận ở Luyện Khí tầng 3, Linh Châu rơi khi hạ boss bí cảnh Huyết Nha.",
+   "go": "btn-bag"
+  },
+  {
+   "id": "hoi-bi-canh",
+   "goal": "Trong bí cảnh, đồ tốt thường rơi từ đâu?",
+   "hoi": {
+    "opts": [
+     "Boss cuối mỗi tầng",
+     "Bụi cỏ ven đường",
+     "Hòm thư"
+    ],
+    "dap": 0,
+    "sai": [
+     null,
+     "Bụi cỏ chỉ có sâu thôi ký chủ. Chọn lại.",
+     "Hòm thư là chỗ bổn hệ thống gửi quà, không phải chỗ đồ tự rơi. Chọn lại."
+    ]
+   },
+   "dk": {
+    "step": 5,
+    "dap": 0
+   },
+   "qua": [
+    {
+     "gear": 1,
+     "slot": "thieu"
+    }
+   ],
+   "xong": "Đinh! Boss rơi đồ xịn và bí kíp công pháp. Tặng một món trang bị phòng thân trước khi vào."
+  },
+  {
+   "id": "truyen-7",
+   "goal": "Vào Bí cảnh Huyết Nha",
+   "dk": {
+    "step": 7
+   },
+   "qua": [
+    {
+     "pill": "hoi-xuan-dan",
+     "n": 5
+    },
+    {
+     "coins": 3000
+    }
+   ],
+   "xong": "Đinh! Vào bí cảnh rồi. Dọn từng phòng, đừng ham chạy thẳng vào boss."
+  },
+  {
+   "id": "truyen-8",
+   "goal": "Hạ Huyết Nha",
+   "dk": {
+    "step": 8
+   },
+   "qua": [
+    {
+     "gear": 1,
+     "slot": "thieu"
+    },
+    {
+     "mat": "tinh-thiet",
+     "n": 12
+    }
+   ],
+   "xong": "Đinh! Huyết Nha đã gục. Ký chủ làm bổn hệ thống hơi bất ngờ đấy. Thưởng một món trang bị."
+  },
+  {
+   "id": "truyen-9",
+   "goal": "Trở về Thiên Kiếm Phong",
+   "dk": {
+    "step": 9
+   },
+   "qua": [
+    {
+     "coins": 5000
+    }
+   ],
+   "xong": "Đinh! Về nhà an toàn. Có gì đó không ổn đang chờ ở tông môn..."
+  },
+  {
+   "id": "truyen-10",
+   "goal": "Gặp {sư tỷ Lạc Tuyết|sư huynh Tiêu Dao}",
+   "dk": {
+    "step": 10
+   },
+   "qua": [
+    {
+     "gear": 2,
+     "slot": "thieu"
+    },
+    {
+     "coins": 10000
+    },
+    {
+     "gem": "hong-ngoc:2",
+     "n": 1
+    }
+   ],
+   "xong": "Đinh! Đại Ma Thần đã lộ mặt. Từ giờ không còn ai dắt tay nữa, chỉ còn bổn hệ thống. Tặng trang bị phẩm Huyền, mạnh lên mà báo thù."
+  },
+  {
+   "id": "luyen-khi-7",
+   "goal": "Tu luyện tới Luyện Khí tầng 7",
+   "dk": {
+    "realm": 0,
+    "layer": 7
+   },
+   "qua": [
+    {
+     "pill": "tu-khi-dan",
+     "n": 5
+    },
+    {
+     "coins": 3000
+    }
+   ],
+   "xong": "Đinh! Tầng 7. Bổn hệ thống bắt đầu thấy ký chủ có chút tiềm năng... chút xíu thôi.",
+   "tip": "Bật Tự đánh ở bãi quái, uống Tụ Khí Đan, làm nhiệm vụ ngày để có điểm triệu hồi."
+  },
+  {
+   "id": "su-do",
+   "goal": "Bái một vị sư phụ hoặc thu một đồ đệ (Menu → Sư đồ)",
+   "dk": {
+    "su_do": 1
+   },
+   "qua": [
+    {
+     "coins": 20000
+    },
+    {
+     "pill": "tu-khi-dan",
+     "n": 5
+    }
+   ],
+   "xong": "Đinh! Có thầy có trò, đường tu bớt cô quạnh. Nhớ mỗi ngày Hành lễ và Chỉ điểm: trò thêm linh khí, thầy thêm Linh Thạch."
+  },
+  {
+   "id": "pb-cap-5",
+   "goal": "Nâng một pháp bảo lên cấp 5",
+   "dk": {
+    "pb_lv": 5
+   },
+   "qua": [
+    {
+     "coins": 3000
+    },
+    {
+     "mat": "tinh-thiet",
+     "n": 6
+    }
+   ],
+   "xong": "Đinh! Cấp 5, chạm trần Luyện Khí. Lên Trúc Cơ mới nâng tiếp được.",
+   "tip": "Trang bị → Pháp bảo → chạm món → Nâng cấp (Linh Thạch, không bao giờ hỏng).",
+   "go": "btn-bag"
+  },
+  {
+   "id": "hoi-pham",
+   "goal": "Dòng chỉ số màu nào là quý nhất?",
+   "hoi": {
+    "opts": [
+     "Đen (Thượng Cổ)",
+     "Lục (Phàm)",
+     "Lam (Linh)"
+    ],
+    "dap": 0,
+    "sai": [
+     null,
+     "Lục là đồ phàm nhân mặc đi chợ. Chọn lại.",
+     "Lam mới là bậc hai thôi, còn xa lắm. Chọn lại."
+    ]
+   },
+   "dk": {
+    "step": 10,
+    "dap": 0
+   },
+   "qua": [
+    {
+     "mat": "tay-luyen-thach",
+     "n": 3
+    }
+   ],
+   "xong": "Đinh! Lục → Lam → Tím → Cam → Vàng → Đỏ → Đen. Tẩy luyện để mở thêm dòng, may ra ra màu Đen. Tặng Tẩy Luyện Thạch thử vận."
+  },
+  {
+   "id": "hoi-tay-luyen",
+   "goal": "Tẩy luyện trang bị để làm gì?",
+   "hoi": {
+    "opts": [
+     "Mở thêm dòng chỉ số, màu ngẫu nhiên",
+     "Rửa cho sạch bụi",
+     "Đổi tên món đồ"
+    ],
+    "dap": 0,
+    "sai": [
+     null,
+     "Bổn hệ thống không phải tiệm giặt. Chọn lại.",
+     "Đổi tên thì vào Túi đồ mà sửa... à không, chẳng có chỗ đó. Chọn lại."
+    ]
+   },
+   "dk": {
+    "step": 10,
+    "dap": 0
+   },
+   "qua": [
+    {
+     "mat": "tay-luyen-thach",
+     "n": 3
+    }
+   ],
+   "xong": "Đinh! Mỗi lần tẩy mở thêm một dòng, màu nhờ khí vận. Dòng đã ra thì cố định. Tặng Tẩy Luyện Thạch."
+  },
+  {
+   "id": "cong-phap-2",
+   "goal": "Học 2 công pháp",
+   "dk": {
+    "techs": 2
+   },
+   "qua": [
+    {
+     "coins": 5000
+    },
+    {
+     "pill": "tu-khi-dan",
+     "n": 5
+    }
+   ],
+   "xong": "Đinh! Công pháp càng nhiều, nền càng dày. Đánh boss bí cảnh để lấy thêm bí kíp.",
+   "tip": "Bí kíp rơi từ boss bí cảnh. Túi đồ → Công pháp để xem.",
+   "go": "btn-bag"
+  },
+  {
+   "id": "cong-phap-3",
+   "goal": "Học 3 bộ công pháp",
+   "dk": {
+    "techs": 3
+   },
+   "qua": [
+    {
+     "coins": 5000
+    },
+    {
+     "mat": "tinh-thiet",
+     "n": 8
+    }
+   ],
+   "xong": "Đinh! Ba bộ công pháp, đủ lắp kín ba ô. Công pháp lên cấp khi ký chủ đánh quái.",
+   "tip": "Bí kíp rơi từ boss bí cảnh và boss thế giới."
+  },
+  {
+   "id": "hoi-linh-thu",
+   "goal": "Muốn có linh thú, ký chủ tìm ai?",
+   "hoi": {
+    "opts": [
+     "Ngự Thú Sư",
+     "Lão Ngư Ông",
+     "Hòm thư"
+    ],
+    "dap": 0,
+    "sai": [
+     null,
+     "Lão Ngư Ông chỉ có cá thôi. Chọn lại.",
+     "Hòm thư không đẻ ra thú được đâu. Chọn lại."
+    ]
+   },
+   "dk": {
+    "step": 10,
+    "dap": 0
+   },
+   "qua": [
+    {
+     "coins": 3000
+    }
+   ],
+   "xong": "Đinh! Ngự Thú Sư cho thú và thú cưỡi. Linh thú đánh cùng ký chủ, thú cưỡi giúp chạy nhanh."
+  },
+  {
+   "id": "hoi-khien",
+   "goal": "Ở Ngoại Vực, muốn không bị người khác đánh thì làm gì?",
+   "hoi": {
+    "opts": [
+     "Giữ khiên bảo hộ, đừng tắt",
+     "Tắt khiên đi",
+     "Đứng giữa đường khiêu khích"
+    ],
+    "dap": 0,
+    "sai": [
+     null,
+     "Tắt khiên là mời người ta đánh đấy ký chủ. Chọn lại.",
+     "Đứng giữa đường khiêu khích? Ký chủ chán sống rồi. Chọn lại."
+    ]
+   },
+   "dk": {
+    "step": 10,
+    "dap": 0
+   },
+   "qua": [
+    {
+     "coins": 5000
+    }
+   ],
+   "xong": "Đinh! Khiên hiện sau tên. Tắt khiên mới đánh nhau với người khác được, gục rồi hồi sinh khiên tự bật lại."
+  },
+  {
+   "id": "linh-thu-1",
+   "goal": "Thu một linh thú",
+   "dk": {
+    "pets": 1
+   },
+   "qua": [
+    {
+     "coins": 5000
+    },
+    {
+     "pill": "tu-khi-dan",
+     "n": 3
+    }
+   ],
+   "xong": "Đinh! Có bạn đồng hành rồi. Nhớ cho nó ăn... à không, game này nó tự lo.",
+   "tip": "Gặp Ngự Thú Sư, hoặc săn dị chủng ngoài tinh cầu.",
+   "go": "btn-pets"
+  },
+  {
+   "id": "linh-thu-2",
+   "goal": "Có 2 linh thú",
+   "dk": {
+    "pets": 2
+   },
+   "qua": [
+    {
+     "coins": 5000
+    },
+    {
+     "pill": "tu-khi-dan",
+     "n": 3
+    }
+   ],
+   "xong": "Đinh! Thêm một bạn đồng hành. Linh thú đi theo cũng đánh quái giúp.",
+   "tip": "Săn dị chủng (quái phát sáng) ngoài tinh cầu, hạ xong có thể thu phục."
+  },
+  {
+   "id": "thu-cuoi-1",
+   "goal": "Có một thú cưỡi",
+   "dk": {
+    "mounts": 1
+   },
+   "qua": [
+    {
+     "coins": 5000
+    },
+    {
+     "gear": 1,
+     "slot": "thieu"
+    }
+   ],
+   "xong": "Đinh! Cưỡi thú rồi, chân đỡ mỏi. Tặng thêm trang bị cho ô còn trống.",
+   "tip": "Ngự Thú Sư tặng thú cưỡi đầu tiên.",
+   "go": "btn-pets"
+  },
+  {
+   "id": "mac-7",
+   "goal": "Mặc đủ 6 món trang bị",
+   "dk": {
+    "equip": 6
+   },
+   "qua": [
+    {
+     "mat": "tinh-thiet",
+     "n": 25
+    },
+    {
+     "mat": "tay-luyen-thach",
+     "n": 2
+    }
+   ],
+   "xong": "Đinh! Đủ sáu món, kín từ đầu tới chân. Giờ cường hoá lên, Tinh Thiết đây.",
+   "tip": "Đủ bản mệnh pháp bảo, giáp, mũ, giày, nhẫn, ngọc bội. Đồ hệ thống tặng chọn đúng ô còn trống.",
+   "go": "btn-bag"
+  },
+  {
+   "id": "cuong-hoa-5",
+   "goal": "Cường hoá một món đang mặc lên +5",
+   "dk": {
+    "plus": 5
+   },
+   "qua": [
+    {
+     "mat": "tinh-thiet",
+     "n": 15
+    },
+    {
+     "coins": 3000
+    }
+   ],
+   "xong": "Đinh! +5 rồi. Tới +6 vẫn an toàn, từ +7 hỏng có thể tụt cấp."
+  },
+  {
+   "id": "cuong-hoa-6",
+   "goal": "Cường hoá một món đang mặc lên +6",
+   "dk": {
+    "plus": 6
+   },
+   "qua": [
+    {
+     "gear": 3,
+     "slot": "thieu"
+    },
+    {
+     "gem": "lam-ngoc:2",
+     "n": 2
+    },
+    {
+     "gem": "hong-ngoc:2",
+     "n": 1
+    }
+   ],
+   "xong": "Đinh! +6. Tặng trang bị phẩm Địa hai ô khảm và ngọc cấp 2, khảm đầy vào.",
+   "tip": "Từ +3 trở lên có thể hỏng, cứ thử lại. Tinh Thiết rơi ở bí cảnh và quái mạnh.",
+   "go": "btn-bag"
+  },
+  {
+   "id": "kham-4",
+   "goal": "Khảm 4 viên ngọc vào trang bị đang mặc",
+   "dk": {
+    "socket": 4
+   },
+   "qua": [
+    {
+     "pill": "tu-khi-dan",
+     "n": 10
+    },
+    {
+     "coins": 8000
+    }
+   ],
+   "xong": "Đinh! Bốn viên ngọc, chỉ số nhảy vọt. Giờ dồn sức lên Trúc Cơ.",
+   "tip": "Đồ phẩm cao có nhiều ô hơn. Hệ thống đã tặng món phẩm Địa hai ô.",
+   "go": "btn-bag"
+  },
+  {
+   "id": "hoi-boss",
+   "goal": "Boss thế giới Cửu Đầu Thôn Thiên Mãng thưởng thế nào?",
+   "hoi": {
+    "opts": [
+     "Linh Thạch theo sát thương ký chủ gây ra",
+     "Không thưởng gì",
+     "Chỉ người đánh đòn cuối được"
+    ],
+    "dap": 0,
+    "sai": [
+     null,
+     "Sai! Đánh boss thế giới ai cũng có phần, đánh càng đau càng nhiều. Chọn lại.",
+     "Không phải đâu, ai góp sát thương cũng được chia, không cần đòn cuối. Chọn lại."
+    ]
+   },
+   "dk": {
+    "realm": 1,
+    "dap": 0
+   },
+   "qua": [
+    {
+     "mat": "tinh-thiet",
+     "n": 10
+    }
+   ],
+   "xong": "Đinh! Boss xuất hiện thì có thông báo, cưỡi kiếm bay ra không gian mà đánh. Tặng Tinh Thiết để mài kiếm trước."
+  },
+  {
+   "id": "luyen-khi-9",
+   "goal": "Tu luyện tới Luyện Khí tầng 9",
+   "dk": {
+    "realm": 0,
+    "layer": 9
+   },
+   "qua": [
+    {
+     "pill": "thanh-tam-dan",
+     "n": 1
+    },
+    {
+     "coins": 5000
+    }
+   ],
+   "xong": "Đinh! Luyện Khí tầng 9, đỉnh phàm cảnh. Đầy tu vi thì đột phá Trúc Cơ, sẽ có thiên kiếp. Tặng Thanh Tâm Đan, uống trước khi độ kiếp.",
+   "tip": "Đầy thanh linh khí ở tầng 9 thì bấm Đột phá. Lúc sét đánh nhớ chạy né vòng đỏ."
+  },
+  {
+   "id": "hoi-dot-pha",
+   "goal": "Tu vi đầy tầng 9 thì làm gì?",
+   "hoi": {
+    "opts": [
+     "Đột phá lên cảnh giới mới",
+     "Xoá nhân vật làm lại",
+     "Chờ tầng 10"
+    ],
+    "dap": 0,
+    "sai": [
+     null,
+     "Xoá nhân vật? Bổn hệ thống mất việc thì sao! Chọn lại.",
+     "Không có tầng 10 đâu ký chủ. Chọn lại."
+    ]
+   },
+   "dk": {
+    "realm": 0,
+    "layer": 5,
+    "dap": 0
+   },
+   "qua": [
+    {
+     "pill": "tu-khi-dan",
+     "n": 10
+    },
+    {
+     "pill": "thang-linh-dan",
+     "n": 2
+    },
+    {
+     "pill": "thanh-tam-dan",
+     "n": 2
+    }
+   ],
+   "xong": "Đinh! Đầy tầng 9 thì đột phá. Lên cảnh giới cao còn phải độ kiếp, uống Thanh Tâm Đan cho sét đánh nhẹ."
+  },
+  {
+   "id": "truc-co",
+   "goal": "Đột phá Trúc Cơ",
+   "dk": {
+    "realm": 1
+   },
+   "qua": [
+    {
+     "gear": 2,
+     "slot": "thieu"
+    },
+    {
+     "coins": 10000
+    },
+    {
+     "mat": "tinh-thiet",
+     "n": 15
+    },
+    {
+     "pill": "thanh-tam-dan",
+     "n": 2
+    },
+    {
+     "pill": "boi-nguyen-dan",
+     "n": 3
+    }
+   ],
+   "xong": "Đinh! Trúc Cơ thành công, cảnh giới gia trì: máu, công gốc tăng, linh lực dày hơn! Thọ nguyên tăng, linh lực dày hơn. Ký chủ cuối cùng cũng thoát kiếp phàm nhân. Tặng Thanh Tâm Đan: uống trước khi độ kiếp Kim Đan cho sét đánh nhẹ.",
+   "tip": "Uống Tụ Khí Đan, Thăng Linh Đan rồi đả tọa. Đầy tầng 9 thì đột phá."
+  },
+  {
+   "id": "pb-duc-3",
+   "goal": "Đục một pháp bảo lên 3 ô khảm",
+   "dk": {
+    "pb_slots": 3
+   },
+   "qua": [
+    {
+     "coins": 8000
+    },
+    {
+     "pill": "tu-khi-dan",
+     "n": 5
+    }
+   ],
+   "xong": "Đinh! Ba ô, ba tầng biến hoá. Còn ô thứ tư, khó hơn nhiều.",
+   "tip": "Đục ô tốn Đá Khai Khiếu (nhận khi lên tầng). Hụt 10 lần liên tiếp thì lần sau chắc chắn thành.",
+   "go": "btn-bag"
+  },
+  {
+   "id": "truc-co-3",
+   "goal": "Tu luyện tới Trúc Cơ tầng 3",
+   "dk": {
+    "realm": 1,
+    "layer": 3
+   },
+   "qua": [
+    {
+     "pill": "tu-khi-dan",
+     "n": 6
+    },
+    {
+     "coins": 3000
+    }
+   ],
+   "xong": "Đinh! Trúc Cơ tầng 3. Nền đã vững, cứ thế mà tiến."
+  },
+  {
+   "id": "truc-co-5",
+   "goal": "Tu luyện tới Trúc Cơ tầng 5",
+   "dk": {
+    "realm": 1,
+    "layer": 5
+   },
+   "qua": [
+    {
+     "pill": "tu-khi-dan",
+     "n": 5
+    },
+    {
+     "mat": "tinh-thiet",
+     "n": 15
+    }
+   ],
+   "xong": "Đinh! Trúc Cơ tầng 5, tu vi tăng tiến, lĩnh ngộ thêm chiêu khảm. Vào Trang bị → Pháp bảo thử tổ hợp mới."
+  },
+  {
+   "id": "cong-phap-5",
+   "goal": "Học 5 công pháp",
+   "dk": {
+    "techs": 5
+   },
+   "qua": [
+    {
+     "coins": 10000
+    },
+    {
+     "mat": "tay-luyen-thach",
+     "n": 3
+    }
+   ],
+   "xong": "Đinh! Năm công pháp, nền vững như núi. Kẻ địch sẽ không biết ký chủ còn giấu gì.",
+   "tip": "Bí kíp rơi từ boss bí cảnh và boss thế giới.",
+   "go": "btn-bag"
+  },
+  {
+   "id": "truc-co-7",
+   "goal": "Tu luyện tới Trúc Cơ tầng 7",
+   "dk": {
+    "realm": 1,
+    "layer": 7
+   },
+   "qua": [
+    {
+     "pill": "tu-khi-dan",
+     "n": 7
+    },
+    {
+     "coins": 6000
+    }
+   ],
+   "xong": "Đinh! Trúc Cơ tầng 7, còn hai tầng nữa là chạm đỉnh. Chuẩn bị đan dược đi ký chủ."
+  },
+  {
+   "id": "pb-kham-6",
+   "goal": "Khảm 6 chiêu trên các pháp bảo đang mặc",
+   "dk": {
+    "pb_mods": 6
+   },
+   "qua": [
+    {
+     "coins": 8000
+    },
+    {
+     "mat": "tay-luyen-thach",
+     "n": 2
+    }
+   ],
+   "xong": "Đinh! Sáu chiêu cùng chạy. Thử Tỏa Nhánh trước rồi Đánh Lan sau, rồi đảo lại xem.",
+   "tip": "Mỗi pháp bảo có tối đa 4 ô; chiêu mở dần theo tu vi.",
+   "go": "btn-bag"
+  },
+  {
+   "id": "truc-co-9",
+   "goal": "Tu luyện tới Trúc Cơ tầng 9",
+   "dk": {
+    "realm": 1,
+    "layer": 9
+   },
+   "qua": [
+    {
+     "pill": "thanh-tam-dan",
+     "n": 2
+    },
+    {
+     "coins": 8000
+    }
+   ],
+   "xong": "Đinh! Đỉnh Trúc Cơ. Kim Đan ở ngay trước mặt, thiên kiếp lần này mạnh hơn. Thanh Tâm Đan đây."
+  },
+  {
+   "id": "cuong-hoa-8",
+   "goal": "Cường hoá một món đang mặc lên +8",
+   "dk": {
+    "plus": 8
+   },
+   "qua": [
+    {
+     "mat": "tinh-thiet",
+     "n": 30
+    },
+    {
+     "gem": "lam-ngoc:2",
+     "n": 1
+    }
+   ],
+   "xong": "Đinh! +8 rồi. Từ +10 trở đi tốn thêm Linh Thạch và có thể tụt cấp, ký chủ chuẩn bị tinh thần."
+  },
+  {
+   "id": "kim-dan",
+   "goal": "Đột phá Kim Đan",
+   "dk": {
+    "realm": 2
+   },
+   "qua": [
+    {
+     "gear": 3,
+     "slot": "thieu"
+    },
+    {
+     "gear": 3,
+     "slot": "thieu"
+    },
+    {
+     "pill": "tu-van-dan",
+     "n": 5
+    },
+    {
+     "mat": "tinh-thiet",
+     "n": 30
+    }
+   ],
+   "xong": "Đinh! Kim Đan đã thành, cảnh giới gia trì lên một bậc, bế quan được lâu hơn! Đại Ấn đã về tay. Tặng hai món phẩm Địa và Tinh Thiết để lên +10.",
+   "tip": "Tu vi đầy tầng 9 Trúc Cơ thì đột phá. Đan dược và đả tọa giúp lên nhanh."
+  },
+  {
+   "id": "kim-dan-3",
+   "goal": "Tu luyện tới Kim Đan tầng 3",
+   "dk": {
+    "realm": 2,
+    "layer": 3
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 4
+    },
+    {
+     "coins": 5000
+    }
+   ],
+   "xong": "Đinh! Kim Đan tầng 3. Nền đã vững, cứ thế mà tiến."
+  },
+  {
+   "id": "kim-dan-5",
+   "goal": "Tu luyện tới Kim Đan tầng 5",
+   "dk": {
+    "realm": 2,
+    "layer": 5
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 3
+    },
+    {
+     "coins": 10000
+    }
+   ],
+   "xong": "Đinh! Kim Đan tầng 5, Trận Kỳ đã về tay, thêm chiêu khảm mới. Ký chủ đã thành người có nghề."
+  },
+  {
+   "id": "pb-cap-15",
+   "goal": "Nâng một pháp bảo lên cấp 15",
+   "dk": {
+    "pb_lv": 15
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 3
+    },
+    {
+     "coins": 15000
+    }
+   ],
+   "xong": "Đinh! Cấp 15, đòn to và sáng hơn hẳn. Phẩm càng cao, hào quang càng rực.",
+   "tip": "Kim Đan mở tới cấp 15.",
+   "go": "btn-bag"
+  },
+  {
+   "id": "linh-thu-3",
+   "goal": "Có 3 linh thú",
+   "dk": {
+    "pets": 3
+   },
+   "qua": [
+    {
+     "coins": 8000
+    },
+    {
+     "pill": "tu-khi-dan",
+     "n": 5
+    }
+   ],
+   "xong": "Đinh! Ba linh thú, đi đâu cũng có hội. Linh thú lên cấp cũng cộng lực chiến cho ký chủ.",
+   "tip": "Săn dị chủng (quái phát sáng) ngoài tinh cầu, hạ xong có thể thu phục."
+  },
+  {
+   "id": "kham-8",
+   "goal": "Khảm 8 viên ngọc vào trang bị đang mặc",
+   "dk": {
+    "socket": 8
+   },
+   "qua": [
+    {
+     "gem": "hoang-ngoc:3",
+     "n": 1
+    },
+    {
+     "coins": 10000
+    }
+   ],
+   "xong": "Đinh! Tám viên ngọc. Ghép ngọc lên cấp cao hơn thì chỉ số còn nhảy nữa.",
+   "tip": "Túi đồ → Ngọc: ba viên cùng loại cùng cấp ghép thành một viên cấp cao hơn."
+  },
+  {
+   "id": "kim-dan-7",
+   "goal": "Tu luyện tới Kim Đan tầng 7",
+   "dk": {
+    "realm": 2,
+    "layer": 7
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 4
+    },
+    {
+     "coins": 10000
+    }
+   ],
+   "xong": "Đinh! Kim Đan tầng 7, còn hai tầng nữa là chạm đỉnh. Chuẩn bị đan dược đi ký chủ."
+  },
+  {
+   "id": "pb-duc-4",
+   "goal": "Đục một pháp bảo đủ 4 ô khảm",
+   "dk": {
+    "pb_slots": 4
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 4
+    },
+    {
+     "coins": 20000
+    }
+   ],
+   "xong": "Đinh! Bốn ô! Ký chủ vừa mở cánh cửa tổ hợp thật sự. Bổn hệ thống cũng phải ngó.",
+   "tip": "Ô thứ 4 chỉ 10% mỗi lần, có bảo hiểm 10 lần.",
+   "go": "btn-bag"
+  },
+  {
+   "id": "cuong-hoa-10",
+   "goal": "Cường hoá một món đang mặc lên +10",
+   "dk": {
+    "plus": 10
+   },
+   "qua": [
+    {
+     "gear": 4,
+     "slot": "thieu"
+    },
+    {
+     "mat": "tay-luyen-thach",
+     "n": 5
+    }
+   ],
+   "xong": "Đinh! +10! Bổn hệ thống công nhận: ký chủ có chút bản lĩnh. Tặng trang bị phẩm Thiên.",
+   "tip": "Cường hoá cao dễ hỏng, chuẩn bị nhiều Tinh Thiết và Tẩy Luyện Thạch.",
+   "go": "btn-bag"
+  },
+  {
+   "id": "kim-dan-9",
+   "goal": "Tu luyện tới Kim Đan tầng 9",
+   "dk": {
+    "realm": 2,
+    "layer": 9
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 4
+    },
+    {
+     "coins": 20000
+    }
+   ],
+   "xong": "Đinh! Kim Đan tầng 9, đỉnh cảnh giới! Đầy linh khí thì bấm Độ thiên kiếp.",
+   "tip": "Đả tọa, uống đan linh khí, cày bí cảnh. Đầy tu vi tầng 9 thì nút Độ thiên kiếp hiện giữa màn hình."
+  },
+  {
+   "id": "canh-gioi-3",
+   "goal": "Đột phá Nguyên Anh",
+   "dk": {
+    "realm": 3
+   },
+   "qua": [
+    {
+     "gear": 4,
+     "slot": "thieu"
+    },
+    {
+     "pill": "tu-van-dan",
+     "n": 5
+    },
+    {
+     "coins": 20000
+    }
+   ],
+   "xong": "Đinh! Nguyên Anh! Mở ô pháp bảo thứ 4, bốn pháp bảo cùng ra trận. Tinh hà còn rộng lắm, đừng dừng lại.",
+   "tip": "Đầy tu vi tầng 9 thì đột phá. Cày bí cảnh, đả tọa, uống đan cho nhanh."
+  },
+  {
+   "id": "pb-mac-4",
+   "goal": "Mặc đủ 4 pháp bảo",
+   "dk": {
+    "pb_wear": 4
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 5
+    },
+    {
+     "coins": 20000
+    }
+   ],
+   "xong": "Đinh! Bốn pháp bảo bốn nút. Công thủ toàn diện, ký chủ giờ là một cỗ máy.",
+   "tip": "Nguyên Anh mở ô pháp bảo thứ 4 (thêm nút pháp bảo thứ tư trên màn hình).",
+   "go": "btn-bag"
+  },
+  {
+   "id": "nguyen-anh-3",
+   "goal": "Tu luyện tới Nguyên Anh tầng 3",
+   "dk": {
+    "realm": 3,
+    "layer": 3
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 5
+    },
+    {
+     "coins": 10000
+    }
+   ],
+   "xong": "Đinh! Nguyên Anh tầng 3. Nền đã vững, cứ thế mà tiến."
+  },
+  {
+   "id": "nguyen-anh-5",
+   "goal": "Tu luyện tới Nguyên Anh tầng 5",
+   "dk": {
+    "realm": 3,
+    "layer": 5
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 5
+    },
+    {
+     "mat": "tay-luyen-thach",
+     "n": 3
+    }
+   ],
+   "xong": "Đinh! Nguyên Anh tầng 5. Tẩy Luyện Thạch đây, tẩy dòng chỉ số cho đẹp."
+  },
+  {
+   "id": "pb-cap-20",
+   "goal": "Nâng một pháp bảo lên cấp 20",
+   "dk": {
+    "pb_lv": 20
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 5
+    },
+    {
+     "coins": 30000
+    }
+   ],
+   "xong": "Đinh! Cấp 20, gấp đôi lúc mới nhận. Hào quang này người khác nhìn là biết đồ xịn.",
+   "tip": "Nguyên Anh mở tới cấp 20.",
+   "go": "btn-bag"
+  },
+  {
+   "id": "cong-phap-8",
+   "goal": "Học 8 công pháp",
+   "dk": {
+    "techs": 8
+   },
+   "qua": [
+    {
+     "coins": 20000
+    },
+    {
+     "mat": "tay-luyen-thach",
+     "n": 3
+    }
+   ],
+   "xong": "Đinh! Tám công pháp, chưởng môn tông khác cũng phải nể."
+  },
+  {
+   "id": "nguyen-anh-7",
+   "goal": "Tu luyện tới Nguyên Anh tầng 7",
+   "dk": {
+    "realm": 3,
+    "layer": 7
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 5
+    },
+    {
+     "coins": 20000
+    }
+   ],
+   "xong": "Đinh! Nguyên Anh tầng 7, còn hai tầng nữa là chạm đỉnh. Chuẩn bị đan dược đi ký chủ."
+  },
+  {
+   "id": "cuong-hoa-13",
+   "goal": "Cường hoá một món đang mặc lên +13",
+   "dk": {
+    "plus": 13
+   },
+   "qua": [
+    {
+     "gear": 4,
+     "slot": "thieu"
+    },
+    {
+     "mat": "tinh-thiet",
+     "n": 40
+    }
+   ],
+   "xong": "Đinh! +13! Ít ai chịu chơi tới mức này. Tặng trang bị phẩm Thiên."
+  },
+  {
+   "id": "nguyen-anh-9",
+   "goal": "Tu luyện tới Nguyên Anh tầng 9",
+   "dk": {
+    "realm": 3,
+    "layer": 9
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 5
+    },
+    {
+     "coins": 40000
+    }
+   ],
+   "xong": "Đinh! Nguyên Anh tầng 9, đỉnh cảnh giới! Đầy linh khí thì bấm Độ thiên kiếp.",
+   "tip": "Đả tọa, uống đan linh khí, cày bí cảnh. Đầy tu vi tầng 9 thì nút Độ thiên kiếp hiện giữa màn hình."
+  },
+  {
+   "id": "pb-kham-16",
+   "goal": "Khảm đủ 16 chiêu trên 4 pháp bảo đang mặc",
+   "dk": {
+    "pb_mods": 16
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 6
+    },
+    {
+     "coins": 50000
+    }
+   ],
+   "xong": "Đinh! Mười sáu chiêu, bốn pháp bảo đều đủ bốn ô. Đây mới gọi là luyện chế.",
+   "tip": "Cần cả 4 pháp bảo đều đục đủ 4 ô.",
+   "go": "btn-bag"
+  },
+  {
+   "id": "kham-12",
+   "goal": "Khảm 12 viên ngọc vào đồ đang mặc",
+   "dk": {
+    "socket": 12
+   },
+   "qua": [
+    {
+     "gem": "hoang-ngoc:3",
+     "n": 1
+    },
+    {
+     "coins": 20000
+    }
+   ],
+   "xong": "Đinh! Mười hai viên ngọc. Ghép ngọc lên cấp cao còn mạnh hơn khảm thêm."
+  },
+  {
+   "id": "linh-thu-5",
+   "goal": "Có 5 linh thú",
+   "dk": {
+    "pets": 5
+   },
+   "qua": [
+    {
+     "coins": 20000
+    },
+    {
+     "pill": "tu-van-dan",
+     "n": 3
+    }
+   ],
+   "xong": "Đinh! Năm linh thú, đủ lập một đội nhỏ.",
+   "tip": "Săn dị chủng (quái phát sáng) ngoài tinh cầu, hạ xong có thể thu phục."
+  },
+  {
+   "id": "canh-gioi-4",
+   "goal": "Đột phá Hóa Thần",
+   "dk": {
+    "realm": 4
+   },
+   "qua": [
+    {
+     "gear": 4,
+     "slot": "thieu"
+    },
+    {
+     "pill": "tu-van-dan",
+     "n": 8
+    },
+    {
+     "coins": 30000
+    }
+   ],
+   "xong": "Đinh! Hóa Thần! Ký chủ đã đứng trên vạn người. Nhưng tinh hà còn rộng lắm, đừng dừng lại.",
+   "tip": "Đầy tu vi tầng 9 thì đột phá. Cày bí cảnh, đả tọa, uống đan cho nhanh."
+  },
+  {
+   "id": "hoa-than-3",
+   "goal": "Tu luyện tới Hóa Thần tầng 3",
+   "dk": {
+    "realm": 4,
+    "layer": 3
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 6
+    },
+    {
+     "coins": 15000
+    }
+   ],
+   "xong": "Đinh! Hóa Thần tầng 3. Nền đã vững, cứ thế mà tiến."
+  },
+  {
+   "id": "hoa-than-5",
+   "goal": "Tu luyện tới Hóa Thần tầng 5",
+   "dk": {
+    "realm": 4,
+    "layer": 5
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 6
+    },
+    {
+     "coins": 30000
+    }
+   ],
+   "xong": "Đinh! Hóa Thần tầng 5. Ngoại Vực đang chờ, nhớ giữ khiên bảo hộ."
+  },
+  {
+   "id": "thu-cuoi-2",
+   "goal": "Có 2 thú cưỡi",
+   "dk": {
+    "mounts": 2
+   },
+   "qua": [
+    {
+     "coins": 20000
+    }
+   ],
+   "xong": "Đinh! Hai thú cưỡi, đổi qua đổi lại cho đỡ chán.",
+   "tip": "Thú cưỡi có trong quà triệu hồi Hệ Thống và rơi từ boss."
+  },
+  {
+   "id": "hoa-than-7",
+   "goal": "Tu luyện tới Hóa Thần tầng 7",
+   "dk": {
+    "realm": 4,
+    "layer": 7
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 6
+    },
+    {
+     "coins": 30000
+    }
+   ],
+   "xong": "Đinh! Hóa Thần tầng 7, còn hai tầng nữa là chạm đỉnh. Chuẩn bị đan dược đi ký chủ."
+  },
+  {
+   "id": "cong-phap-12",
+   "goal": "Học 12 bộ công pháp",
+   "dk": {
+    "techs": 12
+   },
+   "qua": [
+    {
+     "coins": 40000
+    },
+    {
+     "mat": "tay-luyen-thach",
+     "n": 5
+    }
+   ],
+   "xong": "Đinh! Mười hai bộ công pháp. Đổi công pháp hợp hệ, hợp trận cho từng lúc."
+  },
+  {
+   "id": "hoa-than-9",
+   "goal": "Tu luyện tới Hóa Thần tầng 9",
+   "dk": {
+    "realm": 4,
+    "layer": 9
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 6
+    },
+    {
+     "coins": 60000
+    }
+   ],
+   "xong": "Đinh! Hóa Thần tầng 9, đỉnh cảnh giới! Đầy linh khí thì bấm Độ thiên kiếp.",
+   "tip": "Đả tọa, uống đan linh khí, cày bí cảnh. Đầy tu vi tầng 9 thì nút Độ thiên kiếp hiện giữa màn hình."
+  },
+  {
+   "id": "thu-cuoi-3",
+   "goal": "Có 3 thú cưỡi",
+   "dk": {
+    "mounts": 3
+   },
+   "qua": [
+    {
+     "coins": 40000
+    }
+   ],
+   "xong": "Đinh! Ba thú cưỡi, chuồng đã đông vui.",
+   "tip": "Thú cưỡi có trong quà triệu hồi Hệ Thống và rơi từ boss."
+  },
+  {
+   "id": "canh-gioi-5",
+   "goal": "Đột phá Luyện Hư",
+   "dk": {
+    "realm": 5
+   },
+   "qua": [
+    {
+     "gear": 5,
+     "slot": "thieu"
+    },
+    {
+     "coins": 50000
+    }
+   ],
+   "xong": "Đinh! Luyện Hư! Ký chủ đã đứng trên vạn người. Nhưng tinh hà còn rộng lắm, đừng dừng lại.",
+   "tip": "Đầy tu vi tầng 9 thì đột phá. Cày bí cảnh, đả tọa, uống đan cho nhanh."
+  },
+  {
+   "id": "luyen-hu-3",
+   "goal": "Tu luyện tới Luyện Hư tầng 3",
+   "dk": {
+    "realm": 5,
+    "layer": 3
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 7
+    },
+    {
+     "coins": 25000
+    }
+   ],
+   "xong": "Đinh! Luyện Hư tầng 3. Nền đã vững, cứ thế mà tiến."
+  },
+  {
+   "id": "luyen-hu-5",
+   "goal": "Tu luyện tới Luyện Hư tầng 5",
+   "dk": {
+    "realm": 5,
+    "layer": 5
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 8
+    },
+    {
+     "coins": 50000
+    }
+   ],
+   "xong": "Đinh! Luyện Hư tầng 5. Đường còn dài, bổn hệ thống vẫn đi cùng."
+  },
+  {
+   "id": "cuong-hoa-15",
+   "goal": "Cường hoá một món đang mặc lên +15",
+   "dk": {
+    "plus": 15
+   },
+   "qua": [
+    {
+     "mat": "tinh-thiet",
+     "n": 60
+    },
+    {
+     "mat": "tay-luyen-thach",
+     "n": 6
+    }
+   ],
+   "xong": "Đinh! +15! Món này đã thành thần binh."
+  },
+  {
+   "id": "luyen-hu-7",
+   "goal": "Tu luyện tới Luyện Hư tầng 7",
+   "dk": {
+    "realm": 5,
+    "layer": 7
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 7
+    },
+    {
+     "coins": 50000
+    }
+   ],
+   "xong": "Đinh! Luyện Hư tầng 7, còn hai tầng nữa là chạm đỉnh. Chuẩn bị đan dược đi ký chủ."
+  },
+  {
+   "id": "luyen-hu-9",
+   "goal": "Tu luyện tới Luyện Hư tầng 9",
+   "dk": {
+    "realm": 5,
+    "layer": 9
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 7
+    },
+    {
+     "coins": 100000
+    }
+   ],
+   "xong": "Đinh! Luyện Hư tầng 9, đỉnh cảnh giới! Đầy linh khí thì bấm Độ thiên kiếp.",
+   "tip": "Đả tọa, uống đan linh khí, cày bí cảnh. Đầy tu vi tầng 9 thì nút Độ thiên kiếp hiện giữa màn hình."
+  },
+  {
+   "id": "kham-16",
+   "goal": "Khảm 16 viên ngọc vào đồ đang mặc",
+   "dk": {
+    "socket": 16
+   },
+   "qua": [
+    {
+     "gem": "hoang-ngoc:4",
+     "n": 1
+    },
+    {
+     "coins": 60000
+    }
+   ],
+   "xong": "Đinh! Mười sáu viên ngọc, khắp người toả hào quang."
+  },
+  {
+   "id": "canh-gioi-6",
+   "goal": "Đột phá Hợp Thể",
+   "dk": {
+    "realm": 6
+   },
+   "qua": [
+    {
+     "gear": 5,
+     "slot": "thieu"
+    },
+    {
+     "coins": 80000
+    }
+   ],
+   "xong": "Đinh! Hợp Thể! Ký chủ đã đứng trên vạn người. Nhưng tinh hà còn rộng lắm, đừng dừng lại.",
+   "tip": "Đầy tu vi tầng 9 thì đột phá. Cày bí cảnh, đả tọa, uống đan cho nhanh."
+  },
+  {
+   "id": "hop-the-3",
+   "goal": "Tu luyện tới Hợp Thể tầng 3",
+   "dk": {
+    "realm": 6,
+    "layer": 3
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 8
+    },
+    {
+     "coins": 40000
+    }
+   ],
+   "xong": "Đinh! Hợp Thể tầng 3. Nền đã vững, cứ thế mà tiến."
+  },
+  {
+   "id": "hop-the-5",
+   "goal": "Tu luyện tới Hợp Thể tầng 5",
+   "dk": {
+    "realm": 6,
+    "layer": 5
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 8
+    },
+    {
+     "coins": 80000
+    }
+   ],
+   "xong": "Đinh! Hợp Thể tầng 5. Ký chủ giờ là nhân vật có máu mặt trong tinh hà."
+  },
+  {
+   "id": "linh-thu-8",
+   "goal": "Có 8 linh thú",
+   "dk": {
+    "pets": 8
+   },
+   "qua": [
+    {
+     "coins": 80000
+    },
+    {
+     "pill": "tu-van-dan",
+     "n": 8
+    }
+   ],
+   "xong": "Đinh! Tám linh thú. Ký chủ sắp thành thú vương rồi.",
+   "tip": "Săn dị chủng (quái phát sáng) ngoài tinh cầu, hạ xong có thể thu phục."
+  },
+  {
+   "id": "hop-the-7",
+   "goal": "Tu luyện tới Hợp Thể tầng 7",
+   "dk": {
+    "realm": 6,
+    "layer": 7
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 8
+    },
+    {
+     "coins": 80000
+    }
+   ],
+   "xong": "Đinh! Hợp Thể tầng 7, còn hai tầng nữa là chạm đỉnh. Chuẩn bị đan dược đi ký chủ."
+  },
+  {
+   "id": "cuong-hoa-17",
+   "goal": "Cường hoá một món đang mặc lên +17",
+   "dk": {
+    "plus": 17
+   },
+   "qua": [
+    {
+     "mat": "tinh-thiet",
+     "n": 80
+    },
+    {
+     "mat": "tay-luyen-thach",
+     "n": 8
+    }
+   ],
+   "xong": "Đinh! +17! Chỉ còn ba bậc nữa là cực hạn."
+  },
+  {
+   "id": "hop-the-9",
+   "goal": "Tu luyện tới Hợp Thể tầng 9",
+   "dk": {
+    "realm": 6,
+    "layer": 9
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 8
+    },
+    {
+     "coins": 160000
+    }
+   ],
+   "xong": "Đinh! Hợp Thể tầng 9, đỉnh cảnh giới! Đầy linh khí thì bấm Độ thiên kiếp.",
+   "tip": "Đả tọa, uống đan linh khí, cày bí cảnh. Đầy tu vi tầng 9 thì nút Độ thiên kiếp hiện giữa màn hình."
+  },
+  {
+   "id": "canh-gioi-7",
+   "goal": "Đột phá Đại Thừa",
+   "dk": {
+    "realm": 7
+   },
+   "qua": [
+    {
+     "gear": 5,
+     "slot": "thieu"
+    },
+    {
+     "gear": 5,
+     "slot": "thieu"
+    },
+    {
+     "coins": 100000
+    }
+   ],
+   "xong": "Đinh! Đại Thừa! Ký chủ đã đứng trên vạn người. Nhưng tinh hà còn rộng lắm, đừng dừng lại.",
+   "tip": "Đầy tu vi tầng 9 thì đột phá. Cày bí cảnh, đả tọa, uống đan cho nhanh."
+  },
+  {
+   "id": "dai-thua-3",
+   "goal": "Tu luyện tới Đại Thừa tầng 3",
+   "dk": {
+    "realm": 7,
+    "layer": 3
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 9
+    },
+    {
+     "coins": 50000
+    }
+   ],
+   "xong": "Đinh! Đại Thừa tầng 3. Nền đã vững, cứ thế mà tiến."
+  },
+  {
+   "id": "dai-thua-5",
+   "goal": "Tu luyện tới Đại Thừa tầng 5",
+   "dk": {
+    "realm": 7,
+    "layer": 5
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 10
+    },
+    {
+     "coins": 100000
+    }
+   ],
+   "xong": "Đinh! Đại Thừa tầng 5. Độ Kiếp ở ngay phía trước."
+  },
+  {
+   "id": "cong-phap-16",
+   "goal": "Học 16 bộ công pháp",
+   "dk": {
+    "techs": 16
+   },
+   "qua": [
+    {
+     "coins": 100000
+    },
+    {
+     "mat": "tay-luyen-thach",
+     "n": 10
+    }
+   ],
+   "xong": "Đinh! Mười sáu bộ công pháp, bác học bậc nhất tu chân giới."
+  },
+  {
+   "id": "dai-thua-7",
+   "goal": "Tu luyện tới Đại Thừa tầng 7",
+   "dk": {
+    "realm": 7,
+    "layer": 7
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 9
+    },
+    {
+     "coins": 100000
+    }
+   ],
+   "xong": "Đinh! Đại Thừa tầng 7, còn hai tầng nữa là chạm đỉnh. Chuẩn bị đan dược đi ký chủ."
+  },
+  {
+   "id": "thu-cuoi-4",
+   "goal": "Có 4 thú cưỡi",
+   "dk": {
+    "mounts": 4
+   },
+   "qua": [
+    {
+     "coins": 100000
+    }
+   ],
+   "xong": "Đinh! Đủ bốn thú cưỡi. Bổn hệ thống cũng phải nể.",
+   "tip": "Thú cưỡi có trong quà triệu hồi Hệ Thống và rơi từ boss."
+  },
+  {
+   "id": "dai-thua-9",
+   "goal": "Tu luyện tới Đại Thừa tầng 9",
+   "dk": {
+    "realm": 7,
+    "layer": 9
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 9
+    },
+    {
+     "coins": 200000
+    }
+   ],
+   "xong": "Đinh! Đại Thừa tầng 9, đỉnh cảnh giới! Đầy linh khí thì bấm Độ thiên kiếp.",
+   "tip": "Đả tọa, uống đan linh khí, cày bí cảnh. Đầy tu vi tầng 9 thì nút Độ thiên kiếp hiện giữa màn hình."
+  },
+  {
+   "id": "canh-gioi-8",
+   "goal": "Đột phá Độ Kiếp",
+   "dk": {
+    "realm": 8
+   },
+   "qua": [
+    {
+     "gear": 6,
+     "slot": "thieu"
+    },
+    {
+     "coins": 200000
+    }
+   ],
+   "xong": "Đinh! Độ Kiếp! Ký chủ đã đứng trên vạn người. Nhưng tinh hà còn rộng lắm, đừng dừng lại.",
+   "tip": "Đầy tu vi tầng 9 thì đột phá. Cày bí cảnh, đả tọa, uống đan cho nhanh."
+  },
+  {
+   "id": "do-kiep-3",
+   "goal": "Tu luyện tới Độ Kiếp tầng 3",
+   "dk": {
+    "realm": 8,
+    "layer": 3
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 10
+    },
+    {
+     "coins": 75000
+    }
+   ],
+   "xong": "Đinh! Độ Kiếp tầng 3. Nền đã vững, cứ thế mà tiến."
+  },
+  {
+   "id": "do-kiep-5",
+   "goal": "Tu luyện tới Độ Kiếp tầng 5",
+   "dk": {
+    "realm": 8,
+    "layer": 5
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 10
+    },
+    {
+     "coins": 150000
+    }
+   ],
+   "xong": "Đinh! Độ Kiếp tầng 5. Còn bốn tầng nữa là đỉnh tinh hà."
+  },
+  {
+   "id": "cuong-hoa-20",
+   "goal": "Cường hoá một món đang mặc lên +20",
+   "dk": {
+    "plus": 20
+   },
+   "qua": [
+    {
+     "mat": "tinh-thiet",
+     "n": 150
+    },
+    {
+     "coins": 200000
+    }
+   ],
+   "xong": "Đinh! +20, cực hạn của luyện khí sư! Ký chủ đã đi tới tận cùng."
+  },
+  {
+   "id": "do-kiep-7",
+   "goal": "Tu luyện tới Độ Kiếp tầng 7",
+   "dk": {
+    "realm": 8,
+    "layer": 7
+   },
+   "qua": [
+    {
+     "pill": "tu-van-dan",
+     "n": 10
+    },
+    {
+     "coins": 150000
+    }
+   ],
+   "xong": "Đinh! Độ Kiếp tầng 7, còn hai tầng nữa là chạm đỉnh. Chuẩn bị đan dược đi ký chủ."
+  },
+  {
+   "id": "do-kiep-9",
+   "goal": "Tu luyện tới Độ Kiếp tầng 9",
+   "dk": {
+    "realm": 8,
+    "layer": 9
+   },
+   "qua": [
+    {
+     "gear": 6,
+     "slot": "thieu"
+    },
+    {
+     "coins": 300000
+    }
+   ],
+   "xong": "Đinh! Đỉnh Độ Kiếp. Bổn hệ thống không còn gì để dạy nữa... à không, vẫn còn nhiệm vụ ngày, mai gặp lại."
+  }
+ ],
+ "points": 25,
+ "cost": 100,
+ "ls_on": true,
+ "_ls_on": "Nút Lịch sử triệu hồi (đề xuất #153, src/ui/he-thong-qua.js): migration 20261113030000_p2d_ht_ls_cua_toi.sql đã áp 19/11/2026 12:1x, bật.",
+ "show_n": 3,
+ "_missions": "Nhiệm vụ hệ thống (chủ dự án 06/11/2026 16:49–18:03): dắt người mới từ không biết gì, không có gì thành có đủ mọi thứ. Mỗi nhiệm vụ points điểm như nhau và quà qua (vào Hòm thư): nhiệm vụ trước cho đúng thứ cần cho nhiệm vụ sau (đồ cho mặc, Tinh Thiết cho cường hoá, đồ có ô và ngọc cho khảm, đan cho lên tầng). qua: coins | mat+n | gem \"loại:cấp\"+n | pill+n | gear bậc màu (slot \"thieu\": máy chủ chọn ô ký chủ chưa mặc). hoi: nhiệm vụ câu hỏi lựa chọn (dap: đáp án đúng, máy chủ kiểm; sai: câu trêu riêng cho từng đáp án sai theo thứ tự opts, chỗ đáp án đúng để null; chọn lại được). xong: câu hệ thống nói khi nhận. dk: step, realm (+layer), equip, techs, plus, socket, pets, mounts, dap. Máy chủ kiểm lại trên bản lưu trên máy chủ (bảng p2d_ht_nv sinh bằng tools/he-thong-sql.py). Hiện show_n nhiệm vụ chưa nhận đầu tiên.",
+ "pool": [
+  {
+   "id": "lt-20k",
+   "w": 1,
+   "b": 0,
+   "coins": 20000
+  },
+  {
+   "id": "lt-50k",
+   "w": 1,
+   "b": 0,
+   "coins": 50000
+  },
+  {
+   "id": "lt-100k",
+   "w": 1,
+   "b": 1,
+   "coins": 100000
+  },
+  {
+   "id": "lt-200k",
+   "w": 1,
+   "b": 2,
+   "coins": 200000
+  },
+  {
+   "id": "lt-500k",
+   "w": 1,
+   "b": 3,
+   "coins": 500000
+  },
+  {
+   "id": "lt-1tr",
+   "w": 1,
+   "b": 4,
+   "coins": 1000000
+  },
+  {
+   "id": "lt-2tr",
+   "w": 1,
+   "b": 4,
+   "coins": 2000000
+  },
+  {
+   "id": "ngoc-1",
+   "w": 1,
+   "b": 0,
+   "gem": [
+    1,
+    1
+   ],
+   "n": 1
+  },
+  {
+   "id": "ngoc-2",
+   "w": 1,
+   "b": 0,
+   "gem": [
+    2,
+    2
+   ],
+   "n": 1
+  },
+  {
+   "id": "ngoc-3",
+   "w": 1,
+   "b": 0,
+   "gem": [
+    3,
+    3
+   ],
+   "n": 1
+  },
+  {
+   "id": "ngoc-4",
+   "w": 1,
+   "b": 1,
+   "gem": [
+    4,
+    4
+   ],
+   "n": 1
+  },
+  {
+   "id": "ngoc-5",
+   "w": 1,
+   "b": 2,
+   "gem": [
+    5,
+    5
+   ],
+   "n": 1
+  },
+  {
+   "id": "ngoc-6",
+   "w": 1,
+   "b": 3,
+   "gem": [
+    6,
+    6
+   ],
+   "n": 1
+  },
+  {
+   "id": "ngoc-7",
+   "w": 1,
+   "b": 4,
+   "gem": [
+    7,
+    7
+   ],
+   "n": 1
+  },
+  {
+   "id": "ngoc-8",
+   "w": 1,
+   "b": 4,
+   "gem": [
+    8,
+    8
+   ],
+   "n": 1
+  },
+  {
+   "id": "do-0",
+   "w": 1,
+   "b": 0,
+   "gear": [
+    0
+   ]
+  },
+  {
+   "id": "do-1",
+   "w": 1,
+   "b": 0,
+   "gear": [
+    1
+   ]
+  },
+  {
+   "id": "do-2",
+   "w": 1,
+   "b": 1,
+   "gear": [
+    2
+   ]
+  },
+  {
+   "id": "do-3",
+   "w": 1,
+   "b": 2,
+   "gear": [
+    3
+   ]
+  },
+  {
+   "id": "do-4",
+   "w": 1,
+   "b": 3,
+   "gear": [
+    4
+   ]
+  },
+  {
+   "id": "do-5",
+   "w": 1,
+   "b": 4,
+   "gear": [
+    5
+   ]
+  },
+  {
+   "id": "do-6",
+   "w": 1,
+   "b": 4,
+   "gear": [
+    6
+   ]
+  },
+  {
+   "id": "dan-hoi-xuan-dan",
+   "w": 1,
+   "b": 0,
+   "pill": "hoi-xuan-dan",
+   "n": 10
+  },
+  {
+   "id": "dan-hoi-linh-dan",
+   "w": 1,
+   "b": 0,
+   "pill": "hoi-linh-dan",
+   "n": 10
+  },
+  {
+   "id": "dan-tu-khi-dan",
+   "w": 1,
+   "b": 0,
+   "pill": "tu-khi-dan",
+   "n": 5
+  },
+  {
+   "id": "dan-boi-nguyen-dan",
+   "w": 1,
+   "b": 1,
+   "pill": "boi-nguyen-dan",
+   "n": 2
+  },
+  {
+   "id": "dan-thanh-tam-dan",
+   "w": 1,
+   "b": 1,
+   "pill": "thanh-tam-dan",
+   "n": 2
+  },
+  {
+   "id": "dan-tinh-lien-dan",
+   "w": 1,
+   "b": 2,
+   "pill": "tinh-lien-dan",
+   "n": 1
+  },
+  {
+   "id": "dan-tu-van-dan",
+   "w": 1,
+   "b": 1,
+   "pill": "tu-van-dan",
+   "n": 3
+  },
+  {
+   "id": "dan-tay-tuy-dan",
+   "w": 1,
+   "b": 2,
+   "pill": "tay-tuy-dan",
+   "n": 1
+  },
+  {
+   "id": "nl-linh-thao",
+   "w": 1,
+   "b": 0,
+   "mat": "linh-thao",
+   "n": 20
+  },
+  {
+   "id": "nl-yeu-huyet",
+   "w": 1,
+   "b": 0,
+   "mat": "yeu-huyet",
+   "n": 10
+  },
+  {
+   "id": "nl-tinh-thiet",
+   "w": 1,
+   "b": 0,
+   "mat": "tinh-thiet",
+   "n": 20
+  },
+  {
+   "id": "nl-hoa-linh-chi",
+   "w": 1,
+   "b": 1,
+   "mat": "hoa-linh-chi",
+   "n": 5
+  },
+  {
+   "id": "nl-tay-luyen-thach",
+   "w": 1,
+   "b": 1,
+   "mat": "tay-luyen-thach",
+   "n": 10
+  },
+  {
+   "id": "nl-khoa-linh-thach",
+   "w": 1,
+   "b": 1,
+   "mat": "khoa-linh-thach",
+   "n": 2
+  },
+  {
+   "id": "nl-dao-van-thach",
+   "w": 1,
+   "b": 2,
+   "mat": "dao-van-thach",
+   "n": 1
+  },
+  {
+   "id": "khoi-tieu-hoa",
+   "w": 1,
+   "b": 1,
+   "comp": "tieu-hoa",
+   "gia": 8000
+  },
+  {
+   "id": "khoi-ho-linh",
+   "w": 1,
+   "b": 1,
+   "comp": "ho-linh",
+   "gia": 8000
+  },
+  {
+   "id": "khoi-thanh-diep",
+   "w": 1,
+   "b": 2,
+   "comp": "thanh-diep",
+   "gia": 10000
+  },
+  {
+   "id": "khoi-mac-anh",
+   "w": 1,
+   "b": 2,
+   "comp": "mac-anh",
+   "gia": 12000
+  },
+  {
+   "id": "khoi-thach-sinh",
+   "w": 1,
+   "b": 3,
+   "comp": "thach-sinh",
+   "gia": 15000
+  },
+  {
+   "id": "khoi-thiet-lan",
+   "w": 1,
+   "b": 3,
+   "comp": "thiet-lan",
+   "gia": 18000
+  }
+ ],
+ "bac": {"_note": "Triệu hồi chia năm bậc (docs/10-CAI-HON.md việc 6 dòng 18a; chủ dự án 14/11/2026 23:25 duyệt bảng 18a1: \"phải xây lại tỉ lệ triệu hồi ra đồ tốt\"). Mỗi món trong pool có b = bậc (0 Thường … 4 Truyền thuyết); tỉ lệ một món = pct của bậc / số món trong bậc. Bảo hiểm (bao_hiem): hiem lượt liền chưa ra bậc Hiếm trở lên thì lượt thứ hiem chắc chắn ra một món bậc Hiếm; cuc lượt liền chưa ra Cực hiếm trở lên thì chắc chắn ra một món Cực hiếm. le: từ bậc này trở lên món trúng có nghi lễ nhận thưởng (lvl: cỡ nghi lễ theo bậc). loa: bậc này máy chủ báo lên kênh thế giới (ten: tên món trong lời báo). on: false = máy khách còn hiện bảng tỉ lệ ngang nhau cũ; bật true CÙNG LÚC với lúc áp migration 20261115010000_p2d_trieu_hoi_bac.sql lên máy chủ (chờ chủ dự án nói \"áp lên\"), kẻo bảng tỉ lệ hiện một đằng máy chủ quay một nẻo. Máy chủ quay (p2d_ht_trieu) theo bản sao của bảng này trong p2d_ht_cfg (tools/he-thong-sql.py bac).", "on": true, "list": [{"name": "Thường", "pct": 62, "color": "#c9ced8"}, {"name": "Khá", "pct": 26, "color": "#7fdc8a"}, {"name": "Hiếm", "pct": 9.5, "color": "#72b6ff"}, {"name": "Cực hiếm", "pct": 2.2, "color": "#c792ff"}, {"name": "Truyền thuyết", "pct": 0.3, "color": "#ffd25a"}], "bao_hiem": {"hiem": 10, "cuc": 80}, "le": 2, "lvl": [0, 0, 1, 2, 3], "loa": 4, "ten": {"lt-1tr": "1 triệu Linh Thạch", "lt-2tr": "2 triệu Linh Thạch", "ngoc-7": "ngọc cấp 7", "ngoc-8": "ngọc cấp 8", "do-5": "trang bị phẩm Tiên", "do-6": "trang bị Thượng Cổ"}},
+ "_pool": "Bảng quà triệu hồi (chủ dự án 06/11/2026 22:37: mọi thứ mua được trong game đều có, trừ ngọc cấp 9 trở lên; Linh Thạch 20k → 2 triệu 7 mức; mọi loại tỉ lệ ngang nhau — w = 1 hết, 53 loại thì mỗi loại 1/53). gem [cấp, cấp] loại ngẫu nhiên; gear [bậc màu dòng] trang bị ngẫu nhiên mọi ô; pill / mat + n; comp (khôi lỗi); thú cưỡi, thời trang không còn trong bảng (chủ dự án 16/11/2026: thú cưỡi chỉ đổi bằng Thú Lệnh từ việc ngày, thời trang cũ bỏ hết): đã có (hoặc đang chờ trong Hòm thư) thì đổi ra gia Linh Thạch. Quà vào Hòm thư; máy chủ quay (p2d_ht_trieu).",
+ "text": {
+  "points": "Điểm hệ thống: {p}",
+  "claim": "Nhận",
+  "claimed": "Đinh! +{p} điểm hệ thống.",
+  "todo": "Chưa xong",
+  "story_hint": "Việc đang làm:",
+  "nv_head": "Nhiệm vụ chính {so}",
+  "nv_log": "Hành trình",
+  "nv_log_dong": "Thu gọn",
+  "nv_het": "Bổn hệ thống đang chép tiếp phần sau. Lo tu luyện đi, ký chủ.",
+  "summon": "Triệu hồi ({c} điểm)",
+  "summon_need": "Cần {c} điểm (đang có {p})",
+  "summon_title": "Triệu hồi quà hệ thống",
+  "summon_desc": "Mỗi lần {c} điểm. Mọi thứ mua được trong game: Linh Thạch 20k → 2 triệu, ngọc cấp 1–8, trang bị Phàm → Thượng Cổ, đan, nguyên liệu, thú cưỡi, khôi lỗi, thời trang. Tỷ lệ mọi loại như nhau, ra gì nhờ khí vận. Quà vào Hòm thư.",
+  "summon_got": "Đinh! Ký chủ triệu hồi được: {name}",
+  "bk_sum": "Bạo kích x{k}: nhận tổng {t}",
+  "bk_got": "{name} · bạo kích x{k} = {t}",
+  "summon_err": "Bổn hệ thống đang bận, thử lại sau.",
+  "login": "Đăng nhập để nhận điểm và triệu hồi.",
+  "rare": "Khí vận nghịch thiên! Bổn hệ thống cũng phải nể.",
+  "odds": "Tỷ lệ",
+  "mail": "Quà triệu hồi hệ thống",
+  "pool_gem": "Ngọc cấp {a}–{b}",
+  "pool_gear": "Trang bị phẩm {t}",
+  "go": "Đi làm",
+  "answer": "Trả lời",
+  "wrong": "Sai rồi",
+  "reward": "Thưởng: {r}",
+  "got": "Quà đã vào Hòm thư.",
+  "pts_tag": "+{p} điểm",
+  "quest_mail": "Thưởng nhiệm vụ hệ thống",
+  "claimed_tag": "Đã nhận",
+  "dup": "Đã có {x}, đổi ra Linh Thạch",
+  "pool_gem1": "Ngọc cấp {a}",
+  "grade": "{g}",
+  "k_mount": "Thú cưỡi",
+  "k_comp": "Khôi lỗi",
+  "k_outfit": "Thời trang",
+  "odds_eq": "Tỷ lệ: {n} loại, mỗi loại {p}%",
+  "odds_bac": "Tỷ lệ theo bậc",
+  "bac_row": "{name} · {pct}%",
+  "bh_head": "Bảo hiểm",
+  "bh_left": "còn {n} lượt",
+  "summon_desc_bac": "Mỗi lần {c} điểm. Quà chia năm bậc, bậc càng cao càng hiếm. {a} lượt liền chưa ra bậc Hiếm thì lượt thứ {a} chắc chắn ra; {b} lượt liền chưa ra Cực hiếm thì lượt thứ {b} chắc chắn ra. Quà vào Hòm thư.",
+  "bac_sub": "Triệu hồi Hệ Thống",
+  "bac_tag": "Bậc {name}",
+  "faq_find": "Tìm hoặc hỏi bổn hệ thống... (vd: đột phá, cường hoá, chợ)",
+  "faq_none": "Không thấy câu nào. Thử chữ khác, hoặc bấm \"Hỏi bổn hệ thống câu này\" ở trên.",
+  "feed_head": "Vừa trúng lớn", "ls_btn": "Lịch sử triệu hồi", "ls_head": "50 lần triệu hồi gần nhất của ký chủ", "ls_empty": "Ký chủ chưa triệu hồi lần nào."
+ },
+ "_go": "missions[].go: nút Đi làm mở bảng (id nút cũ, game.openOldPanel). Dẫn đường (Tự hành theo truyện) chỉ hiện khi truyện chưa tới bước chơi tự do.",
+ "moc": {
+  "_note": "Mốc quà (chủ dự án 19/11/2026 03:26 \"làm thêm nhiệm vụ chạm mốc nhận quà: giết bao nhiêu quái, onl bao nhiêu tiếng, triệu hồi bao nhiêu lần, thăng tới cảnh giới nào… quà đặt icon và số lượng, tối kị chỉ viết nhận được gì\"). Mỗi mốc là một nhiệm vụ hệ thống trên máy chủ (p2d_ht_nv, id moc-*; sinh migration bằng python3 tools/moc-sql.py): máy chủ kiểm số quái trong bản lưu, giờ chơi choi_giay, số lần triệu hồi so_lan, cảnh giới; nhận xong cộng điểm như mọi nhiệm vụ (points, 4 mốc đủ 1 lượt triệu hồi) và gửi quà vào Hòm thư. gear: hộp trang bị bí ẩn (ô chưa mặc, máy chủ bốc). qi_pct: linh khí theo phần trăm tầng đang tu, máy khách cộng sau khi máy chủ nhận (src/ui/he-thong-moc.js).", "_hue": "Hộp quà mỗi nhóm một màu: xoay màu ảnh hộp quà của chủ dự án (ui.ic-qua) bằng CSS, không vẽ hình mới.", "head": "Mốc quà", "intro": "Chạm mốc là nhận quà. Mỗi mốc còn kèm điểm Triệu hồi như nhiệm vụ.", "gear_name": "Hộp trang bị {t}", "gear_tip": "Mở ra trang bị phẩm {t} cho ô còn trống, chưa biết là món gì", "qi_name": "Linh khí", "qi_tip": "tính theo tầng đang tu lúc nhận, lên cao nhận nhiều hơn", "pts_unit": "điểm", "pts_name": "Điểm Triệu hồi", "claim_all": "Nhận hết", "next": "Mốc kế: {a} / {b} {u}", "all_done": "Đã nhận hết mốc nhóm này", "need_login": "Đăng nhập để nhận mốc quà",
+  "tang": {"_note": "Mốc nhỏ trong tầng (chủ dự án 19/11/2026 03:21–03:26, cách 1): linh khí qua mỗi 10% của tầng đang tu thì tặng một quà nhỏ ngay (src/game/moc-tang.js), mỗi tầng 9 lần (10%…90%; 100% là lên tầng). coins_r: Linh Thạch × (cảnh giới + 1). Mỗi tầng chỉ tặng một lần (save.mocT).", "say": "Linh khí {p}%", "list": [{"pill": "hoi-xuan-dan", "n": 2}, {"coins_r": 300}, {"pill": "hoi-linh-dan", "n": 2}, {"coins_r": 300}, {"pill": "tu-khi-dan", "n": 2}, {"coins_r": 500}, {"pill": "hoi-xuan-dan", "n": 3}, {"coins_r": 500}, {"pill": "hoi-linh-dan", "n": 3}]},
+  "groups": [
+   {"k": "kills", "name": "Hạ yêu", "unit": "quái", "goal": "Hạ {n} quái", "mau": "#e0484a", "hue": 60, "list": [
+    {"id": "moc-q-100", "n": 100, "qua": [{"coins": 2000}, {"pill": "hoi-xuan-dan", "n": 5}]},
+    {"id": "moc-q-500", "n": 500, "qua": [{"coins": 5000}, {"pill": "tu-khi-dan", "n": 5}]},
+    {"id": "moc-q-1000", "n": 1000, "qua": [{"coins": 10000}, {"gem": "hong-ngoc:2", "n": 1}]},
+    {"id": "moc-q-3000", "n": 3000, "qua": [{"gear": 2, "slot": "thieu"}, {"pill": "hoi-linh-dan", "n": 10}]},
+    {"id": "moc-q-10000", "n": 10000, "qua": [{"coins": 30000}, {"pill": "tu-van-dan", "n": 3}]},
+    {"id": "moc-q-30000", "n": 30000, "qua": [{"gear": 3, "slot": "thieu"}, {"gem": "hong-ngoc:3", "n": 1}]},
+    {"id": "moc-q-60000", "n": 60000, "qua": [{"coins": 80000}, {"gem": "hong-ngoc:4", "n": 1}]},
+    {"id": "moc-q-100000", "n": 100000, "qua": [{"gear": 4, "slot": "thieu"}, {"pill": "tu-van-dan", "n": 5}]},
+    {"id": "moc-q-200000", "n": 200000, "qua": [{"coins": 150000}, {"pill": "tu-van-dan", "n": 10}]},
+    {"id": "moc-q-350000", "n": 350000, "qua": [{"gear": 5, "slot": "thieu"}, {"gem": "hong-ngoc:5", "n": 1}]},
+    {"id": "moc-q-500000", "n": 500000, "qua": [{"coins": 300000}, {"gem": "hong-ngoc:6", "n": 1}]},
+    {"id": "moc-q-750000", "n": 750000, "qua": [{"gear": 5, "slot": "thieu"}, {"gear": 5, "slot": "thieu"}]},
+    {"id": "moc-q-1000000", "n": 1000000, "qua": [{"gear": 6, "slot": "thieu"}, {"coins": 500000}]}
+   ]},
+   {"k": "gio", "name": "Bế quan", "unit": "giờ", "goal": "Chơi {n} giờ", "mau": "#5ab8f0", "hue": -95, "list": [
+    {"id": "moc-g-1", "n": 1, "qua": [{"coins": 3000}, {"pill": "hoi-linh-dan", "n": 5}]},
+    {"id": "moc-g-3", "n": 3, "qua": [{"pill": "thang-linh-dan", "n": 1}, {"coins": 5000}]},
+    {"id": "moc-g-6", "n": 6, "qua": [{"coins": 10000}, {"gem": "lam-ngoc:2", "n": 1}]},
+    {"id": "moc-g-12", "n": 12, "qua": [{"gear": 2, "slot": "thieu"}, {"pill": "tu-khi-dan", "n": 5}]},
+    {"id": "moc-g-24", "n": 24, "qua": [{"pill": "thang-linh-dan", "n": 2}, {"coins": 20000}]},
+    {"id": "moc-g-48", "n": 48, "qua": [{"gear": 3, "slot": "thieu"}, {"gem": "lam-ngoc:3", "n": 1}]},
+    {"id": "moc-g-100", "n": 100, "qua": [{"coins": 60000}, {"pill": "tu-van-dan", "n": 5}]},
+    {"id": "moc-g-200", "n": 200, "qua": [{"gear": 4, "slot": "thieu"}, {"gem": "lam-ngoc:4", "n": 1}]},
+    {"id": "moc-g-300", "n": 300, "qua": [{"coins": 100000}, {"gem": "lam-ngoc:5", "n": 1}]},
+    {"id": "moc-g-500", "n": 500, "qua": [{"gear": 5, "slot": "thieu"}, {"pill": "tu-van-dan", "n": 10}]},
+    {"id": "moc-g-750", "n": 750, "qua": [{"coins": 300000}, {"pill": "tu-van-dan", "n": 15}]},
+    {"id": "moc-g-1000", "n": 1000, "qua": [{"gear": 6, "slot": "thieu"}, {"gem": "lam-ngoc:6", "n": 1}]}
+   ]},
+   {"k": "trieu", "name": "Triệu hồi", "unit": "lần", "goal": "Triệu hồi {n} lần", "mau": "#b070ff", "hue": 0, "list": [
+    {"id": "moc-t-1", "n": 1, "qua": [{"coins": 2000}, {"pill": "hoi-xuan-dan", "n": 5}]},
+    {"id": "moc-t-5", "n": 5, "qua": [{"gem": "hoang-ngoc:2", "n": 1}, {"coins": 5000}]},
+    {"id": "moc-t-10", "n": 10, "qua": [{"gear": 2, "slot": "thieu"}, {"coins": 10000}]},
+    {"id": "moc-t-20", "n": 20, "qua": [{"coins": 30000}, {"gem": "hoang-ngoc:3", "n": 1}]},
+    {"id": "moc-t-50", "n": 50, "qua": [{"gear": 3, "slot": "thieu"}, {"gem": "hoang-ngoc:4", "n": 1}]},
+    {"id": "moc-t-100", "n": 100, "qua": [{"gear": 4, "slot": "thieu"}, {"coins": 80000}]},
+    {"id": "moc-t-200", "n": 200, "qua": [{"gear": 5, "slot": "thieu"}, {"gem": "hoang-ngoc:5", "n": 1}]},
+    {"id": "moc-t-365", "n": 365, "qua": [{"gear": 6, "slot": "thieu"}, {"coins": 300000}]}
+   ]},
+   {"k": "realm", "name": "Phá cảnh", "unit": "", "goal": "Lên {r}", "mau": "#ffd24a", "hue": 115, "list": [
+    {"id": "moc-c-1", "n": 1, "qua": [{"qi_pct": 0.1}, {"coins": 5000}, {"pill": "thang-linh-dan", "n": 1}]},
+    {"id": "moc-c-2", "n": 2, "qua": [{"qi_pct": 0.1}, {"gear": 2, "slot": "thieu"}, {"coins": 10000}, {"pill": "thang-linh-dan", "n": 1}]},
+    {"id": "moc-c-3", "n": 3, "qua": [{"qi_pct": 0.1}, {"gem": "luc-ngoc:4", "n": 1}, {"coins": 20000}, {"pill": "thang-linh-dan", "n": 2}]},
+    {"id": "moc-c-4", "n": 4, "qua": [{"qi_pct": 0.1}, {"gear": 4, "slot": "thieu"}, {"coins": 50000}, {"pill": "thang-linh-dan", "n": 2}]},
+    {"id": "moc-c-5", "n": 5, "qua": [{"qi_pct": 0.1}, {"gem": "luc-ngoc:5", "n": 1}, {"coins": 80000}, {"pill": "thang-linh-dan", "n": 2}]},
+    {"id": "moc-c-6", "n": 6, "qua": [{"qi_pct": 0.1}, {"gear": 5, "slot": "thieu"}, {"coins": 120000}]},
+    {"id": "moc-c-7", "n": 7, "qua": [{"qi_pct": 0.1}, {"gem": "luc-ngoc:6", "n": 1}, {"coins": 200000}]},
+    {"id": "moc-c-8", "n": 8, "qua": [{"qi_pct": 0.1}, {"gear": 6, "slot": "thieu"}, {"coins": 300000}]}
+   ]}
+  ]
+ },
+ "ngay": {
+  "qi_pct": 0.0025, "qi_all": 0.05, "_qi_pct": "Chủ dự án 19/11/2026 03:13 \"Nhiệm vụ ngày tặng thêm linh khí cho người chơi\": mỗi việc ngày nhận xong thêm qi_pct linh khí cần của tầng đang tu (0,25%), nhận đủ cả ngày thêm một đợt lớn qi_all (5%) kèm màn mừng (chủ dự án 03:21–03:26 duyệt ba cách chống chán: đợt lớn có mừng). Tổng một ngày vẫn 10% một tầng như số đã tính. Tính theo tầng nên lên cao vẫn đáng làm (src/ui/he-thong-nv.js).", "all_name": "Linh khí cả ngày", "all_tag": "Xong hết việc ngày", "_note": "Nhiệm vụ ngày (chủ dự án 06/11/2026 18:03; 10/11/2026 09:47 cho chạy song hành với nhiệm vụ hệ thống, không chờ làm hết): mỗi ngày nhận điểm từ các việc ngày (data/daily.json pool, bản lưu daily), mỗi việc points điểm, đủ để triệu hồi mỗi ngày. Máy chủ đếm theo ngày giờ Việt Nam, mỗi ngày tối đa per_day việc.",
+  "head": "Nhiệm vụ ngày",
+  "locked": "Làm xong hết nhiệm vụ hệ thống thì mở nhiệm vụ ngày: mỗi ngày đủ điểm triệu hồi một lần.",
+  "done": "Hôm nay xong hết rồi. Mai quay lại, bổn hệ thống lại giao việc.",
+  "xong": "Đinh! Việc ngày hoàn thành. Chăm chỉ thế này thì bổn hệ thống cũng nở mày nở mặt."
+ },
+ "mat": {
+  "_note": "Biểu cảm Hệ Thống (chủ dự án 06/11/2026 19:03: ảnh GPT chủ dự án tạo, Claude phụ trách). Dải khung src (tools/art/he_thong_mat.py cắt từ tools/art/nguon/ai/he-thong/), mỗi khung w×h, thứ tự frames. anim: chuỗi khung chạy mỗi ms. ev: sự việc → biểu cảm (danh sách thì bốc ngẫu nhiên; \"chuỗi>biểu cảm\" chạy chuỗi rồi đứng ở biểu cảm đó). src/ui/he-thong-mat.js.",
+  "src": "assets/art/he-thong/mat.webp",
+  "w": 74,
+  "h": 64,
+  "frames": [
+   "thuong",
+   "dinh",
+   "kieu",
+   "le-luoi",
+   "cuoi-lan",
+   "nhech",
+   "vo-tay",
+   "om-mat",
+   "gian",
+   "soc",
+   "khoc-gia",
+   "ngap",
+   "nhay-mat",
+   "phan-khich",
+   "nguong",
+   "muu-mo",
+   "khen-0",
+   "khen-1",
+   "khen-2",
+   "khen-3",
+   "khen-4",
+   "khen-5",
+   "khen-6",
+   "khen-7",
+   "khen-8",
+   "dam-0",
+   "dam-1",
+   "dam-2",
+   "dam-3",
+   "dam-4",
+   "dam-5",
+   "dam-6",
+   "dam-7",
+   "dam-8"
+  ],
+  "ms": 110,
+  "anim": {
+   "khen": [
+    "khen-0",
+    "khen-1",
+    "khen-2",
+    "khen-3",
+    "khen-4",
+    "khen-5",
+    "khen-6",
+    "khen-7",
+    "khen-8"
+   ],
+   "dam": [
+    "dam-0",
+    "dam-1",
+    "dam-2",
+    "dam-3",
+    "dam-4",
+    "dam-5",
+    "dam-4",
+    "dam-3",
+    "dam-2",
+    "dam-1",
+    "dam-6",
+    "dam-7",
+    "dam-8"
+   ]
+  },
+  "ev": {
+   "intro": "dinh",
+   "intro_old": "kieu",
+   "xong": [
+    "khen>nhay-mat",
+    "phan-khich",
+    "khen>kieu"
+   ],
+   "sai": [
+    "le-luoi",
+    "cuoi-lan",
+    "nhech",
+    "dam>le-luoi",
+    "vo-tay"
+   ],
+   "trieu": [
+    "nhech",
+    "kieu",
+    "vo-tay",
+    "muu-mo"
+   ],
+   "trieu_kha": "phan-khich",
+   "hiem": "soc",
+   "thieu_diem": "khoc-gia",
+   "loi": "gian",
+   "nudge_claim": "dinh",
+   "nudge_idle": [
+    "ngap",
+    "vo-tay"
+   ],
+   "nudge_death": "om-mat",
+   "nudge_step": "dinh",
+   "ambient": [
+    "dam>thuong",
+    "khen>thuong",
+    "nhay-mat",
+    "kieu",
+    "muu-mo",
+    "nguong"
+   ],
+   "ask_ok": "nhay-mat",
+   "ask_err": "khoc-gia",
+   "tim": [
+    "nhay-mat",
+    "muu-mo",
+    "soc",
+    "kieu",
+    "nhech",
+    "phan-khich",
+    "nguong",
+    "thuong"
+   ],
+   "keo": [
+    "gian",
+    "soc",
+    "khoc-gia",
+    "nguong"
+   ],
+   "tha": [
+    "nhech",
+    "le-luoi",
+    "kieu"
+   ]
+  },
+  "icon_k": 0.75,
+  "head_k": 0.75,
+  "ambient_s": [
+   25,
+   45
+  ],
+  "ruong": {
+   "dong": "assets/art/he-thong/ruong-dong.png",
+   "mo": "assets/art/he-thong/ruong-mo.png",
+   "w": 71,
+   "h": 74,
+   "_note": "Rương triệu hồi (ảnh GPT chủ dự án tạo 06/11/2026 23:19, tools/art/he_thong_ruong.py), hiện phóng 1,7 lần."
+  }
+ },
+ "khoa": {"_note": "Nút khoá ở góc biểu tượng Hệ Thống (chủ dự án 18/11/2026 08:55): khoá thì đứng yên, đầu có dấu !; chấm đỏ khi có nhiệm vụ chưa nhận. src/ui/he-thong-khoa.js", "title": "Khoá / mở cho Hệ Thống đi lại", "on": "Hệ Thống sẽ đứng yên ở đây.", "off": "Hệ Thống lại đi dạo."},
+ "dao": {
+  "_note": "Hệ Thống chạy lung tung trên màn hình như thú cưng tò mò (chủ dự án 06/11/2026 19:29): đi tới các nút trên màn hình, dừng lại ngó nghiêng (mat.ev.tim), lâu lâu lẩm bẩm. Đang nhắc việc hoặc mở bảng thì đứng yên. src/ui/he-thong-dao.js.",
+  "on": true,
+  "speed": 60,
+  "pause": [
+   2,
+   5
+  ],
+  "mumble_every": 3,
+  "mumble": [
+   "{x}? Cái này để làm gì nhỉ... bổn hệ thống ghi chép lại.",
+   "Hừm, {x}. Đáng nghiên cứu.",
+   "Ký chủ ơi, bấm {x} có ra quà không?",
+   "{x}... ghi vào sổ tay hệ thống.",
+   "Ồ, {x}! Bổn hệ thống chưa thấy cái này bao giờ.",
+   "{x} à? Để bổn hệ thống gõ thử... đùa thôi."
+  ],
+  "plain": [
+   "Chỗ này trống trơn... chán.",
+   "Ký chủ đang làm gì thế? Cho bổn hệ thống xem với.",
+   "Đang quét dữ liệu thế giới... 37%... à thôi, lười.",
+   "Tinh hà này lắm thứ lạ ghê.",
+   "Hừm hừm, có mùi linh khí đâu đây."
+  ],
+  "skip": [
+   "btn-atk",
+   "btn-dash"
+  ],
+  "_keo": "Người chơi giữ và kéo Hệ Thống đi chỗ khác (chủ dự án 07/11/2026 02:10): keo lúc bắt đầu kéo, keo_lau mỗi keo_s giây nếu kéo lâu, tha lúc thả ra. src/ui/he-thong-keo.js.",
+  "keo": [
+   "Ê ê ê! Ai cho túm cổ bổn hệ thống thế hả?!",
+   "Buông ra! Bổn hệ thống là hệ thống cao cấp, không phải túi đồ!",
+   "Ối, chóng mặt quá... ký chủ định mang bổn hệ thống đi bán à?",
+   "Hừ! Kéo nhẹ thôi, linh hạch của bổn hệ thống dễ vỡ lắm đó!"
+  ],
+  "keo_lau": [
+   "Còn kéo nữa?! Bổn hệ thống ghi sổ thù rồi nha.",
+   "Lắc nữa là bổn hệ thống nôn ra điểm hệ thống bây giờ...",
+   "Ký chủ ơi, mỏi tay chưa? Bổn hệ thống mỏi lắm rồi đó."
+  ],
+  "tha": [
+   "Hứ! Chỗ này cũng được... mà không phải bổn hệ thống thích đâu nha.",
+   "Rồi rồi, đứng đây. Vừa lòng ký chủ chưa?",
+   "Ghi nhận: ký chủ thích bổn hệ thống đứng ở đây. Ba phút nữa bổn hệ thống đi chỗ khác.",
+   "Lần sau muốn bổn hệ thống qua đây thì cứ gọi, đừng túm cổ!"
+  ],
+  "keo_s": 3
+ },
+ "qua_dau": {
+  "_note": "Quà gặp mặt (chủ dự án 06/11/2026 22:59): ai mới chơi hoặc lần đầu gặp hệ thống được diem điểm, mỗi tài khoản một lần (máy chủ p2d_ht_qua_dau, cfg qua_dau).",
+  "diem": 300,
+  "say": "Đinh! Quà gặp mặt của bổn hệ thống: {p} điểm hệ thống. Vào mục Triệu hồi thử khí vận đi ký chủ, đừng để phí!"
+ },
+ "short": "Hệ Thống",
+ "_short": "Tên ngắn khi Hệ Thống nói trong hộp thoại truyện (tên đầy đủ dài, ô tên hộp thoại không đủ chỗ).",
+ "chao": {
+  "_note": "Hệ Thống đón quý khách ở màn đăng nhập (chủ dự án 07/11/2026 02:10: 'phải chào hỏi quý khách của tớ đàng hoàng'). hello: chào lần lượt; sau đó nói theo bước đang hiện. {n}: tên tài khoản, {e}: lỗi máy chủ báo. src/ui/he-thong-chao.js.",
+  "k": 1,
+  "hello": [
+   "Đinh! Hoan nghênh quý khách quang lâm Pixel 2D Tu Tiên! Bổn hệ thống là Hệ Thống Bạo Kích Tài Nguyên Vô Hạn, xin cúi chào ạ.",
+   "Từ giờ bổn hệ thống sẽ dẫn đường cho quý khách. Vào game là có ngay quà gặp mặt 300 điểm hệ thống, không lấy một xu!"
+  ],
+  "wait": "Đang nối linh mạch tới máy chủ... quý khách đợi bổn hệ thống một xíu nha.",
+  "off": "Ối, linh mạch đứt mất rồi! Quý khách kiểm tra mạng giúp, rồi tải lại trang là bổn hệ thống đón tiếp tiếp ạ.",
+  "form": "Lần đầu ghé chơi? Gõ tên tài khoản và mật khẩu ở trên, rồi bấm Đăng ký. Đã có tài khoản thì bấm Đăng nhập là xong!",
+  "acc": "Tên tài khoản từ 3 đến 20 ký tự: chữ không dấu, số hoặc dấu _. Ví dụ: kiemtien_99. Nhớ kỹ nha, lần sau đăng nhập lại cần đó.",
+  "pwd": "Mật khẩu ít nhất 8 ký tự. Đừng đưa cho ai, kể cả người tự xưng là bổn hệ thống!",
+  "err": [
+   "Ấy, máy chủ báo: \"{e}\". Quý khách sửa lại chút rồi bấm lần nữa nha, bổn hệ thống đợi được.",
+   "Hừm, \"{e}\"... Không sao, tu tiên ai mà chẳng vấp vài lần. Thử lại nào!"
+  ],
+  "first": "Kính chào đạo hữu {n}! Bấm Bắt đầu để xuyên không vào tinh hà, bổn hệ thống đã chuẩn bị sẵn quà gặp mặt rồi đó.",
+  "back": "Đạo hữu {n} quay lại rồi! Bổn hệ thống nhớ quý khách lắm đó (không phải vì điểm đâu). Bấm Chơi tiếp nha!",
+  "tips": [
+   "Mẹo: tạo Mã khôi phục sau khi đăng nhập, lỡ quên mật khẩu vẫn lấy lại được tài khoản.",
+   "Mẹo: vào game, chạm vào bổn hệ thống để xem nhiệm vụ, làm xong có điểm triệu hồi quà.",
+   "Mẹo: mỗi tối 20:30 đến 21:00 giờ Việt Nam có boss Thôn Thiên Mãng, đánh xong máy chủ tự trả thưởng.",
+   "Chọc bổn hệ thống làm gì? Bổn hệ thống đang làm việc nghiêm túc đó... được rồi, chọc thêm cái nữa cũng được."
+  ]
+ }
+}

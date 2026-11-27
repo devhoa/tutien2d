@@ -1,0 +1,25 @@
+// Linh lực (chủ dự án 04/11/2026 12:57): năng lượng dùng chiêu, khác Linh khí (tu vi để đột phá cảnh giới). Số ở data/config.json → mana.
+// Không lưu vào bản lưu: vào game là đầy. Dùng ở src/game/player.js (trừ khi ra chiêu, hồi theo thời gian), src/ui/hud.js (thanh).
+import { totalLayer } from './stats.js';
+import { skillLv } from './skill-level.js';
+
+const M = game => game.data.config.mana;
+// Gốc theo tầng tu; công pháp Linh lực cộng % (st.mpPct). Chiêu tốn số cố định nên linh lực tối đa tăng là ra được nhiều chiêu hơn.
+const manaBase = game => M(game).base + M(game).per_layer * totalLayer(game.save, game.data.realms);
+export const manaMax = game => Math.round(manaBase(game) * (1 + (game.player?.st?.mpPct || 0)));
+// Chiêu tốn số linh lực cố định (data/skills.json → mp, chủ dự án 05/11/2026 09:45), cấp chiêu cao tốn thêm mp_lv mỗi cấp
+export const manaCost = (game, id, def) => { const s = def || game.data.skills[id]; return Math.round((s?.mp ?? 10) * (1 + (M(game).mp_lv || 0) * (skillLv(game, id) - 1))); };
+
+export function manaTick(game, dt) {
+  const p = game.player, mx = manaMax(game);
+  if (p.mp == null || p.mpMax !== mx) { p.mp = p.mp == null ? mx : Math.min(mx, p.mp + Math.max(0, mx - (p.mpMax || mx))); p.mpMax = mx; }
+  if (p.mp < mx) p.mp = Math.min(mx, p.mp + mx * (M(game).regen_pct + (p.st?.mpRegen || 0)) * dt * (p.meditating ? M(game).med_mul : 1));
+}
+
+// Đủ linh lực thì trừ và trả true; thiếu thì báo (cách nhau 1,5 giây) và trả false
+export function spendMana(game, id, def) {   // def: số liệu chiêu khi dùng làm Kỹ năng (tính chất Tiết Linh giảm linh lực)
+  const p = game.player, cost = manaCost(game, id, def);
+  if ((p.mp ?? 0) >= cost) { p.mp -= cost; return true; }
+  if ((game.time || 0) - (p.mpWarn || -9) > 1.5) { p.mpWarn = game.time || 0; game.number?.(p.x, p.y - 22, 'Thiếu linh lực', '#7ab8ff'); }
+  return false;
+}

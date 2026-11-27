@@ -1,0 +1,13 @@
+{
+  "_note": "Hồ sơ phong cách trên SpriteCook (chủ dự án 22/11/2026 02:47, chọn làm cả 7 nhóm; không tốn credit). Muốn tạo hình mới cùng kiểu: get_preset_settings(preset) rồi đưa settings.reference.styleAssetIds vào style_asset_ids của generate_game_art, và generate_game_art(project_id=...) rồi assign_assets_to_collection(collection) để hình mới vào đúng thư mục. Bộ cài sẵn là bản nháp riêng, không đăng công khai. Bộ cũ 'Pixel 2D Tu Tiên · nhân vật chibi' (27/10) là kiểu nhân vật cũ đã bỏ, không dùng.",
+  "project": "af092a6a-4223-4701-bac6-b8333c2a3c29",
+  "nhom": {
+    "nhan-vat":        {"preset": "15bf91b5-4dd0-4293-a8d2-0d04fc132f73", "collection": "4375a498-81e3-4671-ba49-e51a21bc1fb6", "so_hinh": 113, "so_cu": "trang-phuc-moi"},
+    "thu-cuoi":        {"preset": "1ee7b336-7e85-4c82-8a90-ba1e5303561c", "collection": "ab35d170-1e15-455e-9cc1-1fb744425cc8", "so_hinh": 64,  "so_cu": "thu-cuoi-moi"},
+    "quai":            {"preset": "22df229d-8692-4a44-b0e4-3fb6c2257208", "collection": "3d2ac6db-cd41-4e28-be8b-40078224dac7", "so_hinh": 212, "so_cu": "quai-moi"},
+    "phap-tuong":      {"preset": "68702b85-6d64-45f6-bebb-396e2b407292", "collection": "c5762cc5-48b9-4b5f-88d3-f2c0e768323d", "so_hinh": 32,  "so_cu": "phap-tuong"},
+    "thien-kiem-tinh": {"preset": "8f256d80-2076-4c81-abf5-2928ee33141f", "collection": "b461a9b7-2a7b-45b8-9fc6-75a40bb5b4d2", "so_hinh": 63,  "so_cu": "the-gioi"},
+    "lo-dan":          {"preset": "60a52164-3afe-4762-83af-621246409931", "collection": "6f7e6937-ae8e-42bd-8b1e-74d52d270b63", "so_hinh": 12,  "so_cu": "lo-dan"},
+    "tinh-vuc":        {"preset": "5190fd77-bd81-45dc-bbee-b64dfadadde5", "collection": "27c0fb63-8296-4dc7-8d26-71afd429d096", "so_hinh": 56,  "so_cu": "tinh-vuc"}
+  }
+}

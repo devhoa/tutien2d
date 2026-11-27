@@ -1,0 +1,52 @@
+{
+ "_note": "Sự kiện theo giờ máy. Cuối tuần (thứ 7, CN) nhân linh khí từ đánh quái và đả tọa. Mỗi tuần (tính từ thứ 2) một sự kiện trong weekly, xoay vòng. Lễ (festivals) theo ngày: vào game trong khoảng from..to nhận quà một lần, mul cộng thêm trong lễ.",
+ "weekend": {"name": "Cuối tuần linh khí dồi dào", "mul": {"qi": 2}, "short": "Thứ 7, Chủ nhật: linh khí x2",
+  "how": ["Đánh quái và đả tọa được gấp đôi linh khí.", "Không cần làm gì thêm, vào game là có."]},
+ "_texts": "Chữ tab Sự kiện (src/ui/event-tab.js). Mỗi sự kiện có short (một dòng hiện trên ô) và how (các bước cách chơi, hiện khi chạm ô); phần quà, hệ số nhân, ngày còn lại, kẹo đổi quà game tự ghi từ số trong file này.",
+ "texts": {
+  "how": "Cách chơi:", "gift": "Vào game trong dịp lễ nhận quà một lần: {r}.", "gift_got": "Quà vào game: đã nhận ({r}).", "outfit": "Kèm thời trang {name} (Thành tựu → Thời trang).",
+  "mul": "Suốt sự kiện: {list}.", "mul_qi": "linh khí x{k}", "mul_coin": "Linh Thạch rơi x{k}", "mul_tower": "thưởng tầng tháp mới x{k}", "mul_brew": "số viên đan mỗi lò x{k}",
+  "left": "Còn {n} ngày (hết ngày {end}).", "last": "Hôm nay là ngày cuối.", "week_left": "Còn {n} ngày, hết Chủ nhật. Thứ Hai đổi sự kiện khác.",
+  "candy": "Bạn đang có {n} {name}.", "swap": "Đổi quà ở {npc} ({map}):", "swap_row": "{cost} {name} → {label} ({r})",
+  "points": "Điểm: quái thường +{mob}, quái hiếm +{rare}, trùm +{boss}.", "pts_now": "Điểm tuần này: {n}.",
+  "ms_title": "Mốc {pts} điểm săn yêu", "ms_have": "Đã có {n}/{pts} điểm", "ms_got": "Đã nhận thưởng", "ms_ok": "Đủ điểm, bấm nhận!", "ms_reward": "Thưởng: {r}."
+ },
+ "tong_mon": {
+  "_note": "Sự kiện Nhập Tông Môn (chủ dự án 24/11/2026 00:32: \"Sự kiện thì mở sự kiện mới, tham gia tông môn bất kỳ là nhận được trang phục này. Trang phục cũng xuất hiện trong cửa hàng thời trang nhưng không mua được mà chỉ nhận thông qua event\"). Đang ở tông môn bất kỳ (xin vào được duyệt hay tự lập) thì bấm Nhận ở bảng Sự kiện: máy chủ (p2d_sk_tm_nhan, migration 20261124010000_p2d_bo_moi_17_19.sql) kiểm p2d_bang_tv, ghi một lần vào p2d_su_kien_nhan (ma), gửi mỗi bộ trong outfits một thư quà (ly_do sk_tong_mon); nhận thư thì máy chủ ghi bộ vào outfits. Đổi outfits / ma thì đổi cả hàm máy chủ (tools/check.mjs so). Tiệm thời trang hiện các bộ này; 01:29 chủ dự án cho bán thêm 10 Tiên Ngọc mỗi bộ (data/topup.json → shop, noi thoi-trang).",
+  "ma": "tm_trang_phuc",
+  "outfits": ["tp-18", "tp-19"],
+  "mail": "Quà sự kiện Nhập Tông Môn",
+  "text": {
+   "title": "Sự kiện: Nhập Tông Môn nhận pháp y",
+   "rule": "Gia nhập tông môn bất kỳ (xin vào hay tự lập đều được) nhận miễn phí {n} bộ trang phục mới: {list}. Mỗi tài khoản nhận một lần, quà gửi vào Thư. Tiệm thời trang cũng bán hai bộ này bằng Tiên Ngọc.",
+   "claim": "Nhận quà",
+   "go": "Tìm tông môn",
+   "busy": "Đang hỏi máy chủ…",
+   "ok": "Đã gửi {n} bộ vào Thư. Mở Thư để nhận rồi mặc ở bảng Thời trang.",
+   "da_nhan": "Đã nhận quà này rồi (mỗi tài khoản một lần).",
+   "chua_vao": "Chưa ở tông môn nào. Vào tông môn rồi quay lại bấm Nhận.",
+   "err": "Chưa nhận được, thử lại sau.",
+   "shop_tag": "Sự kiện",
+   "shop_msg": "{name} không bán. Gia nhập tông môn bất kỳ rồi nhận ở bảng Sự kiện.",
+   "how": "Quà sự kiện Nhập Tông Môn"
+  }
+ },
+ "weekly": [
+  {"id": "san-yeu", "name": "Tuần Săn Yêu", "desc": "Hạ quái tích điểm săn yêu, đủ mốc nhận thưởng.", "color": "#e0604a",
+   "short": "Đánh quái tích điểm, đủ mốc nhận quà",
+   "how": ["Đánh quái ở bất kỳ đâu là được điểm, tự hành và treo máy cũng tính.", "Đủ điểm thì mở các ô Mốc bên dưới, bấm Nhận thưởng.", "Điểm tính từ thứ Hai, sang tuần mới làm lại từ 0."],
+   "points": {"mob": 1, "rare": 10, "boss": 30},
+   "milestones": [
+    {"pts": 100, "give": {"stones": 3, "coins": 100}},
+    {"pts": 300, "give": {"gem": 1, "coins": 300}},
+    {"pts": 600, "give": {"item": "huyen", "stones": 5}},
+    {"pts": 1000, "give": {"item": "dia", "gem": 2, "coins": 800}}
+   ]},
+  {"id": "thap", "name": "Tuần Leo Tháp", "desc": "Thưởng qua tầng mới của Tháp Thử Thách nhân đôi.", "color": "#7a8af0", "short": "Leo tháp: thưởng tầng mới x2",
+   "how": ["Vào Tháp Thử Thách, leo lên tầng bạn chưa từng qua.", "Mỗi tầng mới qua được thưởng gấp đôi ngày thường."], "mul": {"tower": 2}},
+  {"id": "dan", "name": "Tuần Luyện Đan", "desc": "Mỗi lò luyện ra gấp đôi số viên.", "color": "#5fd07a", "short": "Luyện đan ra gấp đôi số viên",
+   "how": ["Về động phủ luyện đan như thường, mỗi lò ra gấp đôi.", "Nên luyện dồn đan dùng cho cả tuần sau."], "mul": {"brew": 2}},
+  {"id": "linh-thach", "name": "Tuần Linh Thạch", "desc": "Quái rơi Linh Thạch gấp đôi.", "color": "#ffd24a", "short": "Đánh quái rơi Linh Thạch x2",
+   "how": ["Đánh quái ở bất kỳ đâu, Linh Thạch rơi ra gấp đôi.", "Hợp để bật tự hành hoặc treo máy ở bãi quái."], "mul": {"coin": 2}}
+ ]
+}
